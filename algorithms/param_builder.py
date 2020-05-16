@@ -6,6 +6,8 @@ param_builder.py:
 Setter for general parameters.
 """
 
+from instances.params import InstanceParams
+
 
 def set_general_parameters(vrp, alg_params):
     """
@@ -15,8 +17,8 @@ def set_general_parameters(vrp, alg_params):
     :param alg_params: Subject algorithm parameters.
     """
 
-    print("(Input S to skip to algorithm-specific parameters)")
-    print("(Input Q to stop)")
+    print("(Input S to save given inputs, and skip to next section)")
+    print("(Input Q to abort)")
 
     print("- Problem-specific general parameters ---------------")
     vrp_list = ["VRP - Vehicle Count (Default: 3)",
@@ -34,11 +36,14 @@ def set_general_parameters(vrp, alg_params):
             vrp_values.append(vrp_value)
 
     try:
-        vrp.params.vehicle_count = vrp_values[0]
-        vrp.params.depot_node = vrp_values[1]
-        vrp.params.vehicle_variance = vrp_values[2]
+        parameters = InstanceParams()
+        parameters.vehicle_count = vrp_values[0]
+        parameters.depot_node = vrp_values[1]
+        parameters.vehicle_variance = vrp_values[2]
     except IndexError:
         pass
+    finally:
+        vrp.set_params(parameters)
 
     print("- Algorithm-specific parameters ---------------------")
     alg_list = ["GEN - Population Count (Default: 100)",
@@ -62,7 +67,7 @@ def set_general_parameters(vrp, alg_params):
         if alg_value == "Q":
             return
         elif alg_value == "S":
-            return
+            break
         else:
             alg_values.append(alg_value)
 

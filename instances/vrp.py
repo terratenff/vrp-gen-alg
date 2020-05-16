@@ -9,7 +9,6 @@ Class instance for the base VRP.
 import numpy as np
 from random import shuffle
 
-
 from instances.params import InstanceParams
 
 
@@ -71,6 +70,8 @@ class VRP:
         for i in range(0, self.vrp_size - 1):
             self.routes[i % self.params.vehicle_count].append(unused_nodes[0])
             del unused_nodes[0]
+            if len(unused_nodes) == 0:
+                break
         self.refresh()
 
     def print(self):
@@ -94,6 +95,13 @@ class VRP:
 
         self.path_table = matrix
         self.vrp_size = len(self.path_table)
+
+        # Invariant: number of vehicles should not exceed VRP size (excluding depot).
+        if self.vrp_size - 1 < self.params.vehicle_count:
+            old_value = self.params.vehicle_count
+            self.params.vehicle_count = self.vrp_size - 1
+            print("NOTE: Vehicle count changed from {0} to {1} to match node count.".format(old_value,
+                                                                                            self.params.vehicle_count))
         self.refresh()
 
     def set_params(self, params):
@@ -105,12 +113,41 @@ class VRP:
         self.params = params
         if self.params is None or isinstance(self.params, InstanceParams) is False:
             self.params = InstanceParams()
-        self.refresh()
 
-    def refresh(self):
+        # Invariant: number of vehicles should not exceed VRP size (excluding depot).
+        if self.vrp_size - 1 < self.params.vehicle_count:
+            old_value = self.params.vehicle_count
+            self.params.vehicle_count = self.vrp_size - 1
+            print("NOTE: Vehicle count changed from {0} to {1} to match node count.".format(old_value,
+                                                                                            self.params.vehicle_count))
+        self.refresh(reset=True)
+
+    def refresh(self, reset=False):
         """
         Calculates the fitness value of the proposed solution.
+        :param reset: Flag for further initializations.
         """
+
+        # Perform extra initializations if reset is set to True.
+        if reset is True:
+            # List of routes that describe the proposed solution with nodes.
+            self.routes = []
+
+            # Initialize proposed solution with empty routes.
+            for i in range(0, self.params.vehicle_count):
+                self.routes.append([])
+
+            # Collect a list of target nodes, excluding depot node, and shuffle them.
+            unused_nodes = list(range(0, self.vrp_size))
+            unused_nodes.remove(self.params.depot_node)
+            shuffle(unused_nodes)
+
+            # Distribute shuffled nodes into empty routes, creating a solution.
+            for i in range(0, self.vrp_size - 1):
+                self.routes[i % self.params.vehicle_count].append(unused_nodes[0])
+                del unused_nodes[0]
+                if len(unused_nodes) == 0:
+                    break
 
         # Reset route costs and fitness.
         self.route_costs = []
@@ -177,7 +214,6 @@ class VRP:
 
         # Determine what kind of mutation should be done.
         action = np.random.randint(0, max_choices)
-        print("ACTION: " + str(action))  # Test print.
         return action
 
     def mutate(self):
@@ -238,6 +274,8 @@ class VRP:
         and swaps their places. Mutation function.
         """
 
+        print("Mutation: 'swap_nodes_one_route'")
+
         # Select random route.
         path = np.random.randint(0, len(self.routes))
 
@@ -258,6 +296,8 @@ class VRP:
         Selects random two routes and one node from each,
         and swaps their places. Mutation function.
         """
+
+        print("Mutation: 'swap_nodes_two_routes'")
 
         # Select random routes.
         path1 = np.random.randint(0, len(self.routes))
@@ -281,8 +321,26 @@ class VRP:
         and places it to another random route. Mutation function.
         """
 
+        print("Mutation: 'transfer_node'")
+
         # Select two random routes.
         path1 = np.random.randint(0, len(self.routes))
+
+        # Check if path 1 has any nodes to transfer.
+        if len(self.routes[path1]) == 1:
+            # Only one node. Transferring that elsewhere is equivalent to merging.
+            # Determine highest number of nodes in one.
+            longest_path = max(len(self.routes[i_path]) for i_path in range(0, len(self.routes)))
+
+            # Check the size.
+            if len(self.routes[longest_path]) > 1:
+                # Mutation goes on!
+                path1 = longest_path
+            else:
+                # Mutation is cancelled.
+                print("NOTE: Mutation 'transfer_node' was skipped.")
+                return
+
         path2 = np.random.randint(0, len(self.routes))
 
         # Check if the routes are the same.
@@ -307,6 +365,8 @@ class VRP:
         Mutation function. Non-zero vehicle variance required.
         """
 
+        print("Mutation: 'merge_two_routes'")
+
         # Select two random routes.
         path1 = np.random.randint(0, len(self.routes))
         path2 = np.random.randint(0, len(self.routes))
@@ -329,6 +389,8 @@ class VRP:
         Mutation Function. Non-zero vehicle variance required.
         """
 
+        print("Mutation: 'split_to_two_routes'")
+
         # Select a random route.
         path = np.random.randint(0, len(self.routes))
 
@@ -342,6 +404,7 @@ class VRP:
                 # Set a point where the splitting is done.
                 divider = longest_path
             else:
+                print("NOTE: Mutation 'split_to_two_routes' was skipped.")
                 return
         else:
             # Set a point where the splitting is done.
@@ -360,6 +423,8 @@ class VRP:
         """
         Shuffles a random route. Mutation function.
         """
-        
+
+        print("Mutation: 'shuffle_route'")
+
         path = np.random.randint(0, len(self.routes))
         shuffle(self.routes[path])
