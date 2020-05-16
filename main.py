@@ -3,7 +3,7 @@
 """
 main.py:
 
-TODO
+Entry point for the console application.
 """
 
 from algorithms.matrix_builder import load_variable
@@ -22,9 +22,9 @@ def main():
 
     vrp = VRP(matrix_data, vrp_params)
 
-    code = 0
+    code = -1
 
-    while code != -1:
+    while code != 0:
         code, vrp = loop(vrp, alg_params)
     print("Closing program...")
 

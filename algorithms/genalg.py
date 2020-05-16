@@ -3,7 +3,7 @@
 """
 genalg.py:
 
-TODO
+Runner of the genetic algorithm.
 """
 
 from instances.vrp import VRP

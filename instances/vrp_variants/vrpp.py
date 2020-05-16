@@ -3,7 +3,7 @@
 """
 vrpp.py:
 
-TODO
+Class instance for the VRP with Profits.
 """
 
 import numpy as np

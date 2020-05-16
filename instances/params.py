@@ -3,7 +3,7 @@
 """
 params.py:
 
-TODO
+Class instances for general VRP parameters and algorithm-specific parameters.
 """
 
 

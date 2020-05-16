@@ -3,7 +3,7 @@
 """
 menu.py:
 
-TODO
+Maintains a general console menu for the user.
 """
 
 from input_options import mediator
@@ -28,7 +28,7 @@ def loop(vrp, alg_params):
     print("6 - View all parameters")
     print("7 - Run Genetic Algorithm")
     print("-----------------------------------")
-    print("(Exit with -1)")
+    print("(Exit with 0)")
 
     code = get_input()
     output, vrp = mediator.inspect(code, vrp, alg_params)

@@ -3,7 +3,7 @@
 """
 vrp_handler.py:
 
-TODO
+Handles specific parameters of specific VRP types.
 """
 
 from instances.vrp import VRP

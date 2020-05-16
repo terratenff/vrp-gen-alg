@@ -3,7 +3,7 @@
 """
 vrp.py:
 
-TODO
+Class instance for the base VRP.
 """
 
 import numpy as np
@@ -16,6 +16,13 @@ from instances.params import InstanceParams
 class VRP:
     """
     VRP - Vehicle Routing Problem. The base problem.
+    
+    Problem description:
+    There are n number of cities (nodes) and one depot.
+    Each city has to be visited. The travels start and end at the depot.
+    You have m number of trucks at your disposal, for the purpose of
+    visiting the cities. Which trucks should visit where so that total
+    time taken for the trucks is as optimal as possible?
 
     NOTE! Modifying instance variables by directly accessing them is
     discouraged: use functions "set_params" or "set_path_table" instead.
@@ -70,6 +77,7 @@ class VRP:
         """
         Prints unique, problem-specific details about itself.
         """
+
         print("- Vehicle Routing Problem - General Information --------------------------")
         print("Problem Type:    VRP")
         print("Problem Size:    {0}".format(self.vrp_size))
@@ -83,6 +91,7 @@ class VRP:
         Appropriate setter for the path table.
         :param matrix: Path table
         """
+
         self.path_table = matrix
         self.vrp_size = len(self.path_table)
         self.refresh()
@@ -92,6 +101,7 @@ class VRP:
         Appropriate setter for problem parameters.
         :param params: InstanceParams-object. If not, default parameters are set.
         """
+
         self.params = params
         if self.params is None or isinstance(self.params, InstanceParams) is False:
             self.params = InstanceParams()
@@ -350,5 +360,6 @@ class VRP:
         """
         Shuffles a random route. Mutation function.
         """
+        
         path = np.random.randint(0, len(self.routes))
         shuffle(self.routes[path])

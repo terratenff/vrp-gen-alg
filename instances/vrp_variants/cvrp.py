@@ -3,7 +3,7 @@
 """
 cvrp.py:
 
-TODO
+Class instance for the Capacitated VRP.
 """
 
 import numpy as np
