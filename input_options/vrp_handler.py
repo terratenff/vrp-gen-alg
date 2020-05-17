@@ -6,7 +6,7 @@ vrp_handler.py:
 Handles specific parameters of specific VRP types.
 """
 
-from instances.vrp import VRP
+from input_options.vrp_inputs.vrp_input import make_instance as make_vrp
 
 
 def vrp_menu(vrp):
@@ -75,7 +75,7 @@ def inspect(code, vrp):
     """
 
     if code == 1:
-        pass
+        vrp = make_vrp(vrp)
     elif code == 2:
         pass
     elif code == 3:

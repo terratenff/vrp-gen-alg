@@ -29,7 +29,7 @@ class VRP:
 
     def __init__(self, path_table, params=None):
         """
-        Constructor for problem.
+        Constructor for the base problem.
         :param path_table: Integer matrix of costs between nodes.
         :param params: InstanceParams object, contains general problem parameters.
         """
@@ -85,7 +85,6 @@ class VRP:
         print("Path Table Name: {0}".format(self.table_name))
         print("- Vehicle Routing Problem - Problem-specific Parameters ------------------")
         print("None")
-        pass
 
     def set_path_table(self, matrix):
         """
