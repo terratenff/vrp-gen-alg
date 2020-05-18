@@ -101,7 +101,7 @@ class VRP:
             self.params.vehicle_count = self.vrp_size - 1
             print("NOTE: Vehicle count changed from {0} to {1} to match node count.".format(old_value,
                                                                                             self.params.vehicle_count))
-        self.refresh()
+        self.refresh(reset=True)
 
     def set_params(self, params):
         """
