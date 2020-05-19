@@ -198,7 +198,10 @@ class VRP:
         for i in range(0, len(self.routes)):
             vehicle_route = self.routes[i]
             route_cost = self.route_costs[i]
-            print("Vehicle {0}: {1} ({2})".format(vehicle, vehicle_route, route_cost))
+            print("Vehicle {0}: ({1} Nodes) {2} (Cost: {3})".format(vehicle,
+                                                                    len(vehicle_route),
+                                                                    vehicle_route,
+                                                                    route_cost))
             vehicle += 1
 
     def _select_mutation(self, max_choices):
@@ -329,12 +332,12 @@ class VRP:
         if len(self.routes[path1]) == 1:
             # Only one node. Transferring that elsewhere is equivalent to merging.
             # Determine highest number of nodes in one.
-            longest_path = max(len(self.routes[i_path]) for i_path in range(0, len(self.routes)))
+            longest_path = max((self.routes[i_path] for i_path in range(len(self.routes))), key=len)
 
             # Check the size.
-            if len(self.routes[longest_path]) > 1:
+            if len(longest_path) > 1:
                 # Mutation goes on!
-                path1 = longest_path
+                path1 = self.routes.index(longest_path)
             else:
                 # Mutation is cancelled.
                 print("NOTE: Mutation 'transfer_node' was skipped.")

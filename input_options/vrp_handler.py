@@ -7,6 +7,7 @@ Handles specific parameters of specific VRP types.
 """
 
 from input_options.vrp_inputs.vrp_input import make_instance as make_vrp
+from input_options.vrp_inputs.cvrp_input import make_instance as make_cvrp
 
 
 def vrp_menu(vrp):
@@ -77,7 +78,7 @@ def inspect(code, vrp):
     if code == 1:
         vrp = make_vrp(vrp)
     elif code == 2:
-        pass
+        vrp = make_cvrp(vrp)
     elif code == 3:
         pass
     elif code == 4:
