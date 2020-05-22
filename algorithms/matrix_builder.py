@@ -7,6 +7,8 @@ Creates matrices for the VRPs to use.
 """
 
 import numpy as np
+from os.path import isdir, exists
+from os import makedirs
 
 
 def generate_matrix():
@@ -55,6 +57,13 @@ def load_variable(name, force_load=False):
     except IOError:
         if force_load is True:
             matrix = np.random.randint(10, 100, (10, 10))
+            
+            if exists("variables"):
+                if isdir("variables") is False:
+                    raise EnvironmentError("'variables' keyword is reserved for application variables.")
+            else:
+                makedirs("variables")
+
             np.savetxt("variables/" + name + ".txt", matrix, fmt="%.0f")
             return load_variable(name)
         else:
