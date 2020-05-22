@@ -79,7 +79,7 @@ def set_general_parameters(vrp, alg_params):
             alg_params.crossover_function = 0
         else:
             alg_params.crossover_function = alg_values[3]
-        alg_params.crossover_function = alg_values[3]
+        
         alg_params.retention_rate = alg_values[4]
         alg_params.generation_count_min = alg_values[5]
         alg_params.generation_count_max = alg_values[6]
