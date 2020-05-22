@@ -75,6 +75,10 @@ def set_general_parameters(vrp, alg_params):
         alg_params.population_count = alg_values[0]
         alg_params.mutation_probability = alg_values[1]
         alg_params.offspring_count = alg_values[2]
+        if alg_values[3] > 4 or alg_values[3] < 0:
+            alg_params.crossover_function = 0
+        else:
+            alg_params.crossover_function = alg_values[3]
         alg_params.crossover_function = alg_values[3]
         alg_params.retention_rate = alg_values[4]
         alg_params.generation_count_min = alg_values[5]
