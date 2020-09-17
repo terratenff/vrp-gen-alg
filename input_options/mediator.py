@@ -8,7 +8,6 @@ proper direction.
 """
 
 from algorithms import param_builder, matrix_builder, genalg
-from input_options import vrp_handler
 
 
 def inspect(code, vrp, alg_params):
@@ -30,7 +29,8 @@ def inspect(code, vrp, alg_params):
     elif code == 4:
         param_builder.set_general_parameters(vrp, alg_params)
     elif code == 5:
-        vrp = vrp_handler.vrp_menu(vrp)
+        # vrp = vrp_handler.vrp_menu(vrp)
+        pass
     elif code == 6:
         vrp.print()
         print()

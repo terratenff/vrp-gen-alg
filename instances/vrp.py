@@ -22,9 +22,6 @@ class VRP:
     You have m number of trucks at your disposal, for the purpose of
     visiting the cities. Which trucks should visit where so that total
     time taken for the trucks is as optimal as possible?
-
-    NOTE! Modifying instance variables by directly accessing them is
-    discouraged: use functions "set_params" or "set_path_table" instead.
     """
 
     def __init__(self, path_table, params=None):
