@@ -175,44 +175,69 @@ class ParamsVRP:
         print("VRPTW - Node Penalty Coefficient  | " + str(self.vrptw_node_penalty))
 
 
-class ParamsGEN:
+class ParamsGENALG:
     """
-    General parameters for the genetic algorithm.
+    Parameters for the genetic algorithm.
     """
 
     def __init__(self,
                  population_count=100,
                  population_initializer=0,
+                 generation_count_min=10,
+                 generation_count_max=100,
                  fitness_evaluator=0,
                  parent_candidate_count=2,
                  parent_selection_function=0,
+                 selection_probability=0.75,
                  offspring_pair_count=1,
                  crossover_operator=0,
-                 elitism_operator=0):
+                 crossover_probability=0.90,
+                 mutation_probability=0.05,
+                 elitism_operator=0,
+                 elitism_frequency=0):
         """
         Constructor for GA parameters.
         :param population_count: Number of instances that contain the solution for the problem.
         :param population_initializer: Function that determines how the initial population is generated.
+        :param generation_count_min: Number of generations that must be created before termination.
+        :param generation_count_max: Number of generations that cannot be exceeded.
         :param fitness_evaluator: Objective fitness function.
         :param parent_candidate_count: Determines how many individuals are selected from the population
         as candidates to becoming parents of the next generation.
         :param parent_selection_function: Function that decides how individuals are chosen to be
         parents of the next generation.
+        :param selection_probability: Probability of the leading candidate parent (in terms of fitness)
+        to be selected. Relevant in 'Tournament' and 'Best Fitness'.
         :param offspring_pair_count: The number of offsprings (in terms of pairs) that are to be
         created by a single instance of parents. Once set number of pairs have been created, another
         set of parents are selected to create the same number of pairs.
         :param crossover_operator: Function that controls the crossover operation.
+        :param crossover_probability: Probability of performing a crossover operation on the offspring
+        of the selected parents. If crossover does not occur, offspring are exact replicas of the parents.
+        :param mutation_probability: Probability of mutating an individual offspring upon its creation.
+        The probability is for one node. If mutation does not occur, the node is skipped.
+        Otherwise subject node is marked for mutation. If only one node is marked for mutation, another
+        node is selected at random. Marked nodes are then mutated by changing their positions.
         :param elitism_operator: Function that does something to mitigate elitism (or not).
+        :param elitism_frequency: Determines how frequently elitism is handled (for or against).
+        Number represents generations: if set to 10, then for every 10 generations, elitism operator
+        is requested. At 0 (or less), the matter is ignored.
         """
 
         self.population_count = population_count
         self.population_initializer = population_initializer
+        self.generation_count_min = generation_count_min
+        self.generation_count_max = generation_count_max
         self.fitness_evaluator = fitness_evaluator
         self.parent_candidate_count = parent_candidate_count
         self.parent_selection_function = parent_selection_function
+        self.selection_probability = selection_probability
         self.offspring_pair_count = offspring_pair_count
         self.crossover_operator = crossover_operator
+        self.crossover_probability = crossover_probability
+        self.mutation_probability = mutation_probability
         self.elitism_operator = elitism_operator
+        self.elitism_frequency = elitism_frequency
 
         self.str_population_initializer = [
             "Random",
@@ -226,7 +251,7 @@ class ParamsGEN:
             "Longest Route"
         ]
         self.str_parent_selection_function = [
-            "Highest Fitness",
+            "Best Fitness",
             "Roulette Wheel",
             "Tournament"
         ]
@@ -253,34 +278,25 @@ class ParamsGEN:
         cross_str = self.str_crossover_operator[self.crossover_operator]
         elite_str = self.str_elitism_operator[self.elitism_operator]
 
-        print("- General Parameters ---------------------------------------------------")
+        if self.elitism_frequency <= 0:
+            elite_fr_str = "Never"
+        elif self.elitism_frequency == 1:
+            elite_fr_str = "Every Generation"
+        else:
+            elite_fr_str = "Every {} Generations".format(self.elitism_frequency)
+
+        print("- Genetic Algorithm Parameters ---------------------------------------------------")
         print("GEN - Population Count          | " + str(self.population_count))
-        print("GEN - Population Initializer    | " + pop_str)
-        print("GEN - Fitness Evaluator         | " + fit_str)
+        print("ALG - Population Initializer    | " + pop_str)
+        print("GEN - Minimum Generation Count  | " + str(self.generation_count_min))
+        print("GEN - Maximum Generation Count  | " + str(self.generation_count_max))
+        print("ALG - Fitness Evaluator         | " + fit_str)
         print("GEN - Parent Candidate Count    | " + str(self.parent_candidate_count))
-        print("GEN - Parent Selection Function | " + par_sel_str)
+        print("ALG - Parent Selection Function | " + par_sel_str)
+        print("GEN - Selection Probability     | " + str(self.selection_probability))
         print("GEN - Offspring Pair Count      | " + str(self.offspring_pair_count))
-        print("GEN - Crossover Operator        | " + cross_str)
-        print("GEN - Elitism Operator          | " + elite_str)
-
-
-class ParamsALG:
-    """
-    Collection of parameters for the algorithmic procedure.
-    """
-
-    def __init__(self,
-                 generation_count_min=25,
-                 generation_count_max=1000,
-                 goal_min=None,
-                 goal_max=None,
-                 goal_threshold=0,
-                 selection_probability=0.75,
-                 crossover_probability=0.90,
-                 mutation_probability=0.05,
-                 elitism_frequency=0):
-
-        pass
-
-    def print(self):
-        print("TODO")
+        print("ALG - Crossover Operator        | " + cross_str)
+        print("GEN - Crossover Probability     | " + str(self.crossover_probability))
+        print("GEN - Mutation Probability      | " + str(self.mutation_probability))
+        print("ALG - Elitism Managing Operator | " + elite_str)
+        print("GEN - Elitism Management Rate   | " + elite_fr_str)
