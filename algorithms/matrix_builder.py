@@ -50,7 +50,7 @@ def load_variable(name, force_load=False):
     """
 
     try:
-        var = np.loadtxt("variables/" + name + ".txt")
+        var = np.loadtxt("variables/cost_matrices/" + name + ".txt")
         return var
     except IOError:
         if force_load is True:
@@ -62,29 +62,27 @@ def load_variable(name, force_load=False):
             return None
 
 
-def generate_random_distance_matrix(vrp):
+def generate_random_distance_matrix(vrp_params):
     """
     Creates a random distance matrix for specified VRP.
     An interactive function is called here.
-    :param vrp: Subject VRP.
+    :param vrp_params: VRP parameters. Includes cost matrix.
     """
 
     matrix_file = generate_matrix()
     matrix = load_variable(matrix_file)
-    vrp.set_path_table(matrix)
-    vrp.table_name = matrix_file
+    vrp_params.set_contents(matrix, name=matrix_file)
 
 
-def select_distance_matrix(vrp):
+def select_distance_matrix(vrp_params):
     """
     Selects a distance matrix subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
-    :param vrp: Subject VRP.
+    :param vrp_params: VRP parameters. Includes cost matrix.
     """
 
     matrix_name = input("Target matrix name > ")
     temp_data = load_variable(matrix_name)
     if temp_data is not None:
-        vrp.set_path_table(temp_data)
-        vrp.table_name = matrix_name
+        vrp_params.set_contents(temp_data, name=matrix_name)

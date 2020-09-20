@@ -3,107 +3,148 @@
 """
 param_builder.py:
 
-Setter for general parameters.
+Contains functions for setting necessary parameters.
 """
 
-from instances.params import InstanceParams
+import numpy as np
 
 
-def set_general_parameters(vrp, alg_params):
+def set_vrp_parameters(vrp_params):
     """
     Interactive function that requests the user to provide
     parameters when asked.
-    :param vrp: Subject VRP.
-    :param alg_params: Subject algorithm parameters.
+    :param vrp_params: Subject VRP parameters.
     """
 
-    print("(Input S to save given inputs, and skip to next section)")
-    print("(Input Q to abort)")
-
-    print("- Problem-specific general parameters ---------------")
-    vrp_list = ["VRP - Vehicle Count (Default: 3)",
-                "VRP - Depot Node (Default: 0)",
-                "VRP - Vehicle Variance (Default: 0)"]
-    vrp_values = []
-
-    for i in range(3):
-        vrp_value = _set_value(vrp_list[i])
-        if vrp_value == "Q":
-            return
-        elif vrp_value == "S":
-            break
-        else:
-            vrp_values.append(vrp_value)
+    print("(Input N to skip to the next input)")
+    print("(Input Q to abort and save any changes)")
 
     try:
-        parameters = InstanceParams()
-        parameters.vehicle_count = vrp_values[0]
-        parameters.depot_node = vrp_values[1]
-        parameters.vehicle_variance = vrp_values[2]
-    except IndexError:
-        pass
-    finally:
-        vrp.set_params(parameters)
-
-    print("- Algorithm-specific parameters ---------------------")
-    alg_list = ["GEN - Population Count (Default: 100)",
-                "GEN - Mutation Probability (%) (Default: 10%)",
-                "GEN - Offspring Count (Default: half of population)",
-                "GEN - Crossover Function (select one from below)\n"
-                "0 - Copy\n"
-                "1 - Heavily Mutated Copy\n"
-                "2 - Child of Two\n"
-                "3 - Child of Three\n"
-                "4 - Randomly Generated\n"
-                "(Default: 0, will be selected if input is out of range)",
-                "GEN - Population Retention Rate (%) (Default: 10%)",
-                "ALG - Generation Count (Min) (Default: 100)",
-                "ALG - Generation Count (Max) (Default: 1000)",
-                "ALG - Acceptable Difference (Default: 10)"]
-    alg_values = []
-
-    for i in range(8):
-        alg_value = _set_value(alg_list[i])
-        if alg_value == "Q":
+        user_input = input("VRP - Depot Node\n- Current: {}\n- Default: 0\n> "
+                           .format(vrp_params.vrp_depot_node))
+        if user_input == "Q":
             return
-        elif alg_value == "S":
-            break
-        else:
-            alg_values.append(alg_value)
+        elif user_input != "N":
+            vrp_params.vrp_depot_node = int(user_input)
 
-    try:
-        alg_params.population_count = alg_values[0]
-        alg_params.mutation_probability = alg_values[1]
-        alg_params.offspring_count = alg_values[2]
-        alg_params.crossover_function = alg_values[3]
-        alg_params.retention_rate = alg_values[4]
-        alg_params.generation_count_min = alg_values[5]
-        alg_params.generation_count_max = alg_values[6]
-        alg_params.acceptable_difference = alg_values[7]
-    except IndexError:
-        pass
+        # -----------------------------------------------------------------------
 
+        user_input = input("VRP - Vehicle Count\n- Current: {}\n- Default: 3\n> "
+                           .format(vrp_params.vrp_vehicle_count))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_vehicle_count = int(user_input)
 
-def _set_value(description):
-    """
-    Convenient, interactive function for requesting a value for
-    specified parameter.
-    :param description: Description of the requested parameter.
-    :return: Appropriate user input.
-    """
+        # -----------------------------------------------------------------------
 
-    value = None
-    while value is None:
-        try:
-            value_raw = input(description + " > ")
-            value = int(value_raw)
-        except ValueError:
-            value = None
-            if value_raw == "Q":
-                return "Q"
-            elif value_raw == "S":
-                return "S"
+        user_input = input("VRP - Vehicle Variance\n- Current: {}\n- Default: 3\n> "
+                           .format(vrp_params.vrp_vehicle_variance))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_vehicle_variance = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRP - Node Service Times\n- Current: {}\n- Default: 0\nInput File Name > "
+                           .format(vrp_params.vrp_node_service_time))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_node_service_time = \
+                list(np.loadtxt("variables/node_service_times/" + user_input + ".txt",
+                                dtype=int))[0]
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRP - Distance-to-Time Ratio\n- Current: {}\n- Default: 1\n"
+                           "Positive integer: 'n' distance units to 1 time unit\n"
+                           "Negative integer: 1 distance unit to 'n' time units\n"
+                           "0: 'n' distance units to 0 time units\n> "
+                           .format(vrp_params.vrp_distance_time_ratio))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_distance_time_ratio = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("CVRP - Vehicle Capacity\n- Current: {}\n- Default: 0\n> "
+                           .format(vrp_params.cvrp_vehicle_capacity))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.cvrp_vehicle_capacity = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("CVRP - Node Demands\n- Current: {}\n- Default: 0\nInput File Name > "
+                           .format(vrp_params.cvrp_node_demand))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.cvrp_node_demand = \
+                list(np.loadtxt("variables/node_demands/" + user_input + ".txt",
+                                dtype=int))[0]
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("OVRP - Enabled\n- Current: {}\n- Default: False\nTrue/False > "
+                           .format(vrp_params.ovrp_enabled))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.ovrp_enabled = bool(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRPP - Node Profits\n- Current: {}\n- Default: None\nInput File Name > "
+                           .format(vrp_params.vrpp_node_profit))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrpp_node_profit = \
+                list(np.loadtxt("variables/node_profits/" + user_input + ".txt",
+                                dtype=int))[0]
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRPTW - Node Time Windows\n- Current: {}\n- Default: None\n"
+                           "Input File Name (or 'None') > "
+                           .format(vrp_params.vrptw_node_time_window))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            if user_input.upper() == "NONE":
+                vrp_params.vrptw_node_time_window = None
             else:
-                print("Invalid input.")
+                vrp_params.vrptw_node_time_window = \
+                    list(map(tuple, np.loadtxt("variables/node_time_windows/" + user_input + ".txt",
+                                               dtype=int)))
 
-    return value
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRPTW - Node Penalty Coefficients\n- Current: {}\n- Default: 0.00\n"
+                           "Input File Name > "
+                           .format(vrp_params.vrptw_node_penalty))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrptw_node_penalty = \
+                list(np.loadtxt("variables/node_penalties/" + user_input + ".txt",
+                                dtype=int))[0]
+
+    except ValueError:
+        print("Invalid value. Aborting...")
+
+
+def set_algorithm_parameters(alg_params):
+    """
+    Interactive function that requests the user to provide
+    parameters when asked.
+    :param alg_params: Subject Algorithm parameters.
+    """
+
+    # TODO
+    pass

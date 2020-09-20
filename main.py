@@ -7,8 +7,7 @@ Entry point for the console application.
 """
 
 from algorithms.matrix_builder import load_variable
-from instances.params import InstanceParams, AlgorithmParams
-from instances.vrp import VRP
+from instances.params import ParamsVRP, ParamsGENALG
 from input_options.menu import loop
 
 
@@ -17,15 +16,16 @@ def main():
     matrix_file = "sample"
     matrix_data = load_variable(matrix_file, force_load=True)
 
-    vrp_params = InstanceParams()
-    alg_params = AlgorithmParams()
+    vrp_params = ParamsVRP(matrix_data)
+    alg_params = ParamsGENALG()
 
-    vrp = VRP(matrix_data, vrp_params)
+    vrp_params.content_name = matrix_file
 
     code = -1
 
     while code != 0:
-        code, vrp = loop(vrp, alg_params)
+        code, vrp_params, alg_params = loop(vrp_params, alg_params)
+
     print("Closing program...")
 
 

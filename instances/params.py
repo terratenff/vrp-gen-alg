@@ -3,7 +3,7 @@
 """
 params.py:
 
-Class instances for general VRP parameters and algorithm-specific parameters.
+Class instances for general VRP parameters and genetic algorithm parameters.
 """
 
 import numpy as np
@@ -27,7 +27,6 @@ class ParamsVRP:
                  ovrp_enabled=False,
                  vrpp_node_profit=None,
                  vrptw_node_time_window=None,
-                 vrptw_vehicle_departure=0,
                  vrptw_node_penalty=0.00
                  ):
         """
@@ -59,7 +58,7 @@ class ParamsVRP:
         If given as a list, its length must match total number of vehicles.
         List index is a vehicle, and the value within is that vehicle's supply capacity.
         :param cvrp_node_demand: Supply demand of each node. This is ignored with the depot node.
-        If given as a single value, every node will have the same supply demand.
+        A single integer value is expected: it is assumed that every vehicle has the same capacity.
         :param ovrp_enabled: Flag that determines whether the vehicles have to return to the depot
         once they complete their rounds.
         If True, the problem becomes "open", letting vehicles stop at their final destinations.
@@ -76,11 +75,6 @@ class ParamsVRP:
         that a vehicle is allowed to be out for).
         Expected tuple-list format: [(start0, end0), (start1, end1), (start2, end2), ...]
         If set to None, this is ignored.
-        :param vrptw_vehicle_departure: The times at which the vehicles start their routes from
-        the depot node. This is used ONLY IF time windows are being used.
-        If given as a single value, every vehicle will depart at specified time.
-        If given as a list, its length must match total number of vehicles.
-        List index is a vehicle, and the value within is that vehicle's time of departure.
         :param vrptw_node_penalty: Coefficient that determines the scale of the penalty value.
         Penalty value is based on how late a vehicle arrives at a node.
         This is used ONLY IF time windows are being used.
@@ -89,6 +83,7 @@ class ParamsVRP:
         List index is a node, and the value within is that node's penalty coefficient.
         """
 
+        self.content_name = "undefined"  # Cosmetic.
         self.vrp_path_table = None
         self.vrp_coordinates = None
         self.set_contents(vrp_contents, path_table_override=vrp_path_table_override)
@@ -103,16 +98,16 @@ class ParamsVRP:
         self.ovrp_enabled = ovrp_enabled
         self.vrpp_node_profit = vrpp_node_profit
         self.vrptw_node_time_window = vrptw_node_time_window
-        self.vrptw_vehicle_departure = vrptw_vehicle_departure
         self.vrptw_node_penalty = vrptw_node_penalty
 
-    def set_contents(self, contents, path_table_override=None):
+    def set_contents(self, contents, path_table_override=None, name=None):
         """
         Dedicated setter for VRP contents. This function should always be used
         instead of directly assigning the contents to the member variable 'path_table'.
         :param contents: NumPy array or list of tuples. See constructor comment.
         :param path_table_override: Overriding path table, if list of xy-coordinates
         is given as contents. See constructor comment.
+        :param name: A name to call the contents by. Cosmetic.
         """
 
         if isinstance(contents, np.ndarray):
@@ -126,6 +121,9 @@ class ParamsVRP:
                 self.calculate_path_table()
         else:
             raise ValueError("Invalid data type given for 'contents'")
+
+        if name is not None:
+            self.content_name = name
 
     def calculate_path_table(self):
         """
@@ -159,11 +157,11 @@ class ParamsVRP:
             conversion_str = "Does not convert to time"
 
         print("- Problem Parameters ----------------------------------------------------")
-        print("VRP   - Node Count                | " + str(len(self.path_table)))
-        print("VRP   - Using XY-Coordinates      | " + str(self.coordinates is not None))
-        print("VRP   - Vehicle Count             | " + str(self.vehicle_count))
-        print("VRP   - Depot Node                | " + str(self.depot_node))
-        print("VRP   - Vehicle Variance          | " + str(self.vehicle_variance))
+        print("VRP   - Node Count                | " + str(len(self.vrp_path_table)))
+        print("VRP   - Using XY-Coordinates      | " + str(self.vrp_coordinates is not None))
+        print("VRP   - Vehicle Count             | " + str(self.vrp_vehicle_count))
+        print("VRP   - Depot Node                | " + str(self.vrp_depot_node))
+        print("VRP   - Vehicle Variance          | " + str(self.vrp_vehicle_variance))
         print("VRP   - Node Service Time         | " + str(self.vrp_node_service_time))
         print("VRP   - Distance-to-Time Ratio    | " + conversion_str)
         print("CVRP  - Vehicle Supply Capacity   | " + str(self.cvrp_vehicle_capacity))
@@ -171,7 +169,6 @@ class ParamsVRP:
         print("OVRP  - Enabled                   | " + str(self.ovrp_enabled))
         print("VRPP  - Node Profit               | " + str(self.vrpp_node_profit))
         print("VRPTW - Node Time Window          | " + str(self.vrptw_node_time_window))
-        print("VRPTW - Vehicle Departure         | " + str(self.vrptw_vehicle_departure))
         print("VRPTW - Node Penalty Coefficient  | " + str(self.vrptw_node_penalty))
 
 
@@ -182,7 +179,6 @@ class ParamsGENALG:
 
     def __init__(self,
                  population_count=100,
-                 population_initializer=0,
                  generation_count_min=10,
                  generation_count_max=100,
                  fitness_evaluator=0,
@@ -193,12 +189,12 @@ class ParamsGENALG:
                  crossover_operator=0,
                  crossover_probability=0.90,
                  mutation_probability=0.05,
+                 followup_probability=0.70,
                  elitism_operator=0,
                  elitism_frequency=0):
         """
         Constructor for GA parameters.
         :param population_count: Number of instances that contain the solution for the problem.
-        :param population_initializer: Function that determines how the initial population is generated.
         :param generation_count_min: Number of generations that must be created before termination.
         :param generation_count_max: Number of generations that cannot be exceeded.
         :param fitness_evaluator: Objective fitness function.
@@ -216,8 +212,13 @@ class ParamsGENALG:
         of the selected parents. If crossover does not occur, offspring are exact replicas of the parents.
         :param mutation_probability: Probability of mutating an individual offspring upon its creation.
         The probability is for one node. If mutation does not occur, the node is skipped.
-        Otherwise subject node is marked for mutation. If only one node is marked for mutation, another
-        node is selected at random. Marked nodes are then mutated by changing their positions.
+        Otherwise a followup check is performed.
+        :param followup_probability: Probability of mutating a node instead of something else.
+        If a roll favors a node, that is marked for mutation. If ultimately only one node was
+        marked, another one will be marked at random. Marked nodes are then rearranged.
+        If a roll does not favor a node, some other elements are modified, examples being
+        changing vehicle counts, including/excluding nodes (VRPP)
+        and changing vehicle departure times (VRPTW).
         :param elitism_operator: Function that does something to mitigate elitism (or not).
         :param elitism_frequency: Determines how frequently elitism is handled (for or against).
         Number represents generations: if set to 10, then for every 10 generations, elitism operator
@@ -225,7 +226,6 @@ class ParamsGENALG:
         """
 
         self.population_count = population_count
-        self.population_initializer = population_initializer
         self.generation_count_min = generation_count_min
         self.generation_count_max = generation_count_max
         self.fitness_evaluator = fitness_evaluator
@@ -236,15 +236,10 @@ class ParamsGENALG:
         self.crossover_operator = crossover_operator
         self.crossover_probability = crossover_probability
         self.mutation_probability = mutation_probability
+        self.followup_probability = followup_probability
         self.elitism_operator = elitism_operator
         self.elitism_frequency = elitism_frequency
 
-        self.str_population_initializer = [
-            "Random",
-            "Semi-Nearest-Neighbor (depth)",
-            "Semi-Nearest-Neighbor (breadth)",
-            "1 instance to x mutated variants"
-        ]
         self.str_fitness_evaluator = [
             "Total Cost",
             "Total Distance",
@@ -272,7 +267,6 @@ class ParamsGENALG:
         Convenience function for printing GA parameters.
         """
 
-        pop_str = self.str_population_initializer[self.population_initializer]
         fit_str = self.str_fitness_evaluator[self.fitness_evaluator]
         par_sel_str = self.str_parent_selection_function[self.parent_selection_function]
         cross_str = self.str_crossover_operator[self.crossover_operator]
@@ -287,7 +281,6 @@ class ParamsGENALG:
 
         print("- Genetic Algorithm Parameters ---------------------------------------------------")
         print("GEN - Population Count          | " + str(self.population_count))
-        print("ALG - Population Initializer    | " + pop_str)
         print("GEN - Minimum Generation Count  | " + str(self.generation_count_min))
         print("GEN - Maximum Generation Count  | " + str(self.generation_count_max))
         print("ALG - Fitness Evaluator         | " + fit_str)
@@ -298,5 +291,6 @@ class ParamsGENALG:
         print("ALG - Crossover Operator        | " + cross_str)
         print("GEN - Crossover Probability     | " + str(self.crossover_probability))
         print("GEN - Mutation Probability      | " + str(self.mutation_probability))
+        print("GEN - Followup Probability      | " + str(self.followup_probability))
         print("ALG - Elitism Managing Operator | " + elite_str)
         print("GEN - Elitism Management Rate   | " + elite_fr_str)
