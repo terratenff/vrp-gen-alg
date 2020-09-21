@@ -133,7 +133,7 @@ def set_vrp_parameters(vrp_params):
         elif user_input != "N":
             vrp_params.vrptw_node_penalty = \
                 list(np.loadtxt("variables/node_penalties/" + user_input + ".txt",
-                                dtype=int))[0]
+                                dtype=float))[0]
 
     except ValueError:
         print("Invalid value. Aborting...")
@@ -146,5 +146,172 @@ def set_algorithm_parameters(alg_params):
     :param alg_params: Subject Algorithm parameters.
     """
 
-    # TODO
-    pass
+    print("(Input N to skip to the next input)")
+    print("(Input Q to abort and save any changes)")
+
+    try:
+        user_input = input("GEN - Population Count\n- Current: {}\n- Default: 100\n> "
+                           .format(alg_params.population_count))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.population_count = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Minimum Generation Count\n- Current: {}\n- Default: 10\n> "
+                           .format(alg_params.generation_count_min))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.generation_count_min = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Maximum Generation Count\n- Current: {}\n- Default: 100\n> "
+                           .format(alg_params.generation_count_max))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.generation_count_max = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("ALG - Fitness Evaluator\n"
+                           "- 0 = Total Cost\n"
+                           "- 1 = Total Distance\n"
+                           "- 2 = Longest Route\n"
+                           "- Current: {}\n- Default: 0\n> "
+                           .format(alg_params.fitness_evaluator))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            if int(user_input) < 0 or int(user_input) > 2:
+                while int(user_input) < 0 or int(user_input) > 2:
+                    print("Input value is outside expected range.")
+                    user_input = input("> ")
+            alg_params.fitness_evaluator = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Parent Candidate Count\n- Current: {}\n- Default: 2\n> "
+                           .format(alg_params.parent_candidate_count))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.parent_candidate_count = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("ALG - Parent Selection Function\n"
+                           "- 0 = Best Fitness\n"
+                           "- 1 = Roulette Wheel\n"
+                           "- 2 = Tournament\n"
+                           "- Current: {}\n- Default: 0\n> "
+                           .format(alg_params.parent_selection_function))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            if int(user_input) < 0 or int(user_input) > 2:
+                while int(user_input) < 0 or int(user_input) > 2:
+                    print("Input value is outside expected range.")
+                    user_input = input("> ")
+            alg_params.parent_selection_function = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Selection Probability\n- Current: {}\n- Default: 0.75\n"
+                           "Input Range: [0.00, 1.00] > "
+                           .format(alg_params.selection_probability))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.selection_probability = float(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Offspring Pair Count\n- Current: {}\n- Default: 1\n> "
+                           .format(alg_params.offspring_pair_count))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.offspring_pair_count = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("ALG - Crossover Operator\n"
+                           "- 0 = 1-Point\n"
+                           "- 1 = 2-Point\n"
+                           "- 2 = Uniform\n"
+                           "- 3 = OE-Children\n"
+                           "- Current: {}\n- Default: 0\n> "
+                           .format(alg_params.crossover_operator))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            if int(user_input) < 0 or int(user_input) > 3:
+                while int(user_input) < 0 or int(user_input) > 3:
+                    print("Input value is outside expected range.")
+                    user_input = input("> ")
+            alg_params.crossover_operator = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Crossover Probability\n- Current: {}\n- Default: 0.90\n"
+                           "Input Range: [0.00, 1.00] > "
+                           .format(alg_params.crossover_probability))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.crossover_probability = float(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Mutation Probability\n- Current: {}\n- Default: 0.05\n"
+                           "Input Range: [0.00, 1.00] > "
+                           .format(alg_params.mutation_probability))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.mutation_probability = float(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Followup Probability\n- Current: {}\n- Default: 0.70\n"
+                           "Input Range: [0.00, 1.00] > "
+                           .format(alg_params.followup_probability))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.followup_probability = float(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("ALG - Elitism Managing Operator\n"
+                           "- 0 = None\n"
+                           "- 1 = Retention\n"
+                           "- 2 = Filtration\n"
+                           "- Current: {}\n- Default: 0\n> "
+                           .format(alg_params.elitism_operator))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            if int(user_input) < 0 or int(user_input) > 2:
+                while int(user_input) < 0 or int(user_input) > 2:
+                    print("Input value is outside expected range.")
+                    user_input = input("> ")
+            alg_params.elitism_operator = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Elitism Management Rate\n- Current: {}\n- Default: 0\n"
+                           "Integer represents how many generations must pass before\n"
+                           "elitism managing operator is called.\n"
+                           "> "
+                           .format(alg_params.elitism_frequency))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.elitism_frequency = int(user_input)
+    except ValueError:
+        print("Invalid value. Aborting...")

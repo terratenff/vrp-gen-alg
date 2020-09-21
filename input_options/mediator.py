@@ -8,6 +8,7 @@ proper direction.
 """
 
 from algorithms import param_builder, matrix_builder, genalg
+from input_options.utility import get_input
 
 
 def inspect(code, vrp_params, alg_params):
@@ -21,11 +22,17 @@ def inspect(code, vrp_params, alg_params):
     """
 
     if code == 1:
-        matrix_builder.generate_random_distance_matrix(vrp_params)
+        sub_code = data_interaction("What kind of data is to be generated?")
+        matrix_builder.data_type_selector(vrp_params, code, sub_code)
+        # matrix_builder.generate_random_distance_matrix(vrp_params)
     elif code == 2:
-        matrix_builder.select_distance_matrix(vrp_params)
+        sub_code = data_interaction("What kind of data should be selected for use?")
+        matrix_builder.data_type_selector(vrp_params, code, sub_code)
+        # matrix_builder.select_distance_matrix(vrp_params)
     elif code == 3:
-        print(vrp_params.vrp_path_table)
+        sub_code = data_interaction("What kind of data should be viewed?")
+        matrix_builder.data_type_selector(vrp_params, code, sub_code)
+        # print(vrp_params.vrp_path_table)
     elif code == 4:
         param_builder.set_vrp_parameters(vrp_params)
     elif code == 5:
@@ -38,3 +45,26 @@ def inspect(code, vrp_params, alg_params):
     elif code == 7:
         genalg.run_gen_alg(vrp_params, alg_params)
     return code, vrp_params, alg_params
+
+
+def data_interaction(purpose_str):
+    """
+    Instructs user to select a specific data type to interact with.
+    :param purpose_str: Description of what is to be done with the data.
+    :return: User input that specifies data in question.
+    """
+
+    print("-----------------------------------")
+    print(purpose_str)
+    print("-----------------------------------")
+    print("1 - Node Cost Matrix")
+    print("2 - Node XY-Coordinates")
+    print("3 - Node Demands")
+    print("4 - Node Penalty Coefficients")
+    print("5 - Node Profits")
+    print("6 - Node Service Times")
+    print("7 - Node Time Windows")
+    print("-----------------------------------")
+    print("(Exit with 0)")
+
+    return get_input(0, 7)

@@ -6,7 +6,7 @@ main.py:
 Entry point for the console application.
 """
 
-from algorithms.matrix_builder import load_variable
+from algorithms.matrix_builder import initialize, load_variable
 from instances.params import ParamsVRP, ParamsGENALG
 from input_options.menu import loop
 
@@ -14,7 +14,7 @@ from input_options.menu import loop
 def main():
     print("--- Vehicle Routing Problem with Genetic Algorithm ---")
     matrix_file = "sample"
-    matrix_data = load_variable(matrix_file, force_load=True)
+    matrix_data = initialize(matrix_file)
 
     vrp_params = ParamsVRP(matrix_data)
     alg_params = ParamsGENALG()

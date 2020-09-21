@@ -83,7 +83,14 @@ class ParamsVRP:
         List index is a node, and the value within is that node's penalty coefficient.
         """
 
-        self.content_name = "undefined"  # Cosmetic.
+        self.coordinates_name = None
+        self.cost_matrices_name = "undefined"
+        self.node_demands_name = None
+        self.node_penalties_name = None
+        self.node_profits_name = None
+        self.node_service_times_name = None
+        self.node_time_windows_name = None
+
         self.vrp_path_table = None
         self.vrp_coordinates = None
         self.set_contents(vrp_contents, path_table_override=vrp_path_table_override)
@@ -123,7 +130,7 @@ class ParamsVRP:
             raise ValueError("Invalid data type given for 'contents'")
 
         if name is not None:
-            self.content_name = name
+            self.cost_matrices_name = name
 
     def calculate_path_table(self):
         """

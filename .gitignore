@@ -130,12 +130,14 @@ dmypy.json
 
 # other
 .idea/
+variables/coordinates/*
 variables/cost_matrices/*
 variables/node_demands/*
 variables/node_penalties/*
 variables/node_profits/*
 variables/node_service_times/*
 variables/node_time_windows/*
+!variables/coordinates/sample.txt
 !variables/cost_matrices/sample.txt
 !variables/node_demands/sample.txt
 !variables/node_penalties/sample.txt
