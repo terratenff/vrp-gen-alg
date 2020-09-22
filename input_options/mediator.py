@@ -24,25 +24,25 @@ def inspect(code, vrp_params, alg_params):
     if code == 1:
         sub_code = data_interaction("What kind of data is to be generated?")
         matrix_builder.data_type_selector(vrp_params, code, sub_code)
-        # matrix_builder.generate_random_distance_matrix(vrp_params)
     elif code == 2:
         sub_code = data_interaction("What kind of data should be selected for use?")
         matrix_builder.data_type_selector(vrp_params, code, sub_code)
-        # matrix_builder.select_distance_matrix(vrp_params)
     elif code == 3:
+        sub_code = data_interaction("What kind of data should be deselected?")
+        matrix_builder.data_type_selector(vrp_params, code, sub_code)
+    elif code == 4:
         sub_code = data_interaction("What kind of data should be viewed?")
         matrix_builder.data_type_selector(vrp_params, code, sub_code)
-        # print(vrp_params.vrp_path_table)
-    elif code == 4:
-        param_builder.set_vrp_parameters(vrp_params)
     elif code == 5:
-        param_builder.set_algorithm_parameters(alg_params)
+        param_builder.set_vrp_parameters(vrp_params)
     elif code == 6:
+        param_builder.set_algorithm_parameters(alg_params)
+    elif code == 7:
         vrp_params.print()
         print()
         alg_params.print()
         print()
-    elif code == 7:
+    elif code == 8:
         genalg.run_gen_alg(vrp_params, alg_params)
     return code, vrp_params, alg_params
 

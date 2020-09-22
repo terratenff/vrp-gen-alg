@@ -47,7 +47,41 @@ def data_selector(vrp_params, code, sub_code):
             select_service_times_matrix(vrp_params)
         elif sub_code == 7:  # Time Windows
             select_time_windows_matrix(vrp_params)
-    elif code == 3:  # View
+    elif code == 3:  # Deselect
+        if sub_code == 1:    # Cost Matrix
+            print("Cannot deselect cost matrix!")
+        elif sub_code == 2:  # Coordinates
+            vrp_params.vrp_coordinates = None
+            vrp_params.coordinates_name = None
+            vrp_params.cost_matrices_name = "undefined"
+            print("Coordinates have been deselected. The cost matrix associated with it remains as-is.")
+        elif sub_code == 3:  # Demands
+            vrp_params.cvrp_node_demand = None
+            vrp_params.node_demands_name = None
+            print("Demands have been deselected.")
+        elif sub_code == 4:  # Penalties
+            vrp_params.vrptw_node_penalty = None
+            vrp_params.vrptw_node_time_window = None
+            vrp_params.node_penalties_name = None
+            vrp_params.node_time_windows_name = None
+            print("Penalties have been deselected.")
+            print("Time windows have no meaning without penalties: they have been deselected too.")
+        elif sub_code == 5:  # Profits
+            vrp_params.vrpp_node_profit = None
+            vrp_params.node_profits_name = None
+            print("Profits have been deselected.")
+        elif sub_code == 6:  # Service Times
+            vrp_params.vrp_node_service_time = None
+            vrp_params.node_service_times_name = None
+            print("Service Times have been deselected.")
+        elif sub_code == 7:  # Time Windows
+            vrp_params.vrptw_node_penalty = None
+            vrp_params.vrptw_node_time_window = None
+            vrp_params.node_penalties_name = None
+            vrp_params.node_time_windows_name = None
+            print("Time Windows have been deselected.")
+            print("Penalties have no meaning without time windows: they have been deselected too.")
+    elif code == 4:  # View
         if sub_code == 1:    # Cost Matrix
             print(str(vrp_params.vrp_path_table))
         elif sub_code == 2:  # Coordinates
