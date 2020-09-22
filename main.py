@@ -6,7 +6,7 @@ main.py:
 Entry point for the console application.
 """
 
-from algorithms.matrix_builder import initialize, load_variable
+from algorithms.matrix_builder import initialize
 from instances.params import ParamsVRP, ParamsGENALG
 from input_options.menu import loop
 
