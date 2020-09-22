@@ -27,12 +27,14 @@ def loop(vrp_params, alg_params):
     print("4 - View currently used data")
     print("5 - Set problem parameters")
     print("6 - Set algorithm parameters")
-    print("7 - View parameters")
-    print("8 - Run genetic algorithm")
+    print("7 - Save parameters")
+    print("8 - Load parameters")
+    print("9 - View parameters")
+    print("0 - Run Genetic Algorithm")
     print("-----------------------------------")
-    print("(Exit with 0)")
+    print("(Exit with -1)")
 
-    code = get_input(0, 8)
+    code = get_input(-1, 9)
     output, vrp_params, alg_params = mediator.inspect(code, vrp_params, alg_params)
 
     return output, vrp_params, alg_params

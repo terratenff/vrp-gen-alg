@@ -21,9 +21,9 @@ def main():
 
     vrp_params.content_name = matrix_file
 
-    code = -1
+    code = -2
 
-    while code != 0:
+    while code != -1:
         code, vrp_params, alg_params = loop(vrp_params, alg_params)
 
     print("Closing program...")

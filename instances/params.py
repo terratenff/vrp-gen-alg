@@ -20,14 +20,14 @@ class ParamsVRP:
                  vrp_depot_node=0,
                  vrp_vehicle_count=3,
                  vrp_vehicle_variance=0,
-                 vrp_node_service_time=0,
+                 vrp_node_service_time=None,
                  vrp_distance_time_ratio=1,
                  cvrp_vehicle_capacity=0,
-                 cvrp_node_demand=0,
+                 cvrp_node_demand=None,
                  ovrp_enabled=False,
                  vrpp_node_profit=None,
                  vrptw_node_time_window=None,
-                 vrptw_node_penalty=0.00
+                 vrptw_node_penalty=None
                  ):
         """
         Constructor for general VRP parameters.
@@ -156,6 +156,31 @@ class ParamsVRP:
         Convenience function for printing VRP parameters.
         """
 
+        if self.vrp_node_service_time is None:
+            nst_str = None
+        else:
+            nst_str = self.vrp_node_service_time.tolist()
+
+        if self.cvrp_node_demand is None:
+            nd_str = None
+        else:
+            nd_str = self.cvrp_node_demand.tolist()
+
+        if self.vrpp_node_profit is None:
+            np_str = None
+        else:
+            np_str = self.vrpp_node_profit.tolist()
+
+        if self.vrptw_node_time_window is None:
+            ntw_str = None
+        else:
+            ntw_str = list(map(tuple, self.vrptw_node_time_window))
+
+        if self.vrptw_node_penalty is None:
+            np2_str = None
+        else:
+            np2_str = self.vrptw_node_penalty.tolist()
+
         if self.vrp_distance_time_ratio > 0:
             conversion_str = "{} to 1".format(str(self.vrp_distance_time_ratio))
         elif self.vrp_distance_time_ratio < 0:
@@ -164,19 +189,19 @@ class ParamsVRP:
             conversion_str = "Does not convert to time"
 
         print("- Problem Parameters ----------------------------------------------------")
-        print("VRP   - Node Count                | " + str(len(self.vrp_path_table)))
-        print("VRP   - Using XY-Coordinates      | " + str(self.vrp_coordinates is not None))
-        print("VRP   - Vehicle Count             | " + str(self.vrp_vehicle_count))
-        print("VRP   - Depot Node                | " + str(self.vrp_depot_node))
-        print("VRP   - Vehicle Variance          | " + str(self.vrp_vehicle_variance))
-        print("VRP   - Node Service Time         | " + str(self.vrp_node_service_time))
-        print("VRP   - Distance-to-Time Ratio    | " + conversion_str)
-        print("CVRP  - Vehicle Supply Capacity   | " + str(self.cvrp_vehicle_capacity))
-        print("CVRP  - Node Supply Demand        | " + str(self.cvrp_node_demand))
-        print("OVRP  - Enabled                   | " + str(self.ovrp_enabled))
-        print("VRPP  - Node Profit               | " + str(self.vrpp_node_profit))
-        print("VRPTW - Node Time Window          | " + str(self.vrptw_node_time_window))
-        print("VRPTW - Node Penalty Coefficient  | " + str(self.vrptw_node_penalty))
+        print("VRP   - Node Count                | {}".format(len(self.vrp_path_table)))
+        print("VRP   - Using XY-Coordinates      | {}".format(self.vrp_coordinates is not None))
+        print("VRP   - Vehicle Count             | {}".format(self.vrp_vehicle_count))
+        print("VRP   - Depot Node                | {}".format(self.vrp_depot_node))
+        print("VRP   - Vehicle Variance          | {}".format(self.vrp_vehicle_variance))
+        print("VRP   - Node Service Time         | {}".format(nst_str))
+        print("VRP   - Distance-to-Time Ratio    | {}".format(conversion_str))
+        print("CVRP  - Vehicle Supply Capacity   | {}".format(self.cvrp_vehicle_capacity))
+        print("CVRP  - Node Supply Demand        | {}".format(nd_str))
+        print("OVRP  - Enabled                   | {}".format(self.ovrp_enabled))
+        print("VRPP  - Node Profit               | {}".format(np_str))
+        print("VRPTW - Node Time Window          | {}".format(ntw_str))
+        print("VRPTW - Node Penalty Coefficient  | {}".format(np2_str))
 
 
 class ParamsGENALG:
@@ -287,17 +312,17 @@ class ParamsGENALG:
             elite_fr_str = "Every {} Generations".format(self.elitism_frequency)
 
         print("- Genetic Algorithm Parameters ---------------------------------------------------")
-        print("GEN - Population Count          | " + str(self.population_count))
-        print("GEN - Minimum Generation Count  | " + str(self.generation_count_min))
-        print("GEN - Maximum Generation Count  | " + str(self.generation_count_max))
-        print("ALG - Fitness Evaluator         | " + fit_str)
-        print("GEN - Parent Candidate Count    | " + str(self.parent_candidate_count))
-        print("ALG - Parent Selection Function | " + par_sel_str)
-        print("GEN - Selection Probability     | " + str(self.selection_probability))
-        print("GEN - Offspring Pair Count      | " + str(self.offspring_pair_count))
-        print("ALG - Crossover Operator        | " + cross_str)
-        print("GEN - Crossover Probability     | " + str(self.crossover_probability))
-        print("GEN - Mutation Probability      | " + str(self.mutation_probability))
-        print("GEN - Followup Probability      | " + str(self.followup_probability))
-        print("ALG - Elitism Managing Operator | " + elite_str)
-        print("GEN - Elitism Management Rate   | " + elite_fr_str)
+        print("GEN - Population Count          | {}".format(self.population_count))
+        print("GEN - Minimum Generation Count  | {}".format(self.generation_count_min))
+        print("GEN - Maximum Generation Count  | {}".format(self.generation_count_max))
+        print("ALG - Fitness Evaluator         | {}".format(fit_str))
+        print("GEN - Parent Candidate Count    | {}".format(self.parent_candidate_count))
+        print("ALG - Parent Selection Function | {}".format(par_sel_str))
+        print("GEN - Selection Probability     | {:0.2f}".format(self.selection_probability))
+        print("GEN - Offspring Pair Count      | {}".format(self.offspring_pair_count))
+        print("ALG - Crossover Operator        | {}".format(cross_str))
+        print("GEN - Crossover Probability     | {:0.2f}".format(self.crossover_probability))
+        print("GEN - Mutation Probability      | {:0.2f}".format(self.mutation_probability))
+        print("GEN - Followup Probability      | {:0.2f}".format(self.followup_probability))
+        print("ALG - Elitism Managing Operator | {}".format(elite_str))
+        print("GEN - Elitism Management Rate   | {}".format(elite_fr_str))

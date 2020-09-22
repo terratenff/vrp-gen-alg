@@ -38,11 +38,17 @@ def inspect(code, vrp_params, alg_params):
     elif code == 6:
         param_builder.set_algorithm_parameters(alg_params)
     elif code == 7:
+        # TODO: Save Parameter Settings
+        pass
+    elif code == 8:
+        # TODO: Load Parameter Settings
+        pass
+    elif code == 9:
         vrp_params.print()
         print()
         alg_params.print()
         print()
-    elif code == 8:
+    elif code == 0:
         genalg.run_gen_alg(vrp_params, alg_params)
     return code, vrp_params, alg_params
 

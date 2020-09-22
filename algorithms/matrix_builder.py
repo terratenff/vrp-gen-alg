@@ -61,11 +61,9 @@ def data_selector(vrp_params, code, sub_code):
             print("Demands have been deselected.")
         elif sub_code == 4:  # Penalties
             vrp_params.vrptw_node_penalty = None
-            vrp_params.vrptw_node_time_window = None
             vrp_params.node_penalties_name = None
-            vrp_params.node_time_windows_name = None
             print("Penalties have been deselected.")
-            print("Time windows have no meaning without penalties: they have been deselected too.")
+            print("Note that time windows have no meaning without penalties.")
         elif sub_code == 5:  # Profits
             vrp_params.vrpp_node_profit = None
             vrp_params.node_profits_name = None
@@ -423,7 +421,7 @@ def initialize(name):
     """
 
     try:
-        var = np.loadtxt("variables/cost_matrices/" + name + ".txt")
+        var = np.loadtxt("variables/cost_matrices/" + name + ".txt", dtype=int)
         return var
     except IOError:
         matrix = np.random.randint(10, 100, (10, 10))
