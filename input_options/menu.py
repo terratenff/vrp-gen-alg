@@ -19,7 +19,7 @@ def loop(vrp_params, alg_params):
     """
 
     print("-----------------------------------")
-    print("Selected distance matrix: " + vrp_params.content_name)
+    print("Selected distance matrix: " + vrp_params.cost_matrices_name)
     print("-----------------------------------")
     print("1 - Generate data")
     print("2 - Select data")

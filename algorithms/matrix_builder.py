@@ -298,35 +298,55 @@ def generate_time_windows_matrix(vrp_params):
     vrp_params.vrptw_node_time_window = matrix
 
 
-def select_cost_matrix(vrp_params):
+def select_cost_matrix(vrp_params, name=None):
     """
     Selects a cost matrix subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
     :param vrp_params: VRP parameters.
+    :param name: Data file name.
     """
 
-    matrix_name = input("Target Cost Matrix Name > ")
+    if name is None:
+        matrix_name = input("Target Cost Matrix Name > ")
+    else:
+        matrix_name = name
     temp_data = load_data(matrix_name, "cost_matrices")
     if temp_data is not None:
         vrp_params.set_contents(temp_data, name=matrix_name)
         vrp_params.coordinates_name = None
 
 
-def select_coordinates_matrix(vrp_params):
+def select_coordinates_matrix(vrp_params, name=None, name_override=None):
     """
     Selects a coordinate list subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
     :param vrp_params: VRP parameters.
+    :param name: Data file name.
+    :param name_override: Overriding data file name.
     """
 
-    matrix_name = input("Target Coordinate List Name > ")
+    if name is None:
+        matrix_name = input("Target Coordinate List Name > ")
+    else:
+        matrix_name = name
     temp_data = load_data(matrix_name, "coordinates")
     if temp_data is not None:
-        response = input("Override coordinate list's cost matrix? (y/n) > ")
+        if name is None and name_override is None:
+            response = input("Override coordinate list's cost matrix? (y/n) > ")
+        elif name is not None and name_override is None:
+            response = "n"
+        else:
+            response = "y"
+
         if response.upper() == "Y":
-            overriding_matrix_name = input("Overriding Cost Matrix Name > ")
+
+            if name_override is None:
+                overriding_matrix_name = input("Overriding Cost Matrix Name > ")
+            else:
+                overriding_matrix_name = name_override
+
             overriding_temp_data = load_data(matrix_name, "cost_matrices")
             if overriding_temp_data is not None:
                 vrp_params.set_contents(temp_data,
@@ -340,71 +360,106 @@ def select_coordinates_matrix(vrp_params):
             vrp_params.coordinates_name = matrix_name
 
 
-def select_demands_matrix(vrp_params):
+def select_demands_matrix(vrp_params, name=None):
     """
     Selects a demands matrix subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
     :param vrp_params: VRP parameters.
+    :param name: Data file name.
     """
 
-    matrix_name = input("Target Node Demands Matrix Name > ")
+    if name is None:
+        matrix_name = input("Target Node Demands Matrix Name > ")
+    elif name == "None":
+        vrp_params.cvrp_node_demand = None
+        return
+    else:
+        matrix_name = name
     temp_data = load_data(matrix_name, "node_demands")
     if temp_data is not None:
         vrp_params.cvrp_node_demand = temp_data
 
 
-def select_penalties_matrix(vrp_params):
+def select_penalties_matrix(vrp_params, name=None):
     """
     Selects a penalties matrix subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
     :param vrp_params: VRP parameters.
+    :param name: Data file name.
     """
 
-    matrix_name = input("Target Node Penalty Coefficients Matrix Name > ")
+    if name is None:
+        matrix_name = input("Target Node Penalty Coefficients Matrix Name > ")
+    elif name == "None":
+        vrp_params.vrptw_node_penalty = None
+        return
+    else:
+        matrix_name = name
     temp_data = load_data(matrix_name, "node_penalties")
     if temp_data is not None:
         vrp_params.vrptw_node_penalty = temp_data
 
 
-def select_profits_matrix(vrp_params):
+def select_profits_matrix(vrp_params, name=None):
     """
     Selects a penalties matrix subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
     :param vrp_params: VRP parameters.
+    :param name: Data file name.
     """
 
-    matrix_name = input("Target Node Profits Matrix Name > ")
+    if name is None:
+        matrix_name = input("Target Node Profits Matrix Name > ")
+    elif name == "None":
+        vrp_params.vrpp_node_profit = None
+        return
+    else:
+        matrix_name = name
     temp_data = load_data(matrix_name, "node_profits")
     if temp_data is not None:
         vrp_params.vrpp_node_profit = temp_data
 
 
-def select_service_times_matrix(vrp_params):
+def select_service_times_matrix(vrp_params, name=None):
     """
     Selects a service times matrix subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
     :param vrp_params: VRP parameters.
+    :param name: Data file name.
     """
 
-    matrix_name = input("Target Node Service Times Matrix Name > ")
+    if name is None:
+        matrix_name = input("Target Node Service Times Matrix Name > ")
+    elif name == "None":
+        vrp_params.vrp_node_service_time = None
+        return
+    else:
+        matrix_name = name
     temp_data = load_data(matrix_name, "node_service_times")
     if temp_data is not None:
         vrp_params.vrp_node_service_time = temp_data
 
 
-def select_time_windows_matrix(vrp_params):
+def select_time_windows_matrix(vrp_params, name=None):
     """
     Selects a time windows matrix subject to being loaded, for specified VRP.
     This is an interactive function, where the name of
     the text file is requested.
     :param vrp_params: VRP parameters.
+    :param name: Data file name.
     """
 
-    matrix_name = input("Target Node Time Windows Matrix Name > ")
+    if name is None:
+        matrix_name = input("Target Node Time Windows Matrix Name > ")
+    elif name == "None":
+        vrp_params.vrptw_node_time_window = None
+        return
+    else:
+        matrix_name = name
     temp_data = load_data(matrix_name, "node_time_windows")
     if temp_data is not None:
         vrp_params.vrptw_node_time_window = temp_data

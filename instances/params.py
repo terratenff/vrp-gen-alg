@@ -117,20 +117,23 @@ class ParamsVRP:
         :param name: A name to call the contents by. Cosmetic.
         """
 
-        if isinstance(contents, np.ndarray):
+        if contents.shape[0] == contents.shape[1]:
             self.vrp_path_table = contents
             self.vrp_coordinates = None
-        elif isinstance(contents, list):
+            if name is not None:
+                self.cost_matrices_name = name
+            else:
+                self.cost_matrices_name = "undefined"
+        elif contents.shape[1] == 2 and contents.shape[0] != contents.shape[1]:
             self.vrp_coordinates = contents
             if path_table_override is not None:
                 self.vrp_path_table = path_table_override
+                self.cost_matrices_name = name
             else:
                 self.calculate_path_table()
+                self.cost_matrices_name = "undefined"
         else:
             raise ValueError("Invalid data type given for 'contents'")
-
-        if name is not None:
-            self.cost_matrices_name = name
 
     def calculate_path_table(self):
         """
@@ -146,7 +149,7 @@ class ParamsVRP:
                     xy2 = self.vrp_coordinates[j]
                     dx = xy2[0] - xy1[0]
                     dy = xy2[1] - xy1[1]
-                    self.vrp_path_table[i][j] = np.sqrt(np.square(dx) + np.square(dy), dtype=int)
+                    self.vrp_path_table[i][j] = round(np.sqrt([dx * dx + dy * dy])[0])
         except (ValueError, TypeError, IndexError):
             raise ValueError("Invalid data format / Flawed coordinate structure.\n"
                              "Expecting structure of type [(x1,y1), (x2,y2), ...]")

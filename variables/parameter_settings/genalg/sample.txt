@@ -1,0 +1,14 @@
+population_count=100
+generation_count_min=10
+generation_count_max=100
+fitness_evaluator=0
+parent_candidate_count=2
+parent_selection_function=0
+selection_probability=0.75
+offspring_pair_count=1
+crossover_operator=0
+crossover_probability=0.90
+mutation_probability=0.05
+followup_probability=0.70
+elitism_operator=0
+elitism_frequency=0

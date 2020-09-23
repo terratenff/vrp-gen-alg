@@ -7,6 +7,7 @@ Contains functions for setting necessary parameters.
 """
 
 import numpy as np
+import algorithms.matrix_builder as matrix_builder
 
 
 def set_vrp_parameters(vrp_params):
@@ -47,7 +48,7 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Node Service Times\n- Current: {}\n- Default: 0\nInput File Name > "
+        user_input = input("VRP - Node Service Times\n- Current: {}\n- Default: None\nInput File Name > "
                            .format(vrp_params.vrp_node_service_time))
         if user_input == "Q":
             return
@@ -79,7 +80,7 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("CVRP - Node Demands\n- Current: {}\n- Default: 0\nInput File Name > "
+        user_input = input("CVRP - Node Demands\n- Current: {}\n- Default: None\nInput File Name > "
                            .format(vrp_params.cvrp_node_demand))
         if user_input == "Q":
             return
@@ -125,7 +126,7 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRPTW - Node Penalty Coefficients\n- Current: {}\n- Default: 0.00\n"
+        user_input = input("VRPTW - Node Penalty Coefficients\n- Current: {}\n- Default: None\n"
                            "Input File Name > "
                            .format(vrp_params.vrptw_node_penalty))
         if user_input == "Q":
@@ -220,7 +221,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Selection Probability\n- Current: {}\n- Default: 0.75\n"
+        user_input = input("GEN - Selection Probability\n- Current: {:0.2f}\n- Default: 0.75\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.selection_probability))
         if user_input == "Q":
@@ -257,7 +258,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Crossover Probability\n- Current: {}\n- Default: 0.90\n"
+        user_input = input("GEN - Crossover Probability\n- Current: {:0.2f}\n- Default: 0.90\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.crossover_probability))
         if user_input == "Q":
@@ -267,7 +268,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Mutation Probability\n- Current: {}\n- Default: 0.05\n"
+        user_input = input("GEN - Mutation Probability\n- Current: {:0.2f}\n- Default: 0.05\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.mutation_probability))
         if user_input == "Q":
@@ -277,7 +278,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Followup Probability\n- Current: {}\n- Default: 0.70\n"
+        user_input = input("GEN - Followup Probability\n- Current: {:0.2f}\n- Default: 0.70\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.followup_probability))
         if user_input == "Q":
@@ -315,3 +316,166 @@ def set_algorithm_parameters(alg_params):
             alg_params.elitism_frequency = int(user_input)
     except ValueError:
         print("Invalid value. Aborting...")
+
+
+def save_params(filename, vrp_params, alg_params):
+    """
+    Saves current parameter settings into two identically named text files.
+    :param filename: The name that is to be given for the file.
+    :param vrp_params: VRP parameters to be saved.
+    :param alg_params: Algorithmic parameters to be saved.
+    """
+
+    # ---------------------------------------------------------------
+    # - VRP - Parameters --------------------------------------------
+    # ---------------------------------------------------------------
+
+    if vrp_params.vrp_coordinates is None:
+        content_type = "matrix"
+        content_name = vrp_params.cost_matrices_name
+        overriding_content_name = "None"
+    else:
+        content_type = "coordinates"
+        content_name = vrp_params.coordinates_name
+        overriding_content_name = str(vrp_params.cost_matrices_name)
+        if overriding_content_name == "undefined":
+            overriding_content_name = "None"
+
+    with open("variables/parameter_settings/vrp/" + filename + ".txt", "a") as file:
+        file.write("vrp_contents={}={}\n".format(content_type, content_name))
+        file.write("vrp_path_table_override={}\n".format(overriding_content_name))
+        file.write("vrp_depot_node={}\n".format(str(vrp_params.vrp_depot_node)))
+        file.write("vrp_vehicle_count={}\n".format(str(vrp_params.vrp_vehicle_count)))
+        file.write("vrp_vehicle_variance={}\n".format(str(vrp_params.vrp_vehicle_variance)))
+        file.write("vrp_node_service_time={}\n".format(str(vrp_params.node_service_times_name)))
+        file.write("vrp_distance_time_ratio={}\n".format(str(vrp_params.vrp_distance_time_ratio)))
+        file.write("cvrp_vehicle_capacity={}\n".format(str(vrp_params.cvrp_vehicle_capacity)))
+        file.write("cvrp_node_demand={}\n".format(str(vrp_params.node_demands_name)))
+        file.write("ovrp_enabled={}\n".format(str(vrp_params.ovrp_enabled)))
+        file.write("vrpp_node_profit={}\n".format(str(vrp_params.node_profits_name)))
+        file.write("vrptw_node_time_window={}\n".format(str(vrp_params.node_time_windows_name)))
+        file.write("vrptw_node_penalty={}".format(str(vrp_params.node_penalties_name)))
+
+    # ---------------------------------------------------------------
+    # - GENALG - Parameters -----------------------------------------
+    # ---------------------------------------------------------------
+
+    with open("variables/parameter_settings/genalg/" + filename + ".txt", "a") as file:
+        file.write("population_count={}\n".format(alg_params.population_count))
+        file.write("generation_count_min={}\n".format(str(alg_params.generation_count_min)))
+        file.write("generation_count_max={}\n".format(str(alg_params.generation_count_max)))
+        file.write("fitness_evaluator={}\n".format(str(alg_params.fitness_evaluator)))
+        file.write("parent_candidate_count={}\n".format(str(alg_params.parent_candidate_count)))
+        file.write("parent_selection_function={}\n".format(str(alg_params.parent_selection_function)))
+        file.write("selection_probability={}\n".format(str(alg_params.selection_probability)))
+        file.write("offspring_pair_count={}\n".format(str(alg_params.offspring_pair_count)))
+        file.write("crossover_operator={}\n".format(str(alg_params.crossover_operator)))
+        file.write("crossover_probability={}\n".format(str(alg_params.crossover_probability)))
+        file.write("mutation_probability={}\n".format(str(alg_params.mutation_probability)))
+        file.write("followup_probability={}\n".format(str(alg_params.followup_probability)))
+        file.write("elitism_operator={}\n".format(str(alg_params.elitism_operator)))
+        file.write("elitism_frequency={}".format(str(alg_params.elitism_frequency)))
+
+
+def load_params(filename, vrp_params, alg_params):
+    """
+    Assigns parameters found in specified file to parameter instances.
+    :param filename: Name of the subject file.
+    :param vrp_params: VRP parameters.
+    :param alg_params: Algorithmic parameters.
+    """
+
+    # ---------------------------------------------------------------
+    # - VRP - Parameters --------------------------------------------
+    # ---------------------------------------------------------------
+
+    with open("variables/parameter_settings/vrp/" + filename + ".txt") as file:
+        contents = file.readlines()
+
+    coordinates = None
+    overriding_matrix = None
+
+    contents = [x.strip() for x in contents]
+    for line in contents:
+        key_value = line.split("=")
+
+        if key_value[0] == "vrp_contents":
+            file_type = key_value[1]
+            file_name = key_value[2]
+            if file_type == "matrix":
+                matrix_builder.select_cost_matrix(vrp_params, name=file_name)
+            elif file_type == "coordinates":
+                coordinates = file_name
+        elif key_value[0] == "vrp_path_table_override":
+            overriding_matrix = key_value[1]
+
+        elif key_value[0] == "vrp_depot_node":
+            vrp_params.vrp_depot_node = int(key_value[1])
+        elif key_value[0] == "vrp_vehicle_count":
+            vrp_params.vrp_vehicle_count = int(key_value[1])
+        elif key_value[0] == "vrp_vehicle_variance":
+            vrp_params.vrp_vehicle_variance = int(key_value[1])
+        elif key_value[0] == "vrp_node_service_time":
+            matrix_builder.select_service_times_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "vrp_distance_time_ratio":
+            vrp_params.vrp_distance_time_ratio = int(key_value[1])
+        elif key_value[0] == "cvrp_vehicle_capacity":
+            vrp_params.cvrp_vehicle_capacity = int(key_value[1])
+        elif key_value[0] == "cvrp_node_demand":
+            matrix_builder.select_demands_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "ovrp_enabled":
+            vrp_params.ovrp_enabled = bool(key_value[1])
+        elif key_value[0] == "vrpp_node_profit":
+            matrix_builder.select_profits_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "vrptw_node_time_window":
+            matrix_builder.select_time_windows_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "vrptw_node_penalty":
+            matrix_builder.select_penalties_matrix(vrp_params, name=key_value[1])
+
+    if coordinates is not None:
+        if overriding_matrix == "None":
+            overriding_matrix = None
+        matrix_builder.select_coordinates_matrix(
+            vrp_params,
+            name=coordinates,
+            name_override=overriding_matrix
+        )
+
+    # ---------------------------------------------------------------
+    # - GENALG - Parameters -----------------------------------------
+    # ---------------------------------------------------------------
+
+    with open("variables/parameter_settings/genalg/" + filename + ".txt") as file:
+        contents = file.readlines()
+
+    contents = [x.strip() for x in contents]
+    for line in contents:
+        key_value = line.split("=")
+        if key_value[0] == "population_count":
+            alg_params.population_count = int(key_value[1])
+        elif key_value[0] == "generation_count_min":
+            alg_params.generation_count_min = int(key_value[1])
+        elif key_value[0] == "generation_count_max":
+            alg_params.generation_count_max = int(key_value[1])
+        elif key_value[0] == "fitness_evaluator":
+            alg_params.fitness_evaluator = int(key_value[1])
+        elif key_value[0] == "parent_candidate_count":
+            alg_params.parent_candidate_count = int(key_value[1])
+        elif key_value[0] == "parent_selection_function":
+            alg_params.parent_selection_function = int(key_value[1])
+        elif key_value[0] == "selection_probability":
+            alg_params.selection_probability = float(key_value[1])
+        elif key_value[0] == "offspring_pair_count":
+            alg_params.offspring_pair_count = int(key_value[1])
+        elif key_value[0] == "crossover_operator":
+            alg_params.crossover_operator = int(key_value[1])
+        elif key_value[0] == "crossover_probability":
+            alg_params.crossover_probability = float(key_value[1])
+        elif key_value[0] == "mutation_probability":
+            alg_params.mutation_probability = float(key_value[1])
+        elif key_value[0] == "followup_probability":
+            alg_params.followup_probability = float(key_value[1])
+        elif key_value[0] == "elitism_operator":
+            alg_params.elitism_operator = int(key_value[1])
+        elif key_value[0] == "elitism_frequency":
+            alg_params.elitism_frequency = int(key_value[1])

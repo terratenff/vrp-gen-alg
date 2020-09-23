@@ -38,11 +38,15 @@ def inspect(code, vrp_params, alg_params):
     elif code == 6:
         param_builder.set_algorithm_parameters(alg_params)
     elif code == 7:
-        # TODO: Save Parameter Settings
-        pass
+        param_name = input("Save current parameter settings as?\n(Empty input to abort) > ")
+        if param_name.isspace() is False:
+            print("Attempting to save parameters...")
+            param_builder.save_params(param_name, vrp_params, alg_params)
     elif code == 8:
-        # TODO: Load Parameter Settings
-        pass
+        param_name = input("Specify the name of the parameter settings to load.\n(Empty input to abort) > ")
+        if param_name.isspace() is False:
+            print("Attempting to load parameters...")
+            param_builder.load_params(param_name, vrp_params, alg_params)
     elif code == 9:
         vrp_params.print()
         print()
@@ -60,9 +64,9 @@ def data_interaction(purpose_str):
     :return: User input that specifies data in question.
     """
 
-    print("-----------------------------------")
+    print("----------------------------------------------------------------------")
     print(purpose_str)
-    print("-----------------------------------")
+    print("----------------------------------------------------------------------")
     print("1 - Node Cost Matrix")
     print("2 - Node XY-Coordinates")
     print("3 - Node Demands")
@@ -70,7 +74,7 @@ def data_interaction(purpose_str):
     print("5 - Node Profits")
     print("6 - Node Service Times")
     print("7 - Node Time Windows")
-    print("-----------------------------------")
+    print("----------------------------------------------------------------------")
     print("(Exit with 0)")
 
     return get_input(0, 7)

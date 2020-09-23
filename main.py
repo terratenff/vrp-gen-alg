@@ -19,7 +19,7 @@ def main():
     vrp_params = ParamsVRP(matrix_data)
     alg_params = ParamsGENALG()
 
-    vrp_params.content_name = matrix_file
+    vrp_params.cost_matrices_name = matrix_file
 
     code = -2
 
