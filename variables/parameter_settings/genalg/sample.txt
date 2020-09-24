@@ -1,4 +1,5 @@
 population_count=100
+population_initializer=0
 generation_count_min=10
 generation_count_max=100
 fitness_evaluator=0

@@ -381,6 +381,7 @@ def save_params(filename, vrp_params, alg_params):
 
     with open("variables/parameter_settings/genalg/" + filename + ".txt", "a") as file:
         file.write("population_count={}\n".format(alg_params.population_count))
+        file.write("population_initializer={}\n".format(str(alg_params.population_initializer)))
         file.write("generation_count_min={}\n".format(str(alg_params.generation_count_min)))
         file.write("generation_count_max={}\n".format(str(alg_params.generation_count_max)))
         file.write("fitness_evaluator={}\n".format(str(alg_params.fitness_evaluator)))
@@ -472,6 +473,8 @@ def load_params(filename, vrp_params, alg_params):
         key_value = line.split("=")
         if key_value[0] == "population_count":
             alg_params.population_count = int(key_value[1])
+        elif key_value[0] == "population_initializer":
+            alg_params.population_initializer = int(key_value[1])
         elif key_value[0] == "generation_count_min":
             alg_params.generation_count_min = int(key_value[1])
         elif key_value[0] == "generation_count_max":
