@@ -51,10 +51,13 @@ def data_selector(vrp_params, code, sub_code):
         if sub_code == 1:    # Cost Matrix
             print("Cannot deselect cost matrix!")
         elif sub_code == 2:  # Coordinates
+            if vrp_params.vrp_coordinates is None:
+                print("Coordinates have been deselected.")
+                return
             vrp_params.vrp_coordinates = None
             vrp_params.coordinates_name = None
             vrp_params.cost_matrices_name = "undefined"
-            print("Coordinates have been deselected. The cost matrix associated with it remains as-is.")
+            print("Coordinates have been deselected.\nThe cost matrix associated with it remains as-is.")
         elif sub_code == 3:  # Demands
             vrp_params.cvrp_node_demand = None
             vrp_params.node_demands_name = None
@@ -169,7 +172,7 @@ def generate_coordinates_matrix(vrp_params):
     response = input("Create and save an overriding cost matrix? (y/n) > ")
     if response.upper() == "Y":
         new_name = input("Overriding Cost Matrix Name > ")
-        np.savetxt("variables/coordinates/" + new_name + ".txt", vrp_params.vrp_path_table, fmt="%.0f")
+        np.savetxt("variables/cost_matrices/" + new_name + ".txt", vrp_params.vrp_path_table, fmt="%.0f")
 
 
 def generate_demands_matrix(vrp_params):
@@ -347,7 +350,7 @@ def select_coordinates_matrix(vrp_params, name=None, name_override=None):
             else:
                 overriding_matrix_name = name_override
 
-            overriding_temp_data = load_data(matrix_name, "cost_matrices")
+            overriding_temp_data = load_data(overriding_matrix_name, "cost_matrices")
             if overriding_temp_data is not None:
                 vrp_params.set_contents(temp_data,
                                         path_table_override=overriding_temp_data,

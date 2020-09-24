@@ -214,6 +214,7 @@ class ParamsGENALG:
 
     def __init__(self,
                  population_count=100,
+                 population_initializer=0,
                  generation_count_min=10,
                  generation_count_max=100,
                  fitness_evaluator=0,
@@ -230,6 +231,7 @@ class ParamsGENALG:
         """
         Constructor for GA parameters.
         :param population_count: Number of instances that contain the solution for the problem.
+        :param population_initializer: Function that initializes population for the first generation.
         :param generation_count_min: Number of generations that must be created before termination.
         :param generation_count_max: Number of generations that cannot be exceeded.
         :param fitness_evaluator: Objective fitness function.
@@ -261,6 +263,7 @@ class ParamsGENALG:
         """
 
         self.population_count = population_count
+        self.population_initializer = population_initializer
         self.generation_count_min = generation_count_min
         self.generation_count_max = generation_count_max
         self.fitness_evaluator = fitness_evaluator
@@ -275,6 +278,13 @@ class ParamsGENALG:
         self.elitism_operator = elitism_operator
         self.elitism_frequency = elitism_frequency
 
+        self.str_population_initializer = [
+            "Random",
+            "Mutated Copies",
+            "Gene Permutation",
+            "Chromosome Permutation",
+            "Sweep Algorithm"
+        ]
         self.str_fitness_evaluator = [
             "Total Cost",
             "Total Distance",
@@ -302,6 +312,7 @@ class ParamsGENALG:
         Convenience function for printing GA parameters.
         """
 
+        pop_str = self.str_population_initializer[self.population_initializer]
         fit_str = self.str_fitness_evaluator[self.fitness_evaluator]
         par_sel_str = self.str_parent_selection_function[self.parent_selection_function]
         cross_str = self.str_crossover_operator[self.crossover_operator]
@@ -316,6 +327,7 @@ class ParamsGENALG:
 
         print("- Genetic Algorithm Parameters ---------------------------------------------------")
         print("GEN - Population Count          | {}".format(self.population_count))
+        print("ALG - Population Initializer    | {}".format(pop_str))
         print("GEN - Minimum Generation Count  | {}".format(self.generation_count_min))
         print("GEN - Maximum Generation Count  | {}".format(self.generation_count_max))
         print("ALG - Fitness Evaluator         | {}".format(fit_str))
@@ -325,7 +337,7 @@ class ParamsGENALG:
         print("GEN - Offspring Pair Count      | {}".format(self.offspring_pair_count))
         print("ALG - Crossover Operator        | {}".format(cross_str))
         print("GEN - Crossover Probability     | {:0.2f}".format(self.crossover_probability))
-        print("GEN - Mutation Probability      | {:0.2f}".format(self.mutation_probability))
+        print("GEN - Mutation Probability      | {:0.3f}".format(self.mutation_probability))
         print("GEN - Followup Probability      | {:0.2f}".format(self.followup_probability))
         print("ALG - Elitism Managing Operator | {}".format(elite_str))
         print("GEN - Elitism Management Rate   | {}".format(elite_fr_str))

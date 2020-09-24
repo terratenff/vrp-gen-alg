@@ -160,6 +160,25 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
+        user_input = input("ALG - Population Initializer\n"
+                           "- 0 = Random\n"
+                           "- 1 = Mutated Copies\n"
+                           "- 2 = Gene Permutation\n"
+                           "- 3 = Chromosome Permutation\n"
+                           "- 4 = Sweep Algorithm\n"
+                           "- Current: {}\n- Default: 0\n> "
+                           .format(alg_params.fitness_evaluator))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            if int(user_input) < 0 or int(user_input) > 4:
+                while int(user_input) < 0 or int(user_input) > 4:
+                    print("Input value is outside expected range.")
+                    user_input = input("> ")
+            alg_params.population_initializer = int(user_input)
+
+        # -----------------------------------------------------------------------
+
         user_input = input("GEN - Minimum Generation Count\n- Current: {}\n- Default: 10\n> "
                            .format(alg_params.generation_count_min))
         if user_input == "Q":
@@ -268,8 +287,8 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Mutation Probability\n- Current: {:0.2f}\n- Default: 0.05\n"
-                           "Input Range: [0.00, 1.00] > "
+        user_input = input("GEN - Mutation Probability\n- Current: {:0.3f}\n- Default: 0.05\n"
+                           "Input Range: [0.000, 1.000] > "
                            .format(alg_params.mutation_probability))
         if user_input == "Q":
             return
