@@ -21,30 +21,30 @@ def set_vrp_parameters(vrp_params):
     print("(Input Q to abort and save any changes)")
 
     try:
-        user_input = input("VRP - Depot Node\n- Current: {}\n- Default: 0\n> "
-                           .format(vrp_params.vrp_depot_node))
+        user_input = input("VRP - Vehicle Count (Minimum)\n- Current: {}\n- Default: 1\n> "
+                           .format(vrp_params.vrp_vehicle_count_min))
         if user_input == "Q":
             return
         elif user_input != "N":
-            vrp_params.vrp_depot_node = int(user_input)
+            vrp_params.vrp_vehicle_count_min = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Vehicle Count\n- Current: {}\n- Default: 3\n> "
-                           .format(vrp_params.vrp_vehicle_count))
+        user_input = input("VRP - Vehicle Count (Maximum)\n- Current: {}\n- Default: 4\n> "
+                           .format(vrp_params.vrp_vehicle_count_max))
         if user_input == "Q":
             return
         elif user_input != "N":
-            vrp_params.vrp_vehicle_count = int(user_input)
+            vrp_params.vrp_vehicle_count_max = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Vehicle Variance\n- Current: {}\n- Default: 3\n> "
-                           .format(vrp_params.vrp_vehicle_variance))
+        user_input = input("VRP - Minimize Vehicle Count\n- Current: {}\n- Default: False\n(True/False) > "
+                           .format(vrp_params.vrp_minimize_vehicle_count))
         if user_input == "Q":
             return
         elif user_input != "N":
-            vrp_params.vrp_vehicle_variance = int(user_input)
+            vrp_params.vrp_minimize_vehicle_count = bool(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -59,6 +59,24 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
+        user_input = input("VRP - Maximum Route Time\n- Current: {}\n- Default: None\n> "
+                           .format(vrp_params.vrp_maximum_route_time))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_maximum_route_time = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRP - Maximum Route Distance\n- Current: {}\n- Default: None\n> "
+                           .format(vrp_params.vrp_maximum_route_distance))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_maximum_route_distance = int(user_input)
+
+        # -----------------------------------------------------------------------
+
         user_input = input("VRP - Distance-to-Time Ratio\n- Current: {}\n- Default: 1\n"
                            "Positive integer: 'n' distance units to 1 time unit\n"
                            "Negative integer: 1 distance unit to 'n' time units\n"
@@ -68,6 +86,30 @@ def set_vrp_parameters(vrp_params):
             return
         elif user_input != "N":
             vrp_params.vrp_distance_time_ratio = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRP - Time-to-Cost Ratio\n- Current: {}\n- Default: 1\n"
+                           "Positive integer: 'n' time units to 1 cost unit\n"
+                           "Negative integer: 1 time unit to 'n' cost units\n"
+                           "0: 'n' time units to 0 cost units\n> "
+                           .format(vrp_params.vrp_time_cost_ratio))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_time_cost_ratio = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRP - Distance-to-Cost Ratio\n- Current: {}\n- Default: 1\n"
+                           "Positive integer: 'n' distance units to 1 cost unit\n"
+                           "Negative integer: 1 distance unit to 'n' cost units\n"
+                           "0: 'n' distance units to 0 cost units\n> "
+                           .format(vrp_params.vrp_distance_cost_ratio))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrp_distance_cost_ratio = int(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -91,7 +133,7 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("OVRP - Enabled\n- Current: {}\n- Default: False\nTrue/False > "
+        user_input = input("OVRP - Enabled\n- Current: {}\n- Default: False\n(True/False) > "
                            .format(vrp_params.ovrp_enabled))
         if user_input == "Q":
             return
@@ -111,6 +153,16 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
+        user_input = input("MDVRP - Depot Nodes\n- Current: {}\n- Default: 0\n"
+                           "Input Nodes separated by whitespace (Example: '0 1 2')\n> "
+                           .format(vrp_params.mdvrp_depot_node))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.mdvrp_depot_node = [int(i) for i in user_input.split(" ")]
+
+        # -----------------------------------------------------------------------
+
         user_input = input("VRPTW - Node Time Windows\n- Current: {}\n- Default: None\n"
                            "Input File Name (or 'None') > "
                            .format(vrp_params.vrptw_node_time_window))
@@ -127,14 +179,17 @@ def set_vrp_parameters(vrp_params):
         # -----------------------------------------------------------------------
 
         user_input = input("VRPTW - Node Penalty Coefficients\n- Current: {}\n- Default: None\n"
-                           "Input File Name > "
+                           "Input File Name (or 'None') > "
                            .format(vrp_params.vrptw_node_penalty))
         if user_input == "Q":
             return
         elif user_input != "N":
-            vrp_params.vrptw_node_penalty = \
-                list(np.loadtxt("variables/node_penalties/" + user_input + ".txt",
-                                dtype=float))[0]
+            if user_input.upper() == "NONE":
+                vrp_params.vrptw_node_penalty = None
+            else:
+                vrp_params.vrptw_node_penalty = \
+                    list(np.loadtxt("variables/node_penalties/" + user_input + ".txt",
+                                    dtype=float))[0]
 
     except ValueError:
         print("Invalid value. Aborting...")
@@ -363,15 +418,23 @@ def save_params(filename, vrp_params, alg_params):
     with open("variables/parameter_settings/vrp/" + filename + ".txt", "a") as file:
         file.write("vrp_contents={}={}\n".format(content_type, content_name))
         file.write("vrp_path_table_override={}\n".format(overriding_content_name))
-        file.write("vrp_depot_node={}\n".format(str(vrp_params.vrp_depot_node)))
-        file.write("vrp_vehicle_count={}\n".format(str(vrp_params.vrp_vehicle_count)))
-        file.write("vrp_vehicle_variance={}\n".format(str(vrp_params.vrp_vehicle_variance)))
+        file.write("vrp_vehicle_count_min={}\n".format(str(vrp_params.vrp_vehicle_count_min)))
+        file.write("vrp_vehicle_count_max={}\n".format(str(vrp_params.vrp_vehicle_count_max)))
+        file.write("vrp_minimize_vehicle_count={}\n".format(str(vrp_params.vrp_minimize_vehicle_count)))
         file.write("vrp_node_service_time={}\n".format(str(vrp_params.node_service_times_name)))
+        file.write("vrp_maximum_route_time={}\n".format(str(vrp_params.vrp_maximum_route_time)))
+        file.write("vrp_maximum_route_distance={}\n".format(str(vrp_params.vrp_maximum_route_distance)))
         file.write("vrp_distance_time_ratio={}\n".format(str(vrp_params.vrp_distance_time_ratio)))
+        file.write("vrp_time_cost_ratio={}\n".format(str(vrp_params.vrp_time_cost_ratio)))
+        file.write("vrp_distance_cost_ratio={}\n".format(str(vrp_params.vrp_distance_cost_ratio)))
         file.write("cvrp_vehicle_capacity={}\n".format(str(vrp_params.cvrp_vehicle_capacity)))
         file.write("cvrp_node_demand={}\n".format(str(vrp_params.node_demands_name)))
         file.write("ovrp_enabled={}\n".format(str(vrp_params.ovrp_enabled)))
         file.write("vrpp_node_profit={}\n".format(str(vrp_params.node_profits_name)))
+        file.write("mdvrp_depot_node={}\n".format(str(vrp_params.mdvrp_depot_node)
+                                                  .replace("[", "")
+                                                  .replace("]", "")
+                                                  .replace(",", "")))
         file.write("vrptw_node_time_window={}\n".format(str(vrp_params.node_time_windows_name)))
         file.write("vrptw_node_penalty={}".format(str(vrp_params.node_penalties_name)))
 
@@ -429,16 +492,24 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrp_path_table_override":
             overriding_matrix = key_value[1]
 
-        elif key_value[0] == "vrp_depot_node":
-            vrp_params.vrp_depot_node = int(key_value[1])
-        elif key_value[0] == "vrp_vehicle_count":
-            vrp_params.vrp_vehicle_count = int(key_value[1])
-        elif key_value[0] == "vrp_vehicle_variance":
-            vrp_params.vrp_vehicle_variance = int(key_value[1])
+        elif key_value[0] == "vrp_vehicle_count_min":
+            vrp_params.vrp_vehicle_count_min = int(key_value[1])
+        elif key_value[0] == "vrp_vehicle_count_max":
+            vrp_params.vrp_vehicle_count_max = int(key_value[1])
+        elif key_value[0] == "vrp_minimize_vehicle_count":
+            vrp_params.vrp_minimize_vehicle_count = str(bool((key_value[1])))
         elif key_value[0] == "vrp_node_service_time":
             matrix_builder.select_service_times_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "vrp_maximum_route_time":
+            vrp_params.vrp_maximum_route_time = int(key_value[1])
+        elif key_value[0] == "vrp_maximum_route_distance":
+            vrp_params.vrp_maximum_route_distance = int(key_value[1])
         elif key_value[0] == "vrp_distance_time_ratio":
             vrp_params.vrp_distance_time_ratio = int(key_value[1])
+        elif key_value[0] == "vrp_time_cost_ratio":
+            vrp_params.vrp_time_cost_ratio = int(key_value[1])
+        elif key_value[0] == "vrp_distance_cost_ratio":
+            vrp_params.vrp_distance_cost_ratio = int(key_value[1])
         elif key_value[0] == "cvrp_vehicle_capacity":
             vrp_params.cvrp_vehicle_capacity = int(key_value[1])
         elif key_value[0] == "cvrp_node_demand":
@@ -447,6 +518,8 @@ def load_params(filename, vrp_params, alg_params):
             vrp_params.ovrp_enabled = bool(key_value[1])
         elif key_value[0] == "vrpp_node_profit":
             matrix_builder.select_profits_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "mdvrp_depot_node":
+            vrp_params.mdvrp_depot_node = int(key_value[1])
         elif key_value[0] == "vrptw_node_time_window":
             matrix_builder.select_time_windows_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrptw_node_penalty":

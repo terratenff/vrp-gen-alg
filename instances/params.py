@@ -17,15 +17,20 @@ class ParamsVRP:
     def __init__(self,
                  vrp_contents,
                  vrp_path_table_override=None,
-                 vrp_depot_node=0,
-                 vrp_vehicle_count=3,
-                 vrp_vehicle_variance=0,
+                 vrp_vehicle_count_min=1,
+                 vrp_vehicle_count_max=4,
+                 vrp_minimize_vehicle_count=False,
                  vrp_node_service_time=None,
+                 vrp_maximum_route_time=None,
+                 vrp_maximum_route_distance=None,
                  vrp_distance_time_ratio=1,
+                 vrp_time_cost_ratio=1,
+                 vrp_distance_cost_ratio=1,
                  cvrp_vehicle_capacity=0,
                  cvrp_node_demand=None,
                  ovrp_enabled=False,
                  vrpp_node_profit=None,
+                 mdvrp_depot_node=None,
                  vrptw_node_time_window=None,
                  vrptw_node_penalty=None
                  ):
@@ -36,38 +41,67 @@ class ParamsVRP:
         floats will be rounded to integers.
         List of node positions can be given with a list of tuples. [(x1,y1), (x2,y2), (x3,y3), ...]
         Support for drawing a map is available for the latter content format.
+
         :param vrp_path_table_override: Contents that are to be used in the VRP - ONLY IF
         node coordinates are provided as well.
-        :param vrp_depot_node: Index of the depot.
-        :param vrp_vehicle_count: Number of initial vehicles available for the problem.
-        :param vrp_vehicle_variance: Variance of available vehicles for mutations.
-        For example, if vehicle count is 4 and vehicle variance is 2, then the number
-        of vehicles used for the problem is allowed to vary between the range [4 - 2, 4 + 2].
+
+        :param vrp_vehicle_count_min: Number of vehicles that are required for the problem.
+
+        :param vrp_vehicle_count_max: Number of vehicles that cannot be exceeded.
+
+        :param vrp_minimize_vehicle_count: Determines whether the number of vehicles used
+        in the problem should be minimized. If set to True, solution instances are always
+        given minimum number of vehicles upon initialization. If set to False, solution
+        instances are given a random number of vehicles between minimum and maximum upon
+        initialization.
+
         :param vrp_node_service_time: Time taken to supply the nodes upon vehicle arrival.
         If given as a single value, every node will have the same service time.
         If given as a list, its length must match total number of nodes, including depot node.
         List index is a node, and the value within is that node's service time.
-        :param vrp_distance_time_ratio: Conversion rate from distance to time.
+
+        :param vrp_maximum_route_time: Determines the time that each vehicle is allowed to spend
+        on their routes. If this limit is exceeded, the solution the vehicles represent is invalid.
+        If set to None, no limit is set.
+
+        :param vrp_maximum_route_distance: Determines the total distance that each vehicle is allowed
+        to move on their routes. If this limit is exceeded, the solution the vehicles represent is invalid.
+        If set to None, no limit is set.
+
+        :param vrp_distance_time_ratio: Conversion rate from distance to time. Multiply by -1 for reverse operation.
         Example values: Ratio 1 converts 1 distance unit to 1 time unit.
         Ratio 5 converts every 5 distance units to 1 time unit. Integer division by 5 is performed.
         Ratio -10 converts 1 distance unit into 10 time units. Integer multiplication by 10 is performed.
         Use integers only. If set to zero, distance units do not convert to time; in other words,
         any amount of distance converts to 0 time units.
+
+        :param vrp_time_cost_ratio: Conversion rate from time to cost. Multiply by -1 for reverse operation.
+        See vrp_distance_time_ratio for more details.
+
+        :param vrp_distance_cost_ratio: Conversion rate from distance to cost. Multiply by -1 for reverse operation.
+        See vrp_distance_time_ratio for more details.
+
         :param cvrp_vehicle_capacity: Maximum supply capacity of each vehicle.
         If given as a single value, every vehicle will have the same capacity.
         If given as a list, its length must match total number of vehicles.
         List index is a vehicle, and the value within is that vehicle's supply capacity.
+
         :param cvrp_node_demand: Supply demand of each node. This is ignored with the depot node.
         A single integer value is expected: it is assumed that every vehicle has the same capacity.
+
         :param ovrp_enabled: Flag that determines whether the vehicles have to return to the depot
         once they complete their rounds.
         If True, the problem becomes "open", letting vehicles stop at their final destinations.
         If False, the problem is "closed", forcing vehicles to go back to the depot.
+
         :param vrpp_node_profit: Profit gained from visiting nodes.
         If set to None, VRPP nature of the problem is disabled.
         If given as a single value, every vehicle will yield the same profit.
-        If given as a list, its length must match total number of nodes, including depot node.
+        If given as a list, its length must match total number of nodes, including depot nodes.
         List index is a node, and the value within is that node's profit value.
+
+        :param mdvrp_depot_node: List of nodes that are to be treated like depot nodes.
+
         :param vrptw_node_time_window: Time frames at which a vehicle is expected to visit the node:
         if a vehicle arrives too early, it will have to wait for the time window to take place.
         If time windows are to be used, provide a list of tuples, totaling to the number of nodes,
@@ -75,6 +109,7 @@ class ParamsVRP:
         that a vehicle is allowed to be out for).
         Expected tuple-list format: [(start0, end0), (start1, end1), (start2, end2), ...]
         If set to None, this is ignored.
+
         :param vrptw_node_penalty: Coefficient that determines the scale of the penalty value.
         Penalty value is based on how late a vehicle arrives at a node.
         This is used ONLY IF time windows are being used.
@@ -95,15 +130,28 @@ class ParamsVRP:
         self.vrp_coordinates = None
         self.set_contents(vrp_contents, path_table_override=vrp_path_table_override)
 
-        self.vrp_vehicle_count = vrp_vehicle_count
-        self.vrp_depot_node = vrp_depot_node
-        self.vrp_vehicle_variance = vrp_vehicle_variance
+        self.vrp_vehicle_count_min = vrp_vehicle_count_min
+        self.vrp_vehicle_count_max = vrp_vehicle_count_max
+        self.vrp_minimize_vehicle_count = vrp_minimize_vehicle_count
         self.vrp_node_service_time = vrp_node_service_time
+        self.vrp_maximum_route_time = vrp_maximum_route_time
+        self.vrp_maximum_route_distance = vrp_maximum_route_distance
         self.vrp_distance_time_ratio = vrp_distance_time_ratio
+        self.vrp_time_cost_ratio = vrp_time_cost_ratio
+        self.vrp_distance_cost_ratio = vrp_distance_cost_ratio
+
         self.cvrp_vehicle_capacity = cvrp_vehicle_capacity
         self.cvrp_node_demand = cvrp_node_demand
+
         self.ovrp_enabled = ovrp_enabled
+
         self.vrpp_node_profit = vrpp_node_profit
+
+        if mdvrp_depot_node is None:
+            self.mdvrp_depot_node = [0]
+        else:
+            self.mdvrp_depot_node = mdvrp_depot_node
+
         self.vrptw_node_time_window = vrptw_node_time_window
         self.vrptw_node_penalty = vrptw_node_penalty
 
@@ -185,24 +233,43 @@ class ParamsVRP:
             np2_str = self.vrptw_node_penalty.tolist()
 
         if self.vrp_distance_time_ratio > 0:
-            conversion_str = "{} to 1".format(str(self.vrp_distance_time_ratio))
+            conversion1_str = "{} to 1".format(str(self.vrp_distance_time_ratio))
         elif self.vrp_distance_time_ratio < 0:
-            conversion_str = "1 to {}".format(str(self.vrp_distance_time_ratio * (-1)))
+            conversion1_str = "1 to {}".format(str(self.vrp_distance_time_ratio * (-1)))
         else:
-            conversion_str = "Does not convert to time"
+            conversion1_str = "Does not convert to time"
+
+        if self.vrp_time_cost_ratio > 0:
+            conversion2_str = "{} to 1".format(str(self.vrp_time_cost_ratio))
+        elif self.vrp_time_cost_ratio < 0:
+            conversion2_str = "1 to {}".format(str(self.vrp_time_cost_ratio * (-1)))
+        else:
+            conversion2_str = "Does not convert to cost"
+
+        if self.vrp_distance_cost_ratio > 0:
+            conversion3_str = "{} to 1".format(str(self.vrp_distance_cost_ratio))
+        elif self.vrp_distance_cost_ratio < 0:
+            conversion3_str = "1 to {}".format(str(self.vrp_distance_cost_ratio * (-1)))
+        else:
+            conversion3_str = "Does not convert to cost"
 
         print("- Problem Parameters ----------------------------------------------------")
         print("VRP   - Node Count                | {}".format(len(self.vrp_path_table)))
         print("VRP   - Using XY-Coordinates      | {}".format(self.vrp_coordinates is not None))
-        print("VRP   - Vehicle Count             | {}".format(self.vrp_vehicle_count))
-        print("VRP   - Depot Node                | {}".format(self.vrp_depot_node))
-        print("VRP   - Vehicle Variance          | {}".format(self.vrp_vehicle_variance))
+        print("VRP   - Vehicle Count (Minimum)   | {}".format(self.vrp_vehicle_count_min))
+        print("VRP   - Vehicle Count (Maximum)   | {}".format(self.vrp_vehicle_count_max))
+        print("VRP   - Minimize Vehicle Count    | {}".format(self.vrp_minimize_vehicle_count))
         print("VRP   - Node Service Time         | {}".format(nst_str))
-        print("VRP   - Distance-to-Time Ratio    | {}".format(conversion_str))
+        print("VRP   - Maximum Route Time        | {}".format(self.vrp_maximum_route_time))
+        print("VRP   - Maximum Route Distance    | {}".format(self.vrp_maximum_route_distance))
+        print("VRP   - Distance-to-Time Ratio    | {}".format(conversion1_str))
+        print("VRP   - Time-to-Cost Ratio        | {}".format(conversion2_str))
+        print("VRP   - Distance-to-Cost Ratio    | {}".format(conversion3_str))
         print("CVRP  - Vehicle Supply Capacity   | {}".format(self.cvrp_vehicle_capacity))
         print("CVRP  - Node Supply Demand        | {}".format(nd_str))
         print("OVRP  - Enabled                   | {}".format(self.ovrp_enabled))
         print("VRPP  - Node Profit               | {}".format(np_str))
+        print("MDVRP - Depot Nodes               | {}".format(str(self.mdvrp_depot_node)))
         print("VRPTW - Node Time Window          | {}".format(ntw_str))
         print("VRPTW - Node Penalty Coefficient  | {}".format(np2_str))
 
