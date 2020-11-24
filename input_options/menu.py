@@ -18,21 +18,17 @@ def loop(vrp_params, alg_params):
     :return: User input and current state of problem instance.
     """
 
+    print("------- Selected Data List --------")
+    print("Distance Matrix: | " + str(vrp_params.cost_matrices_name))
+    print("Coordinates:     | " + str(vrp_params.coordinates_name))
+    print("Demands:         | " + str(vrp_params.node_demands_name))
+    print("Penalties:       | " + str(vrp_params.node_penalties_name))
+    print("Profits:         | " + str(vrp_params.node_profits_name))
+    print("Service Times:   | " + str(vrp_params.node_service_times_name))
+    print("Time Windows:    | " + str(vrp_params.node_time_windows_name))
     print("-----------------------------------")
-    print("Selected distance matrix: " + vrp_params.cost_matrices_name)
-    print("-----------------------------------")
-    print("1 - Generate data")
-    print("2 - Select data")
-    print("3 - Deselect data")
-    print("4 - View currently used data")
-    print("5 - Set problem parameters")
-    print("6 - Set algorithm parameters")
-    print("7 - Save parameters")
-    print("8 - Load parameters")
-    print("9 - View parameters")
-    print("0 - Run Genetic Algorithm")
-    print("-----------------------------------")
-    print("(Exit with -1)")
+    print("0 - RUN | 1 - Generate Data | 2 - Select Data | 3 - Deselect Data | 4 - View Data | 5 - Set Params (VRP) |"
+          " 6 - Set Params (GENALG) | 7 - Save Params | 8 - Load Params | 9 - View Params | -1 - Exit")
 
     code = get_input(-1, 9)
     output, vrp_params, alg_params = mediator.inspect(code, vrp_params, alg_params)
