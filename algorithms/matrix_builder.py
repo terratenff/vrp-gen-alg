@@ -382,6 +382,7 @@ def select_demands_matrix(vrp_params, name=None):
     temp_data = load_data(matrix_name, "node_demands")
     if temp_data is not None:
         vrp_params.cvrp_node_demand = temp_data
+        vrp_params.node_demands_name = matrix_name
 
 
 def select_penalties_matrix(vrp_params, name=None):
@@ -403,6 +404,7 @@ def select_penalties_matrix(vrp_params, name=None):
     temp_data = load_data(matrix_name, "node_penalties")
     if temp_data is not None:
         vrp_params.vrptw_node_penalty = temp_data
+        vrp_params.node_penalties_name = matrix_name
 
 
 def select_profits_matrix(vrp_params, name=None):
@@ -424,6 +426,7 @@ def select_profits_matrix(vrp_params, name=None):
     temp_data = load_data(matrix_name, "node_profits")
     if temp_data is not None:
         vrp_params.vrpp_node_profit = temp_data
+        vrp_params.node_profits_name = matrix_name
 
 
 def select_service_times_matrix(vrp_params, name=None):
@@ -445,6 +448,7 @@ def select_service_times_matrix(vrp_params, name=None):
     temp_data = load_data(matrix_name, "node_service_times")
     if temp_data is not None:
         vrp_params.vrp_node_service_time = temp_data
+        vrp_params.node_service_times_name = matrix_name
 
 
 def select_time_windows_matrix(vrp_params, name=None):
@@ -466,6 +470,7 @@ def select_time_windows_matrix(vrp_params, name=None):
     temp_data = load_data(matrix_name, "node_time_windows")
     if temp_data is not None:
         vrp_params.vrptw_node_time_window = temp_data
+        vrp_params.node_time_windows_name = matrix_name
 
 
 def initialize(name):

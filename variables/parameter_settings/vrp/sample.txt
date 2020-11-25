@@ -1,8 +1,6 @@
 vrp_contents=matrix=sample
 vrp_path_table_override=None
-vrp_vehicle_count_min=1
-vrp_vehicle_count_max=4
-vrp_minimize_vehicle_count=False
+vrp_vehicle_count=3
 vrp_node_service_time=None
 vrp_maximum_route_time=None
 vrp_maximum_route_distance=None

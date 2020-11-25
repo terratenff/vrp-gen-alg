@@ -21,30 +21,12 @@ def set_vrp_parameters(vrp_params):
     print("(Input Q to abort and save any changes)")
 
     try:
-        user_input = input("VRP - Vehicle Count (Minimum)\n- Current: {}\n- Default: 1\n> "
-                           .format(vrp_params.vrp_vehicle_count_min))
+        user_input = input("VRP - Vehicle Count\n- Current: {}\n- Default: 3\n> "
+                           .format(vrp_params.vrp_vehicle_count))
         if user_input == "Q":
             return
         elif user_input != "N":
-            vrp_params.vrp_vehicle_count_min = int(user_input)
-
-        # -----------------------------------------------------------------------
-
-        user_input = input("VRP - Vehicle Count (Maximum)\n- Current: {}\n- Default: 4\n> "
-                           .format(vrp_params.vrp_vehicle_count_max))
-        if user_input == "Q":
-            return
-        elif user_input != "N":
-            vrp_params.vrp_vehicle_count_max = int(user_input)
-
-        # -----------------------------------------------------------------------
-
-        user_input = input("VRP - Minimize Vehicle Count\n- Current: {}\n- Default: False\n(True/False) > "
-                           .format(vrp_params.vrp_minimize_vehicle_count))
-        if user_input == "Q":
-            return
-        elif user_input != "N":
-            vrp_params.vrp_minimize_vehicle_count = bool(user_input)
+            vrp_params.vrp_vehicle_count = int(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -133,7 +115,7 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("OVRP - Enabled\n- Current: {}\n- Default: False\n(True/False) > "
+        user_input = input("OVRP - Enable Open Routes\n- Current: {}\n- Default: False\n(True/False) > "
                            .format(vrp_params.ovrp_enabled))
         if user_input == "Q":
             return
@@ -150,6 +132,25 @@ def set_vrp_parameters(vrp_params):
             vrp_params.vrpp_node_profit = \
                 list(np.loadtxt("variables/node_profits/" + user_input + ".txt",
                                 dtype=int))[0]
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRPP - Exclude Travel Costs\n- Current: {}\n- Default: False\n(True/False) > "
+                           .format(vrp_params.vrpp_exclude_travel_costs))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrpp_exclude_travel_costs = bool(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRPP - Optional Nodes\n- Current: {}\n- Default: None\n"
+                           "Input Nodes separated by whitespace (Example: '0 1 2')\n> "
+                           .format(vrp_params.vrpp_optional_node))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrpp_optional_node = [int(i) for i in user_input.split(" ")]
 
         # -----------------------------------------------------------------------
 
@@ -191,6 +192,15 @@ def set_vrp_parameters(vrp_params):
                     list(np.loadtxt("variables/node_penalties/" + user_input + ".txt",
                                     dtype=float))[0]
 
+        # -----------------------------------------------------------------------
+
+        user_input = input("VRPTW - Hard Time Windows\n- Current: {}\n- Default: False\n(True/False) > "
+                           .format(vrp_params.vrptw_hard_windows))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.vrptw_hard_windows = bool(user_input)
+
     except ValueError:
         print("Invalid value. Aborting...")
 
@@ -217,24 +227,23 @@ def set_algorithm_parameters(alg_params):
 
         user_input = input("ALG - Population Initializer\n"
                            "- 0 = Random\n"
-                           "- 1 = Mutated Copies\n"
+                           "- 1 = Allele Permutation\n"
                            "- 2 = Gene Permutation\n"
-                           "- 3 = Chromosome Permutation\n"
-                           "- 4 = Sweep Algorithm\n"
+                           "- 3 = Simulated Annealing\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.fitness_evaluator))
         if user_input == "Q":
             return
         elif user_input != "N":
-            if int(user_input) < 0 or int(user_input) > 4:
-                while int(user_input) < 0 or int(user_input) > 4:
+            if int(user_input) < 0 or int(user_input) > 3:
+                while int(user_input) < 0 or int(user_input) > 3:
                     print("Input value is outside expected range.")
                     user_input = input("> ")
             alg_params.population_initializer = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Minimum Generation Count\n- Current: {}\n- Default: 10\n> "
+        user_input = input("GEN - Minimum Generation Count\n- Current: {}\n- Default: 100\n> "
                            .format(alg_params.generation_count_min))
         if user_input == "Q":
             return
@@ -243,7 +252,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Maximum Generation Count\n- Current: {}\n- Default: 100\n> "
+        user_input = input("GEN - Maximum Generation Count\n- Current: {}\n- Default: 1500\n> "
                            .format(alg_params.generation_count_max))
         if user_input == "Q":
             return
@@ -252,24 +261,52 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Fitness Evaluator\n"
-                           "- 0 = Total Cost\n"
-                           "- 1 = Total Distance\n"
-                           "- 2 = Longest Route\n"
-                           "- Current: {}\n- Default: 0\n> "
-                           .format(alg_params.fitness_evaluator))
+        user_input = input("ALG - Individual CPU Time Limit\n- Current: {} ms\n- Default: 5000 ms\nms > "
+                           .format(alg_params.cpu_individual_limit))
         if user_input == "Q":
             return
         elif user_input != "N":
-            if int(user_input) < 0 or int(user_input) > 2:
-                while int(user_input) < 0 or int(user_input) > 2:
-                    print("Input value is outside expected range.")
-                    user_input = input("> ")
-            alg_params.fitness_evaluator = int(user_input)
+            alg_params.cpu_individual_limit = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Parent Candidate Count\n- Current: {}\n- Default: 2\n> "
+        user_input = input("ALG - Total CPU Time Limit\n- Current: {} ms\n- Default: 60000 ms\nms > "
+                           .format(alg_params.cpu_total_limit))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.cpu_total_limit = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Fitness Lower Bound\n- Current: {}\n- Default: None\n> "
+                           .format(alg_params.fitness_lower_bound))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.fitness_lower_bound = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Fitness Upper Bound\n- Current: {}\n- Default: None\n> "
+                           .format(alg_params.fitness_upper_bound))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.fitness_upper_bound = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Fitness Threshold\n- Current: {}\n- Default: 0\n> "
+                           .format(alg_params.fitness_threshold))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.fitness_threshold = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("GEN - Parent Candidate Count\n- Current: {}\n- Default: 5\n> "
                            .format(alg_params.parent_candidate_count))
         if user_input == "Q":
             return
@@ -279,24 +316,24 @@ def set_algorithm_parameters(alg_params):
         # -----------------------------------------------------------------------
 
         user_input = input("ALG - Parent Selection Function\n"
-                           "- 0 = Best Fitness\n"
-                           "- 1 = Roulette Wheel\n"
-                           "- 2 = Tournament\n"
+                           "- 0 = Roulette Selection\n"
+                           "- 1 = Tournament >Selection\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.parent_selection_function))
         if user_input == "Q":
             return
         elif user_input != "N":
-            if int(user_input) < 0 or int(user_input) > 2:
-                while int(user_input) < 0 or int(user_input) > 2:
+            if int(user_input) < 0 or int(user_input) > 1:
+                while int(user_input) < 0 or int(user_input) > 1:
                     print("Input value is outside expected range.")
                     user_input = input("> ")
             alg_params.parent_selection_function = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Selection Probability\n- Current: {:0.2f}\n- Default: 0.75\n"
-                           "Input Range: [0.00, 1.00] > "
+        user_input = input("ALG - Tournament Probability\n- Current: {:0.2f}\n- Default: 0.75\n"
+                           "Input Range: [0.00, 1.00]\n"
+                           "This parameter applies only if Tournament Selection is used.\n> "
                            .format(alg_params.selection_probability))
         if user_input == "Q":
             return
@@ -305,27 +342,17 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Offspring Pair Count\n- Current: {}\n- Default: 1\n> "
-                           .format(alg_params.offspring_pair_count))
-        if user_input == "Q":
-            return
-        elif user_input != "N":
-            alg_params.offspring_pair_count = int(user_input)
-
-        # -----------------------------------------------------------------------
-
         user_input = input("ALG - Crossover Operator\n"
                            "- 0 = 1-Point\n"
                            "- 1 = 2-Point\n"
-                           "- 2 = Uniform\n"
-                           "- 3 = OE-Children\n"
+                           "- 2 = OX\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.crossover_operator))
         if user_input == "Q":
             return
         elif user_input != "N":
-            if int(user_input) < 0 or int(user_input) > 3:
-                while int(user_input) < 0 or int(user_input) > 3:
+            if int(user_input) < 0 or int(user_input) > 2:
+                while int(user_input) < 0 or int(user_input) > 2:
                     print("Input value is outside expected range.")
                     user_input = input("> ")
             alg_params.crossover_operator = int(user_input)
@@ -342,7 +369,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Mutation Probability\n- Current: {:0.3f}\n- Default: 0.05\n"
+        user_input = input("GEN - Mutation Probability\n- Current: {:0.2f}\n- Default: 0.10\n"
                            "Input Range: [0.000, 1.000] > "
                            .format(alg_params.mutation_probability))
         if user_input == "Q":
@@ -352,42 +379,52 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Followup Probability\n- Current: {:0.2f}\n- Default: 0.70\n"
-                           "Input Range: [0.00, 1.00] > "
-                           .format(alg_params.followup_probability))
+        if alg_params.filtration_frequency <= 0:
+            filtration_fr_str = "Never"
+        elif alg_params.filtration_frequency == 1:
+            filtration_fr_str = "Every Generation"
+        else:
+            filtration_fr_str = "Every {} Generations".format(alg_params.filtration_frequency)
+        user_input = input("ALG - Filtration Frequency\n"
+                           "- Current: {}\n"
+                           "- Default: Never\n"
+                           "Input in terms of 'once every x generations'. Input <= 0 for 'Never'.\n> "
+                           .format(filtration_fr_str))
         if user_input == "Q":
             return
         elif user_input != "N":
-            alg_params.followup_probability = float(user_input)
+            alg_params.filtration_frequency = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Elitism Managing Operator\n"
-                           "- 0 = None\n"
-                           "- 1 = Retention\n"
-                           "- 2 = Filtration\n"
-                           "- Current: {}\n- Default: 0\n> "
-                           .format(alg_params.elitism_operator))
+        user_input = input("SA  - Iteration Count\n- Current: {}\n- Default: 300\n"
+                           "This parameter applies only if Simulated Annealing is used.\n> "
+                           .format(alg_params.sa_iteration_count))
         if user_input == "Q":
             return
         elif user_input != "N":
-            if int(user_input) < 0 or int(user_input) > 2:
-                while int(user_input) < 0 or int(user_input) > 2:
-                    print("Input value is outside expected range.")
-                    user_input = input("> ")
-            alg_params.elitism_operator = int(user_input)
+            alg_params.sa_iteration_count = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Elitism Management Rate\n- Current: {}\n- Default: 0\n"
-                           "Integer represents how many generations must pass before\n"
-                           "elitism managing operator is called.\n"
-                           "> "
-                           .format(alg_params.elitism_frequency))
+        user_input = input("SA  - Initial Temperature\n- Current: {}\n- Default: 300\n"
+                           "This parameter applies only if Simulated Annealing is used.\n> "
+                           .format(alg_params.sa_initial_temperature))
         if user_input == "Q":
             return
         elif user_input != "N":
-            alg_params.elitism_frequency = int(user_input)
+            alg_params.sa_initial_temperature = int(user_input)
+
+        # -----------------------------------------------------------------------
+
+        user_input = input("SA  - Annealing Coefficient\n- Current: {:0.2f}\n- Default: 1.15\n"
+                           "Recommended Input Range: (1.00, 2.00]\n"
+                           "This parameter applies only if Simulated Annealing is used.\n> "
+                           .format(alg_params.sa_p_coeff))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            alg_params.sa_p_coeff = float(user_input)
     except ValueError:
         print("Invalid value. Aborting...")
 
@@ -418,9 +455,7 @@ def save_params(filename, vrp_params, alg_params):
     with open("variables/parameter_settings/vrp/" + filename + ".txt", "a") as file:
         file.write("vrp_contents={}={}\n".format(content_type, content_name))
         file.write("vrp_path_table_override={}\n".format(overriding_content_name))
-        file.write("vrp_vehicle_count_min={}\n".format(str(vrp_params.vrp_vehicle_count_min)))
-        file.write("vrp_vehicle_count_max={}\n".format(str(vrp_params.vrp_vehicle_count_max)))
-        file.write("vrp_minimize_vehicle_count={}\n".format(str(vrp_params.vrp_minimize_vehicle_count)))
+        file.write("vrp_vehicle_count={}\n".format(str(vrp_params.vrp_vehicle_count)))
         file.write("vrp_node_service_time={}\n".format(str(vrp_params.node_service_times_name)))
         file.write("vrp_maximum_route_time={}\n".format(str(vrp_params.vrp_maximum_route_time)))
         file.write("vrp_maximum_route_distance={}\n".format(str(vrp_params.vrp_maximum_route_distance)))
@@ -431,12 +466,18 @@ def save_params(filename, vrp_params, alg_params):
         file.write("cvrp_node_demand={}\n".format(str(vrp_params.node_demands_name)))
         file.write("ovrp_enabled={}\n".format(str(vrp_params.ovrp_enabled)))
         file.write("vrpp_node_profit={}\n".format(str(vrp_params.node_profits_name)))
+        file.write("vrpp_exclude_travel_costs={}\n".format(str(vrp_params.vrpp_exclude_travel_costs)))
+        file.write("vrpp_optional_node={}\n".format(str(vrp_params.vrpp_optional_node)
+                                                    .replace("[", "")
+                                                    .replace("]", "")
+                                                    .replace(",", "")))
         file.write("mdvrp_depot_node={}\n".format(str(vrp_params.mdvrp_depot_node)
                                                   .replace("[", "")
                                                   .replace("]", "")
                                                   .replace(",", "")))
         file.write("vrptw_node_time_window={}\n".format(str(vrp_params.node_time_windows_name)))
         file.write("vrptw_node_penalty={}".format(str(vrp_params.node_penalties_name)))
+        file.write("vrptw_hard_windows={}\n".format(str(vrp_params.vrptw_hard_windows)))
 
     # ---------------------------------------------------------------
     # - GENALG - Parameters -----------------------------------------
@@ -447,17 +488,21 @@ def save_params(filename, vrp_params, alg_params):
         file.write("population_initializer={}\n".format(str(alg_params.population_initializer)))
         file.write("generation_count_min={}\n".format(str(alg_params.generation_count_min)))
         file.write("generation_count_max={}\n".format(str(alg_params.generation_count_max)))
-        file.write("fitness_evaluator={}\n".format(str(alg_params.fitness_evaluator)))
+        file.write("cpu_individual_limit={}\n".format(str(alg_params.cpu_individual_limit)))
+        file.write("cpu_total_limit={}\n".format(str(alg_params.cpu_total_limit)))
+        file.write("fitness_lower_bound={}\n".format(str(alg_params.fitness_lower_bound)))
+        file.write("fitness_upper_bound={}\n".format(str(alg_params.fitness_upper_bound)))
+        file.write("fitness_threshold={}\n".format(str(alg_params.fitness_threshold)))
         file.write("parent_candidate_count={}\n".format(str(alg_params.parent_candidate_count)))
         file.write("parent_selection_function={}\n".format(str(alg_params.parent_selection_function)))
-        file.write("selection_probability={}\n".format(str(alg_params.selection_probability)))
-        file.write("offspring_pair_count={}\n".format(str(alg_params.offspring_pair_count)))
+        file.write("tournament_probability={}\n".format(str(alg_params.tournament_probability)))
         file.write("crossover_operator={}\n".format(str(alg_params.crossover_operator)))
         file.write("crossover_probability={}\n".format(str(alg_params.crossover_probability)))
         file.write("mutation_probability={}\n".format(str(alg_params.mutation_probability)))
-        file.write("followup_probability={}\n".format(str(alg_params.followup_probability)))
-        file.write("elitism_operator={}\n".format(str(alg_params.elitism_operator)))
-        file.write("elitism_frequency={}".format(str(alg_params.elitism_frequency)))
+        file.write("filtration_frequency={}\n".format(str(alg_params.filtration_frequency)))
+        file.write("sa_iteration_count={}\n".format(str(alg_params.sa_iteration_count)))
+        file.write("sa_initial_temperature={}\n".format(str(alg_params.sa_initial_temperature)))
+        file.write("sa_p_coeff={}".format(str(alg_params.sa_p_coeff)))
 
 
 def load_params(filename, vrp_params, alg_params):
@@ -492,12 +537,8 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrp_path_table_override":
             overriding_matrix = key_value[1]
 
-        elif key_value[0] == "vrp_vehicle_count_min":
-            vrp_params.vrp_vehicle_count_min = int(key_value[1])
-        elif key_value[0] == "vrp_vehicle_count_max":
-            vrp_params.vrp_vehicle_count_max = int(key_value[1])
-        elif key_value[0] == "vrp_minimize_vehicle_count":
-            vrp_params.vrp_minimize_vehicle_count = str(bool((key_value[1])))
+        elif key_value[0] == "vrp_vehicle_count":
+            vrp_params.vrp_vehicle_count = int(key_value[1])
         elif key_value[0] == "vrp_node_service_time":
             matrix_builder.select_service_times_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrp_maximum_route_time":
@@ -518,12 +559,18 @@ def load_params(filename, vrp_params, alg_params):
             vrp_params.ovrp_enabled = bool(key_value[1])
         elif key_value[0] == "vrpp_node_profit":
             matrix_builder.select_profits_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "vrpp_exclude_travel_costs":
+            vrp_params.vrpp_exclude_travel_costs = bool(key_value[1])
+        elif key_value[0] == "vrpp_optional_node":
+            vrp_params.vrpp_optional_node = [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "mdvrp_depot_node":
-            vrp_params.mdvrp_depot_node = int(key_value[1])
+            vrp_params.mdvrp_depot_node = [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "vrptw_node_time_window":
             matrix_builder.select_time_windows_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrptw_node_penalty":
             matrix_builder.select_penalties_matrix(vrp_params, name=key_value[1])
+        elif key_value[0] == "vrptw_hard_windows":
+            vrp_params.vrptw_hard_windows = bool(key_value[1])
 
     if coordinates is not None:
         if overriding_matrix == "None":
@@ -552,14 +599,22 @@ def load_params(filename, vrp_params, alg_params):
             alg_params.generation_count_min = int(key_value[1])
         elif key_value[0] == "generation_count_max":
             alg_params.generation_count_max = int(key_value[1])
-        elif key_value[0] == "fitness_evaluator":
-            alg_params.fitness_evaluator = int(key_value[1])
+        elif key_value[0] == "cpu_individual_limit":
+            alg_params.cpu_individual_limit = int(key_value[1])
+        elif key_value[0] == "cpu_total_limit":
+            alg_params.cpu_total_limit = int(key_value[1])
+        elif key_value[0] == "fitness_lower_bound":
+            alg_params.fitness_lower_bound = int(key_value[1])
+        elif key_value[0] == "fitness_upper_bound":
+            alg_params.fitness_upper_bound = int(key_value[1])
+        elif key_value[0] == "fitness_threshold":
+            alg_params.fitness_threshold = int(key_value[1])
         elif key_value[0] == "parent_candidate_count":
             alg_params.parent_candidate_count = int(key_value[1])
         elif key_value[0] == "parent_selection_function":
             alg_params.parent_selection_function = int(key_value[1])
-        elif key_value[0] == "selection_probability":
-            alg_params.selection_probability = float(key_value[1])
+        elif key_value[0] == "tournament_probability":
+            alg_params.tournament_probability = float(key_value[1])
         elif key_value[0] == "offspring_pair_count":
             alg_params.offspring_pair_count = int(key_value[1])
         elif key_value[0] == "crossover_operator":
@@ -568,9 +623,11 @@ def load_params(filename, vrp_params, alg_params):
             alg_params.crossover_probability = float(key_value[1])
         elif key_value[0] == "mutation_probability":
             alg_params.mutation_probability = float(key_value[1])
-        elif key_value[0] == "followup_probability":
-            alg_params.followup_probability = float(key_value[1])
-        elif key_value[0] == "elitism_operator":
-            alg_params.elitism_operator = int(key_value[1])
-        elif key_value[0] == "elitism_frequency":
-            alg_params.elitism_frequency = int(key_value[1])
+        elif key_value[0] == "filtration_frequency":
+            alg_params.filtration_frequency = int(key_value[1])
+        elif key_value[0] == "sa_iteration_count":
+            alg_params.sa_iteration_count = int(key_value[1])
+        elif key_value[0] == "sa_initial_temperature":
+            alg_params.sa_initial_temperature = int(key_value[1])
+        elif key_value[0] == "sa_p_coeff":
+            alg_params.sa_p_coeff = float(key_value[1])
