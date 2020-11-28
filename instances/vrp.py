@@ -3,11 +3,10 @@
 """
 vrp.py:
 
-Class instance for the base VRP.
+Class implementation for the population individual that solves VRP.
 """
 
 import numpy as np
-from random import shuffle
 
 
 class VRP:
@@ -19,10 +18,13 @@ class VRP:
     """
 
     population_initializer = None
+    validators = []
     evaluator = None
     parent_selector = None
     crossover_operator = None
-    mutation_operators = None
+    mutation_operators = []
+
+    id_counter = 0
 
     def __init__(self,
                  node_count,
@@ -39,34 +41,48 @@ class VRP:
         do not have to be visited.
         """
 
-        self.individual_id = None
+        self.individual_id = -1
+        self.assign_id()
 
         self.node_count = node_count
         self.vehicle_count = vehicle_count
         self.depot_node_list = depot_node_list
         self.optional_node_list = optional_node_list
 
-        # Solution of the problem is maintained as a list.
-        # - A route is started by a depot node.
-        # - Solution always starts with a depot node.
-        # - After a solution has been created/modified, nearest depot node
-        #   is moved to the beginning of the solution.
-        # - If there are consecutive depot nodes, the last one is considered,
-        #   as long as it is not the final element in the list.
-        # - Consecutive depot nodes at the end are ignored.
-        # TODO: Initialize solution with an initializer function.
-        # self.solution = population_initializer()
-        self.solution = list(range(self.node_count))
-        shuffle(self.solution)
+        # Problem solution is presented as a list. List elements represent nodes.
+        # - Solution starts with a depot node. It also represents the start of a route.
+        # - Of any consecutive depot nodes only the rightmost one is considered.
+        # - A depot node (or a consecutive set of them) at the end of the list are not considered.
+        self.solution = None
 
-        # In VRPP, some nodes can remain unvisited. Those are kept here.
-        self.unvisited_nodes = optional_node_list
+        # In VRPP, optional nodes can remain unvisited. Those are kept here.
+        self.unvisited_optional_nodes = optional_node_list
+
+        # Used optional nodes are mainained here.
+        self.visited_optional_nodes = []
 
         # Fitness value of the individual, evaluated by some other module.
         self.fitness = np.inf
 
         # With some constraints present, some solutions may not be valid.
         # Validity is check by some other module, and it leaves its mark here.
+        self.valid = False
+
+    def assign_id(self):
+        self.individual_id = VRP.id_counter
+        VRP.id_counter += 1
+
+    def assign_solution(self, solution):
+        """
+        Assigns a solution to the individual. In so doing, potential optional nodes
+        are taken into consideration. Validation and evaluation must be done separately.
+        :param solution: Proposed solution to the problem.
+        """
+
+        self.solution = solution
+        self.unvisited_optional_nodes = [i for i in self.optional_node_list if i in self.solution]
+        self.visited_optional_nodes = [i for i in self.optional_node_list if i not in self.solution]
+        self.fitness = np.inf
         self.valid = False
 
     def print(self):
@@ -87,6 +103,6 @@ class VRP:
         print("- Individual ID: {} ".format(self.individual_id if self.individual_id is not None else "None"))
         print("- Solution:")
         for i in range(1, len(route_set) + 1):
-            print("- Route {}: {}".format(i, route_set[i - 1]))
+            print("  - Route {}: {}".format(i, route_set[i - 1]))
         print("- Fitness: {}".format(self.fitness))
         print("- Valid: {}".format(self.valid))
