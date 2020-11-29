@@ -35,7 +35,20 @@ def two_point(vrp1, vrp2):
     return offspring1, offspring2
 
 
-def ox(vrp1, vrp2):
+def order_crossover(vrp1, vrp2):
+    """
+    TODO
+    """
+
+    offspring1 = deepcopy(vrp1)
+    offspring2 = deepcopy(vrp2)
+    offspring1.assign_id()
+    offspring2.assign_id()
+
+    return offspring1, offspring2
+
+
+def vehicle_crossover(vrp1, vrp2):
     """
     TODO
     """

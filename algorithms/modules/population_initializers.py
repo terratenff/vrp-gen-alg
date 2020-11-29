@@ -73,13 +73,16 @@ def random_solution(**kwargs):
 
 def random(**kwargs):
     """
-    Creates a population of randomly generated individuals
+    Creates a population of randomly generated individuals that are also validated and evaluated.
 
     :param kwargs: Dictionary of expected parameters:
     - (int) 'node_count': Number of nodes used in the problem. Includes depot nodes and optional nodes.
     - (list<int>) 'depot_nodes': List of depot nodes used in the problem.
     - (list<int>) 'optional_nodes': List of optional nodes used in the problem.
     - (int) 'vehicle_count': Number of vehicles used in the problem.
+    - (int) 'population_count': Number of individuals in the population.
+    - (function) 'validator': Function that is used to validate each individual.
+    - (function) 'evaluator': Function that is used to evaluate the fitness values of each individual.
 
     :return: List of randomly generated individuals, representing the population. (list<VRP>)
     """

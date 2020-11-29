@@ -31,13 +31,14 @@ def set_vrp_parameters(vrp_params):
         # -----------------------------------------------------------------------
 
         user_input = input("VRP - Node Service Times\n- Current: {}\n- Default: None\nInput File Name > "
-                           .format(vrp_params.vrp_node_service_time))
+                           .format(vrp_params.node_service_times_name))
         if user_input == "Q":
             return
         elif user_input != "N":
             vrp_params.vrp_node_service_time = \
                 list(np.loadtxt("variables/node_service_times/" + user_input + ".txt",
-                                dtype=int))[0]
+                                dtype=int))
+            vrp_params.node_service_times_name = user_input
 
         # -----------------------------------------------------------------------
 
@@ -105,13 +106,14 @@ def set_vrp_parameters(vrp_params):
         # -----------------------------------------------------------------------
 
         user_input = input("CVRP - Node Demands\n- Current: {}\n- Default: None\nInput File Name > "
-                           .format(vrp_params.cvrp_node_demand))
+                           .format(vrp_params.node_demands_name))
         if user_input == "Q":
             return
         elif user_input != "N":
             vrp_params.cvrp_node_demand = \
                 list(np.loadtxt("variables/node_demands/" + user_input + ".txt",
-                                dtype=int))[0]
+                                dtype=int))
+            vrp_params.node_demands_name = user_input
 
         # -----------------------------------------------------------------------
 
@@ -125,13 +127,14 @@ def set_vrp_parameters(vrp_params):
         # -----------------------------------------------------------------------
 
         user_input = input("VRPP - Node Profits\n- Current: {}\n- Default: None\nInput File Name > "
-                           .format(vrp_params.vrpp_node_profit))
+                           .format(vrp_params.node_profits_name))
         if user_input == "Q":
             return
         elif user_input != "N":
             vrp_params.vrpp_node_profit = \
                 list(np.loadtxt("variables/node_profits/" + user_input + ".txt",
-                                dtype=int))[0]
+                                dtype=int))
+            vrp_params.node_profits_name = user_input
 
         # -----------------------------------------------------------------------
 
@@ -166,7 +169,7 @@ def set_vrp_parameters(vrp_params):
 
         user_input = input("VRPTW - Node Time Windows\n- Current: {}\n- Default: None\n"
                            "Input File Name (or 'None') > "
-                           .format(vrp_params.vrptw_node_time_window))
+                           .format(vrp_params.node_time_windows_name))
         if user_input == "Q":
             return
         elif user_input != "N":
@@ -176,12 +179,13 @@ def set_vrp_parameters(vrp_params):
                 vrp_params.vrptw_node_time_window = \
                     list(map(tuple, np.loadtxt("variables/node_time_windows/" + user_input + ".txt",
                                                dtype=int)))
+                vrp_params.node_time_windows_name = user_input
 
         # -----------------------------------------------------------------------
 
         user_input = input("VRPTW - Node Penalty Coefficients\n- Current: {}\n- Default: None\n"
                            "Input File Name (or 'None') > "
-                           .format(vrp_params.vrptw_node_penalty))
+                           .format(vrp_params.node_penalties_name))
         if user_input == "Q":
             return
         elif user_input != "N":
@@ -190,7 +194,8 @@ def set_vrp_parameters(vrp_params):
             else:
                 vrp_params.vrptw_node_penalty = \
                     list(np.loadtxt("variables/node_penalties/" + user_input + ".txt",
-                                    dtype=float))[0]
+                                    dtype=float))
+                vrp_params.node_penalties_name = user_input
 
         # -----------------------------------------------------------------------
 
@@ -231,7 +236,7 @@ def set_algorithm_parameters(alg_params):
                            "- 2 = Gene Permutation\n"
                            "- 3 = Simulated Annealing\n"
                            "- Current: {}\n- Default: 0\n> "
-                           .format(alg_params.fitness_evaluator))
+                           .format(alg_params.population_initializer))
         if user_input == "Q":
             return
         elif user_input != "N":
@@ -317,7 +322,7 @@ def set_algorithm_parameters(alg_params):
 
         user_input = input("ALG - Parent Selection Function\n"
                            "- 0 = Roulette Selection\n"
-                           "- 1 = Tournament >Selection\n"
+                           "- 1 = Tournament Selection\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.parent_selection_function))
         if user_input == "Q":
@@ -334,25 +339,26 @@ def set_algorithm_parameters(alg_params):
         user_input = input("ALG - Tournament Probability\n- Current: {:0.2f}\n- Default: 0.75\n"
                            "Input Range: [0.00, 1.00]\n"
                            "This parameter applies only if Tournament Selection is used.\n> "
-                           .format(alg_params.selection_probability))
+                           .format(alg_params.tournament_probability))
         if user_input == "Q":
             return
         elif user_input != "N":
-            alg_params.selection_probability = float(user_input)
+            alg_params.tournament_probability = float(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("ALG - Crossover Operator\n"
                            "- 0 = 1-Point\n"
                            "- 1 = 2-Point\n"
-                           "- 2 = OX\n"
+                           "- 2 = Order Crossover\n"
+                           "- 3 = Vehicle Crossover\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.crossover_operator))
         if user_input == "Q":
             return
         elif user_input != "N":
-            if int(user_input) < 0 or int(user_input) > 2:
-                while int(user_input) < 0 or int(user_input) > 2:
+            if int(user_input) < 0 or int(user_input) > 3:
+                while int(user_input) < 0 or int(user_input) > 3:
                     print("Input value is outside expected range.")
                     user_input = input("> ")
             alg_params.crossover_operator = int(user_input)
@@ -370,7 +376,7 @@ def set_algorithm_parameters(alg_params):
         # -----------------------------------------------------------------------
 
         user_input = input("GEN - Mutation Probability\n- Current: {:0.2f}\n- Default: 0.10\n"
-                           "Input Range: [0.000, 1.000] > "
+                           "Input Range: [0.00, 1.00] > "
                            .format(alg_params.mutation_probability))
         if user_input == "Q":
             return
@@ -476,7 +482,7 @@ def save_params(filename, vrp_params, alg_params):
                                                   .replace("]", "")
                                                   .replace(",", "")))
         file.write("vrptw_node_time_window={}\n".format(str(vrp_params.node_time_windows_name)))
-        file.write("vrptw_node_penalty={}".format(str(vrp_params.node_penalties_name)))
+        file.write("vrptw_node_penalty={}\n".format(str(vrp_params.node_penalties_name)))
         file.write("vrptw_hard_windows={}\n".format(str(vrp_params.vrptw_hard_windows)))
 
     # ---------------------------------------------------------------
@@ -556,11 +562,11 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "cvrp_node_demand":
             matrix_builder.select_demands_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "ovrp_enabled":
-            vrp_params.ovrp_enabled = bool(key_value[1])
+            vrp_params.ovrp_enabled = key_value[1] == "True"
         elif key_value[0] == "vrpp_node_profit":
             matrix_builder.select_profits_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrpp_exclude_travel_costs":
-            vrp_params.vrpp_exclude_travel_costs = bool(key_value[1])
+            vrp_params.vrpp_exclude_travel_costs = key_value[1] == "True"
         elif key_value[0] == "vrpp_optional_node":
             vrp_params.vrpp_optional_node = [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "mdvrp_depot_node":
@@ -570,7 +576,7 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrptw_node_penalty":
             matrix_builder.select_penalties_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrptw_hard_windows":
-            vrp_params.vrptw_hard_windows = bool(key_value[1])
+            vrp_params.vrptw_hard_windows = key_value[1] == "True"
 
     if coordinates is not None:
         if overriding_matrix == "None":
@@ -604,9 +610,9 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "cpu_total_limit":
             alg_params.cpu_total_limit = int(key_value[1])
         elif key_value[0] == "fitness_lower_bound":
-            alg_params.fitness_lower_bound = int(key_value[1])
+            alg_params.fitness_lower_bound = None if key_value[1] == str(None) else int(key_value[1])
         elif key_value[0] == "fitness_upper_bound":
-            alg_params.fitness_upper_bound = int(key_value[1])
+            alg_params.fitness_upper_bound = None if key_value[1] == str(None) else int(key_value[1])
         elif key_value[0] == "fitness_threshold":
             alg_params.fitness_threshold = int(key_value[1])
         elif key_value[0] == "parent_candidate_count":

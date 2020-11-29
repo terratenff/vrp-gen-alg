@@ -216,27 +216,29 @@ class ParamsVRP:
         if self.vrp_node_service_time is None:
             nst_str = None
         else:
-            nst_str = self.vrp_node_service_time.tolist()
+            nst_str = self.node_service_times_name + ": " + str(self.vrp_node_service_time).replace("\n", "")
 
         if self.cvrp_node_demand is None:
             nd_str = None
         else:
-            nd_str = self.cvrp_node_demand.tolist()
+            nd_str = self.node_demands_name + ": " + str(self.cvrp_node_demand).replace("\n", "")
 
         if self.vrpp_node_profit is None:
             np_str = None
         else:
-            np_str = self.vrpp_node_profit.tolist()
+            np_str = self.node_profits_name + ": " + str(self.vrpp_node_profit).replace("\n", "")
 
         if self.vrptw_node_time_window is None:
             ntw_str = None
         else:
-            ntw_str = list(map(tuple, self.vrptw_node_time_window))
+            ntw_str = self.node_time_windows_name + \
+                      ": " + str(list(map(tuple, self.vrptw_node_time_window))).replace("\n", "")
 
         if self.vrptw_node_penalty is None:
             np2_str = None
         else:
-            np2_str = self.vrptw_node_penalty.tolist()
+            np2_str = self.node_penalties_name + ": " + str(self.vrptw_node_penalty) \
+                .replace("\n", "")
 
         if self.vrp_distance_time_ratio > 0:
             conversion1_str = "{} to 1".format(str(self.vrp_distance_time_ratio))
@@ -398,7 +400,8 @@ class ParamsGENALG:
         self.str_crossover_operator = [
             "1-Point",
             "2-Point",
-            "OX"
+            "Order Crossover",
+            "Vehicle Crossover"
         ]
 
     def print(self):

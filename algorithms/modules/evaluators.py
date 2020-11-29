@@ -42,15 +42,17 @@ def evaluate_travel_distance(vrp, **kwargs):
       distances between nodes.
 
     :return: Total travel distance that comes from the solution
-    presented by given individual.
+    presented by given individual. Also returns distances
+    travelled by each vehicle.
     """
 
     path_table = kwargs["path_table"]
 
     route_list = _get_route_list(vrp)
 
-    distance = 0
+    route_distances = []
     for active_route in route_list:
+        route_distance = 0
         if len(active_route) <= 1:
             continue
         recent_node = active_route[0]
@@ -59,15 +61,18 @@ def evaluate_travel_distance(vrp, **kwargs):
         for i in range(1, len(active_route)):
             point_a = active_route[i - 1]
             point_b = active_route[i]
-            distance += path_table[point_a][point_b]
+            route_distance += path_table[point_a][point_b]
 
             # Mark down most recent node for the return trip.
             recent_node = point_b
 
         # Traveling back to the depot node.
-        distance += path_table[recent_node][recent_depot]
+        route_distance += path_table[recent_node][recent_depot]
 
-    return distance
+        # Add route distance to a list of vehicle distances.
+        route_distances.append(route_distance)
+
+    return sum(route_distances), route_distances
 
 
 def evaluate_travel_time(vrp, **kwargs):
@@ -126,7 +131,6 @@ def evaluate_travel_time(vrp, **kwargs):
             recent_node = point_b
 
         # Traveling back to the depot node.
-        route_time = 0
         distance_segment = path_table[recent_node][recent_depot]
         route_time += distance_time(distance_segment)
         start_window = time_windows[recent_depot][0]
