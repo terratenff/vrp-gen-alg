@@ -389,11 +389,12 @@ class ParamsGENALG:
 
         self.str_population_initializer = [
             "Random",
-            "Allele Permutation",
+            "Allele Mutation",
             "Gene Permutation",
             "Simulated Annealing"
         ]
         self.str_parent_selection_function = [
+            "Best Fitness",
             "Roulette Selection",
             "Tournament Selection"
         ]
@@ -421,22 +422,22 @@ class ParamsGENALG:
             filtration_fr_str = "Every {} Generations".format(self.filtration_frequency)
 
         print("- Genetic Algorithm Parameters ---------------------------------------------------")
-        print("GEN - Population Count          | {}".format(self.population_count))
-        print("ALG - Population Initializer    | {}".format(pop_str))
-        print("GEN - Minimum Generation Count  | {}".format(self.generation_count_min))
-        print("GEN - Maximum Generation Count  | {}".format(self.generation_count_max))
-        print("ALG - Individual CPU Time Limit | {} ms".format(self.cpu_individual_limit))
-        print("ALG - Total CPU Time Limit      | {} ms".format(self.cpu_total_limit))
-        print("GEN - Fitness Lower Bound       | {}".format(self.fitness_lower_bound))
-        print("GEN - Fitness Upper Bound       | {}".format(self.fitness_upper_bound))
-        print("GEN - Fitness Threshold         | {}".format(self.fitness_threshold))
-        print("GEN - Parent Candidate Count    | {}".format(self.parent_candidate_count))
-        print("ALG - Parent Selection Function | {}".format(par_sel_str))
-        print("ALG - Tournament Probability    | {:0.2f}".format(self.tournament_probability))
-        print("ALG - Crossover Operator        | {}".format(cross_str))
-        print("GEN - Crossover Probability     | {:0.2f}".format(self.crossover_probability))
-        print("GEN - Mutation Probability      | {:0.2f}".format(self.mutation_probability))
-        print("ALG - Filtration Frequency      | {}".format(filtration_fr_str))
-        print("SA  - Iteration Count           | {}".format(self.sa_iteration_count))
-        print("SA  - Initial Temperature       | {}".format(self.sa_initial_temperature))
-        print("SA  - Annealing Coefficient     | {:0.2f}".format(self.sa_p_coeff))
+        print("Population Count           | {}".format(self.population_count))
+        print("Population Initializer     | {}".format(pop_str))
+        print("Minimum Generation Count   | {}".format(self.generation_count_min))
+        print("Maximum Generation Count   | {}".format(self.generation_count_max))
+        print("Individual CPU Time Limit  | {} ms".format(self.cpu_individual_limit))
+        print("Total CPU Time Limit       | {} ms".format(self.cpu_total_limit))
+        print("Fitness Lower Bound        | {}".format(self.fitness_lower_bound))
+        print("Fitness Upper Bound        | {}".format(self.fitness_upper_bound))
+        print("Fitness Threshold          | {}".format(self.fitness_threshold))
+        print("Parent Candidate Count     | {}".format(self.parent_candidate_count))
+        print("Parent Selection Function  | {}".format(par_sel_str))
+        print("Tournament Probability     | {:0.2f}".format(self.tournament_probability))
+        print("Crossover Operator         | {}".format(cross_str))
+        print("Crossover Probability      | {:0.2f}".format(self.crossover_probability))
+        print("Mutation Probability       | {:0.2f}".format(self.mutation_probability))
+        print("Filtration Frequency       | {}".format(filtration_fr_str))
+        print("SA - Iteration Count       | {}".format(self.sa_iteration_count))
+        print("SA - Initial Temperature   | {}".format(self.sa_initial_temperature))
+        print("SA - Annealing Coefficient | {:0.2f}".format(self.sa_p_coeff))

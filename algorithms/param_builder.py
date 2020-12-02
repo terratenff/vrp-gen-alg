@@ -221,7 +221,7 @@ def set_algorithm_parameters(alg_params):
     print("(Input Q to abort and save any changes)")
 
     try:
-        user_input = input("GEN - Population Count\n- Current: {}\n- Default: 100\n> "
+        user_input = input("Population Count\n- Current: {}\n- Default: 100\n> "
                            .format(alg_params.population_count))
         if user_input == "Q":
             return
@@ -230,9 +230,9 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Population Initializer\n"
+        user_input = input("Population Initializer\n"
                            "- 0 = Random\n"
-                           "- 1 = Allele Permutation\n"
+                           "- 1 = Allele Mutation\n"
                            "- 2 = Gene Permutation\n"
                            "- 3 = Simulated Annealing\n"
                            "- Current: {}\n- Default: 0\n> "
@@ -248,7 +248,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Minimum Generation Count\n- Current: {}\n- Default: 100\n> "
+        user_input = input("Minimum Generation Count\n- Current: {}\n- Default: 100\n> "
                            .format(alg_params.generation_count_min))
         if user_input == "Q":
             return
@@ -257,7 +257,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Maximum Generation Count\n- Current: {}\n- Default: 1500\n> "
+        user_input = input("Maximum Generation Count\n- Current: {}\n- Default: 1500\n> "
                            .format(alg_params.generation_count_max))
         if user_input == "Q":
             return
@@ -266,7 +266,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Individual CPU Time Limit\n- Current: {} ms\n- Default: 5000 ms\nms > "
+        user_input = input("Individual CPU Time Limit\n- Current: {} ms\n- Default: 5000 ms\nms > "
                            .format(alg_params.cpu_individual_limit))
         if user_input == "Q":
             return
@@ -275,7 +275,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Total CPU Time Limit\n- Current: {} ms\n- Default: 60000 ms\nms > "
+        user_input = input("Total CPU Time Limit\n- Current: {} ms\n- Default: 60000 ms\nms > "
                            .format(alg_params.cpu_total_limit))
         if user_input == "Q":
             return
@@ -284,7 +284,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Fitness Lower Bound\n- Current: {}\n- Default: None\n> "
+        user_input = input("Fitness Lower Bound\n- Current: {}\n- Default: None\n> "
                            .format(alg_params.fitness_lower_bound))
         if user_input == "Q":
             return
@@ -293,7 +293,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Fitness Upper Bound\n- Current: {}\n- Default: None\n> "
+        user_input = input("Fitness Upper Bound\n- Current: {}\n- Default: None\n> "
                            .format(alg_params.fitness_upper_bound))
         if user_input == "Q":
             return
@@ -302,7 +302,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Fitness Threshold\n- Current: {}\n- Default: 0\n> "
+        user_input = input("Fitness Threshold\n- Current: {}\n- Default: 0\n> "
                            .format(alg_params.fitness_threshold))
         if user_input == "Q":
             return
@@ -311,7 +311,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Parent Candidate Count\n- Current: {}\n- Default: 5\n> "
+        user_input = input("Parent Candidate Count\n- Current: {}\n- Default: 5\n> "
                            .format(alg_params.parent_candidate_count))
         if user_input == "Q":
             return
@@ -320,23 +320,24 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Parent Selection Function\n"
-                           "- 0 = Roulette Selection\n"
-                           "- 1 = Tournament Selection\n"
+        user_input = input("Parent Selection Function\n"
+                           "- 0 = Best Fitness\n"
+                           "- 1 = Roulette Selection\n"
+                           "- 2 = Tournament Selection\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.parent_selection_function))
         if user_input == "Q":
             return
         elif user_input != "N":
-            if int(user_input) < 0 or int(user_input) > 1:
-                while int(user_input) < 0 or int(user_input) > 1:
+            if int(user_input) < 0 or int(user_input) > 2:
+                while int(user_input) < 0 or int(user_input) > 2:
                     print("Input value is outside expected range.")
                     user_input = input("> ")
             alg_params.parent_selection_function = int(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Tournament Probability\n- Current: {:0.2f}\n- Default: 0.75\n"
+        user_input = input("Tournament Probability\n- Current: {:0.2f}\n- Default: 0.75\n"
                            "Input Range: [0.00, 1.00]\n"
                            "This parameter applies only if Tournament Selection is used.\n> "
                            .format(alg_params.tournament_probability))
@@ -347,7 +348,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("ALG - Crossover Operator\n"
+        user_input = input("Crossover Operator\n"
                            "- 0 = 1-Point\n"
                            "- 1 = 2-Point\n"
                            "- 2 = Order Crossover\n"
@@ -365,7 +366,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Crossover Probability\n- Current: {:0.2f}\n- Default: 0.90\n"
+        user_input = input("Crossover Probability\n- Current: {:0.2f}\n- Default: 0.90\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.crossover_probability))
         if user_input == "Q":
@@ -375,7 +376,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("GEN - Mutation Probability\n- Current: {:0.2f}\n- Default: 0.10\n"
+        user_input = input("Mutation Probability\n- Current: {:0.2f}\n- Default: 0.10\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.mutation_probability))
         if user_input == "Q":
@@ -391,7 +392,7 @@ def set_algorithm_parameters(alg_params):
             filtration_fr_str = "Every Generation"
         else:
             filtration_fr_str = "Every {} Generations".format(alg_params.filtration_frequency)
-        user_input = input("ALG - Filtration Frequency\n"
+        user_input = input("Filtration Frequency\n"
                            "- Current: {}\n"
                            "- Default: Never\n"
                            "Input in terms of 'once every x generations'. Input <= 0 for 'Never'.\n> "
@@ -403,7 +404,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("SA  - Iteration Count\n- Current: {}\n- Default: 300\n"
+        user_input = input("SA - Iteration Count\n- Current: {}\n- Default: 300\n"
                            "This parameter applies only if Simulated Annealing is used.\n> "
                            .format(alg_params.sa_iteration_count))
         if user_input == "Q":
@@ -413,7 +414,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("SA  - Initial Temperature\n- Current: {}\n- Default: 300\n"
+        user_input = input("SA - Initial Temperature\n- Current: {}\n- Default: 300\n"
                            "This parameter applies only if Simulated Annealing is used.\n> "
                            .format(alg_params.sa_initial_temperature))
         if user_input == "Q":
@@ -423,7 +424,7 @@ def set_algorithm_parameters(alg_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("SA  - Annealing Coefficient\n- Current: {:0.2f}\n- Default: 1.15\n"
+        user_input = input("SA - Annealing Coefficient\n- Current: {:0.2f}\n- Default: 1.15\n"
                            "Recommended Input Range: (1.00, 2.00]\n"
                            "This parameter applies only if Simulated Annealing is used.\n> "
                            .format(alg_params.sa_p_coeff))
