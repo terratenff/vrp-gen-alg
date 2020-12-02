@@ -43,6 +43,14 @@ class Timer:
         self.time_stop = 0
         self.running = True
 
+    def reset(self):
+        """
+        Resets the timer.
+        """
+
+        self.time_start = _time()
+        self.time_stop = 0
+
     def stop(self):
         """
         Stops the timer.

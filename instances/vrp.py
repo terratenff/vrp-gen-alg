@@ -18,11 +18,11 @@ class VRP:
     """
 
     population_initializer = None
-    validators = []
+    validator = None
     evaluator = None
     parent_selector = None
     crossover_operator = None
-    mutation_operators = []
+    mutation_operator = None
 
     id_counter = 0
 
