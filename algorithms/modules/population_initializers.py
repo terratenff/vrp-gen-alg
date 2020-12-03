@@ -6,10 +6,11 @@ population_initializers.py:
 Collection of functions that are used to initialize a population for the Genetic Algorithm.
 """
 
-from random import randint, sample, shuffle
+from random import randint, sample, shuffle, random as random_float
 from itertools import permutations
-from math import factorial
+from math import factorial, exp
 from copy import deepcopy
+from operator import attrgetter
 from algorithms.timer import Timer
 from instances.vrp import VRP
 
@@ -225,6 +226,7 @@ def allele_mutation(**kwargs):
         # With an individual both validated and evaluated, it is good to go.
         population.append(candidate_individual)
         candidate_individual = deepcopy(candidate_individual)
+        candidate_individual.assign_id()
 
         # Reset individual timer, since an individual has been created successfully.
         individual_timer.reset()
@@ -287,12 +289,13 @@ def gene_permutation(**kwargs):
 
     permutation_count = factorial(gene_count)
     permutation_tracker = factorial(gene_count)
+    permutation_list = []
     for i in range(population_count):
 
         valid_individual = False
         candidate_individual = None
         while valid_individual is False:
-            if permutation_tracker == permutation_count:
+            if permutation_tracker >= permutation_count:
                 # All of the permutations in the list have been used. More is to be made.
                 # Generate a random solution along with indexes representing gene beginnings.
                 permutation_tracker = 0
@@ -353,6 +356,7 @@ def gene_permutation(**kwargs):
         # With an individual both validated and evaluated, it is good to go.
         population.append(candidate_individual)
         candidate_individual = deepcopy(candidate_individual)
+        candidate_individual.assign_id()
 
         # Reset individual timer, since an individual has been created successfully.
         individual_timer.reset()
@@ -366,11 +370,145 @@ def gene_permutation(**kwargs):
 
 def simulated_annealing(**kwargs):
     """
-    TODO
+    Creates a random individual from which simulated annealing is used to generate a population.
+
+    :param kwargs: Dictionary of expected parameters:
+    - (int) 'node_count': Number of nodes used in the problem. Includes depot nodes and optional nodes.
+    - (list<int>) 'depot_nodes': List of depot nodes used in the problem.
+    - (list<int>) 'optional_nodes': List of optional nodes used in the problem.
+    - (int) 'vehicle_count': Number of vehicles used in the problem.
+    - (int) 'population_count': Number of individuals in the population.
+    - (int) 'minimum_cpu_time': CPU time that is allotted for the initialization of an individual solution.
+      The purpose of this is to stop the algorithm if that is unable to create a valid individual
+      (or it takes too long).
+    - (int) 'sa_iteration_count': Number of iterations that SA is allowed to go for.
+    - (int) 'sa_initial_temperature': Initial temperature, acts as how easily a solution could be accepted.
+    - (float) 'sa_p_coeff': Annealing coefficient.
+    - (bool) 'maximize': Flag that determines whether the objective to maximize or minimize.
+
+    :return: List of randomly generated individuals, representing the population. (list<VRP>)
     """
 
     population = []
 
-    # TODO
+    node_count = kwargs["node_count"]
+    depot_nodes = kwargs["depot_nodes"]
+    optional_nodes = kwargs["optional_nodes"]
+    vehicle_count = kwargs["vehicle_count"]
+    population_count = kwargs["population_count"]
+    minimum_cpu_time = kwargs["minimum_cpu_time"]
+    sa_iteration_count = kwargs["sa_iteration_count"]
+    sa_initial_temperature = kwargs["sa_initial_temperature"]
+    sa_p_coeff = kwargs["sa_p_coeff"]
 
-    return population
+    if "maximize" in kwargs:
+        if kwargs["maximize"] is True:
+            reverse_sort = False
+            max_factor = 1
+        else:
+            reverse_sort = True
+            max_factor = -1
+    else:
+        reverse_sort = True
+        max_factor = -1
+
+    # Set up two timers: one for measuring population initialization,
+    # and another for measuring individual initializations.
+    population_timer = Timer()
+    individual_timer = Timer(goal=minimum_cpu_time)
+
+    # If minimum CPU time is set to None, it is to be ignored.
+    if minimum_cpu_time is None:
+        def check_goal(vrp): return False
+    else:
+        def check_goal(vrp): return vrp.past_goal()
+
+    population_timer.start()
+    individual_timer.start()
+
+    # Start off with a completely random individual.
+    candidate_solution = random(
+        node_count=node_count,
+        depot_nodes=depot_nodes,
+        optional_nodes=optional_nodes,
+        vehicle_count=vehicle_count
+    )
+    candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
+    candidate_individual.assign_solution(candidate_solution)
+
+    # Validate and evaluate the first individual so that it can be used as a guide for SA.
+    while candidate_individual.valid is False:
+        VRP.mutation_operator(candidate_individual)
+        VRP.validator(candidate_individual)
+
+    VRP.evaluator(candidate_individual)
+    individual_timer.reset()
+
+    population.append(candidate_individual)
+    guide_individual = deepcopy(candidate_individual)
+    guide_individual.assign_id()
+
+    for n in range(1, sa_iteration_count):
+        # Once all of the iterations have been exhausted, the state of the population is checked.
+        # If the population quota is not met, random individuals are created to make up for it.
+
+        valid_individual = False
+        while valid_individual is False:
+            # Usually only one change is considered in SA. In this case, there is a possibility
+            # that one change can invalidate the individual. For that reason, we'll keep changing it
+            # until it is valid.
+            VRP.mutation_operator(candidate_individual)
+            VRP.validator(candidate_individual)
+
+            # If the solution is invalid, mutate it again.
+            valid_individual = candidate_individual.valid
+
+            # Should solution-finding via mutations take too long, it is halted here.
+            if check_goal(candidate_individual):
+                return population, "(Simulated Annealing) Individual initialization is taking too long."
+
+        # Once the solution is valid, evaluate it.
+        VRP.evaluator(candidate_individual)
+
+        # Calculate temperature for current iteration and generate a "pass requirement".
+        temperature = sa_initial_temperature * (1 - (n - 1) / (sa_iteration_count - 1)) ** sa_p_coeff
+        pass_requirement = random_float()
+
+        # With the fitness values of both guide and candidate, SA probability can be calculated.
+        sa_probability = exp(max_factor * (candidate_individual.fitness - guide_individual.fitness) / temperature)
+
+        if sa_probability >= pass_requirement:
+            # Mutation has been selected as the new guide.
+            population.append(candidate_individual)
+            guide_individual = deepcopy(candidate_individual)
+            guide_individual.assign_id()
+
+        # Reset individual timer upon completing an iteration.
+        individual_timer.reset()
+
+    population_timer.stop()
+    individual_timer.stop()
+
+    msg = "(Simulated Annealing) Population initialization OK (Time taken: {} ms)" \
+        .format(population_timer.elapsed())
+
+    # Check the state of the population.
+    # - If it is too large, sort by fitness in descending order and take an appropriate sublist.
+    # - If it is too small, add missing individuals by generating random individuals.
+    current_population_count = len(population)
+    if current_population_count > population_count:
+        population.sort(key=attrgetter("fitness"), reverse=reverse_sort)
+        return population[:population_count], msg
+    elif current_population_count < population_count:
+        missing_population_count = population_count - current_population_count
+        missing_population, msg0 = random(
+            node_count=node_count,
+            depot_nodes=depot_nodes,
+            optional_nodes=optional_nodes,
+            vehicle_count=vehicle_count,
+            population_count=missing_population_count,
+            minimum_cpu_time=minimum_cpu_time
+        )
+        return population + missing_population, msg
+
+    return population, msg
