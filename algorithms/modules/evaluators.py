@@ -30,6 +30,55 @@ def _get_route_list(vrp):
     return route_list
 
 
+def optimize_depot_nodes(vrp, **kwargs):
+    """
+    Attempts to optimize depot nodes by selecting them for each
+    vehicle in such a manner that travel costs are as low as possible
+    on both trips where a depot node is involved (first and last path).
+
+    This function is to be used only if the parameter 'Optimize Depot Nodes'
+    is set to True. In addition to that, it should be used prior to validation.
+
+    :param vrp: Population individual subject to depot node optimization.
+    :param kwargs: Keyword arguments, from which the following are expected:
+    - (numpy.ndarray) 'path_table': Square matrix that represents
+      distances between nodes.
+    """
+
+    depot_nodes = vrp.depot_node_list
+    path_table = kwargs["path_table"]
+    route_list = _get_route_list(vrp)
+
+    optimized_solution = []
+    for route in route_list:
+        if len(route) < 2:
+            # Vehicle does not move anywhere.
+            # Attach it back into the solution list and continue.
+            optimized_solution = optimized_solution + route
+            continue
+
+        # This function assumes that the only times that a vehicle deals
+        # with a depot node is both at the beginning and at the end.
+        first_trip_distances = []
+        last_trip_distances = []
+        for depot_node in depot_nodes:
+            first_trip_distances.append(path_table[depot_node][route[1]])
+            last_trip_distances.append(path_table[route[len(route) - 1]][depot_node])
+
+        # Sum the two distances and select the one with the least distance total.
+        total_distances = [i + j for i, j in zip(first_trip_distances, last_trip_distances)]
+        minimum_index = total_distances.index(min(total_distances))
+
+        # Assign the optimal depot node for the vehicle route.
+        route[0] = depot_nodes[minimum_index]
+
+        # Attach revised route into the solution list.
+        optimized_solution = optimized_solution + route
+
+    # Assign optimized solution for the individual.
+    vrp.assign_solution(optimized_solution)
+
+
 def evaluate_travel_distance(vrp, **kwargs):
     """
     Evaluates total travel distance of an individual's solution
@@ -38,7 +87,7 @@ def evaluate_travel_distance(vrp, **kwargs):
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
-    - (numpy.ndarray) path_table: Square matrix that represents
+    - (numpy.ndarray) 'path_table': Square matrix that represents
       distances between nodes.
 
     :return: Total travel distance that comes from the solution
@@ -83,7 +132,7 @@ def evaluate_travel_time(vrp, **kwargs):
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
-    - (numpy.ndarray) path_table: Square matrix that represents
+    - (numpy.ndarray) 'path_table': Square matrix that represents
       distances between nodes.
     - (function) 'distance_time_converter': Function that converts
       distance to time.
@@ -152,7 +201,7 @@ def evaluate_travel_cost(vrp, **kwargs):
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
-    - (numpy.ndarray) path_table: Square matrix that represents
+    - (numpy.ndarray) 'path_table': Square matrix that represents
       distances between nodes.
     - (function) 'distance_time_converter': Function that converts
       distance to time.

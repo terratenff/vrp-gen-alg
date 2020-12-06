@@ -31,6 +31,7 @@ class ParamsVRP:
                  vrpp_optional_node=None,
                  vrpp_exclude_travel_costs=False,
                  mdvrp_depot_node=None,
+                 mdvrp_optimize_depot_nodes=False,
                  vrptw_node_time_window=None,
                  vrptw_node_penalty=None,
                  vrptw_hard_windows=False
@@ -102,6 +103,11 @@ class ParamsVRP:
 
         :param mdvrp_depot_node: List of nodes that are to be treated like depot nodes.
 
+        :param mdvrp_optimize_depot_nodes: Determines whether population individuals should be optimized after
+        crossover and mutation in terms of its depot nodes. If set to True, then an individual will be assigned
+        the best possible depot nodes after crossover and mutation. This procedure is ignored if set to False or
+        if there is only one depot node.
+
         :param vrptw_node_time_window: Time frames at which a vehicle is expected to visit the node:
         if a vehicle arrives too early, it will have to wait for the time window to take place.
         If time windows are to be used, provide a list of tuples, totaling to the number of nodes,
@@ -156,6 +162,7 @@ class ParamsVRP:
             self.mdvrp_depot_node = [0]
         else:
             self.mdvrp_depot_node = mdvrp_depot_node
+        self.mdvrp_optimize_depot_nodes = mdvrp_optimize_depot_nodes
 
         self.vrptw_node_time_window = vrptw_node_time_window
         self.vrptw_node_penalty = vrptw_node_penalty
@@ -278,6 +285,7 @@ class ParamsVRP:
         print("VRPP  - Exclude Travel Costs      | {}".format(str(self.vrpp_exclude_travel_costs)))
         print("VRPP  - Optional Nodes            | {}".format(str(self.vrpp_optional_node)))
         print("MDVRP - Depot Nodes               | {}".format(str(self.mdvrp_depot_node)))
+        print("MDVRP - Optimize Depot Nodes      | {}".format(self.mdvrp_optimize_depot_nodes))
         print("VRPTW - Node Time Window          | {}".format(ntw_str))
         print("VRPTW - Node Penalty Coefficient  | {}".format(np2_str))
         print("VRPTW - Hard Time Windows         | {}".format(str(self.vrptw_hard_windows)))

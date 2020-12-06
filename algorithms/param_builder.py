@@ -167,6 +167,15 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
+        user_input = input("MDVRP - Optimize Depot Nodes\n- Current: {}\n- Default: False\n(True/False) > "
+                           .format(vrp_params.mdvrp_optimize_depot_nodes))
+        if user_input == "Q":
+            return
+        elif user_input != "N":
+            vrp_params.mdvrp_optimize_depot_nodes = bool(user_input)
+
+        # -----------------------------------------------------------------------
+
         user_input = input("VRPTW - Node Time Windows\n- Current: {}\n- Default: None\n"
                            "Input File Name (or 'None') > "
                            .format(vrp_params.node_time_windows_name))
@@ -482,6 +491,7 @@ def save_params(filename, vrp_params, alg_params):
                                                   .replace("[", "")
                                                   .replace("]", "")
                                                   .replace(",", "")))
+        file.write("mdvrp_optimize_depot_nodes={}\n".format(str(vrp_params.mdvrp_optimize_depot_nodes)))
         file.write("vrptw_node_time_window={}\n".format(str(vrp_params.node_time_windows_name)))
         file.write("vrptw_node_penalty={}\n".format(str(vrp_params.node_penalties_name)))
         file.write("vrptw_hard_windows={}\n".format(str(vrp_params.vrptw_hard_windows)))
@@ -572,6 +582,8 @@ def load_params(filename, vrp_params, alg_params):
             vrp_params.vrpp_optional_node = [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "mdvrp_depot_node":
             vrp_params.mdvrp_depot_node = [int(i) for i in key_value[1].split(" ")]
+        elif key_value[0] == "mdvrp_optimize_depot_nodes":
+            vrp_params.mdvrp_optimize_depot_nodes = key_value[1] == "True"
         elif key_value[0] == "vrptw_node_time_window":
             matrix_builder.select_time_windows_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrptw_node_penalty":
