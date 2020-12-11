@@ -8,7 +8,7 @@ Collection of functions that are used to initialize a population for the Genetic
 
 from random import randint, sample, shuffle, random as random_float
 from itertools import permutations
-from math import factorial, exp
+from math import factorial, exp, floor
 from copy import deepcopy
 from operator import attrgetter
 from algorithms.timer import Timer
@@ -53,7 +53,7 @@ def random_solution(**kwargs):
     solution = solution + required_nodes
 
     # Generating a random solution, step 3: Optional Nodes
-    list_size = max(0, (len(optional_nodes) - len(required_nodes)) // 2)
+    list_size = max(0, floor((len(optional_nodes) / 2) - (len(required_nodes) / 4)))
     add_list = sample(optional_nodes, list_size)
     solution = solution + add_list
 
