@@ -109,9 +109,9 @@ def random(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
-        def check_goal(vrp): return False
+        def check_goal(timer): return False
     else:
-        def check_goal(vrp): return vrp.past_goal()
+        def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -137,7 +137,7 @@ def random(**kwargs):
             valid_individual = candidate_individual.valid
 
             # Should solution-finding take too long, it is halted here.
-            if check_goal(candidate_individual):
+            if check_goal(individual_timer):
                 return population, "(Random) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
@@ -188,9 +188,9 @@ def allele_mutation(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
-        def check_goal(vrp): return False
+        def check_goal(timer): return False
     else:
-        def check_goal(vrp): return vrp.past_goal()
+        def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -217,7 +217,7 @@ def allele_mutation(**kwargs):
             valid_individual = candidate_individual.valid
 
             # Should solution-finding via mutations take too long, it is halted here.
-            if check_goal(candidate_individual):
+            if check_goal(individual_timer):
                 return population, "(Allele Mutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
@@ -271,9 +271,9 @@ def gene_permutation(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
-        def check_goal(vrp): return False
+        def check_goal(timer): return False
     else:
-        def check_goal(vrp): return vrp.past_goal()
+        def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -347,7 +347,7 @@ def gene_permutation(**kwargs):
             permutation_tracker += 1
 
             # Should solution-finding via mutations take too long, it is halted here.
-            if check_goal(candidate_individual):
+            if check_goal(individual_timer):
                 return population, "(Allele Mutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
@@ -419,9 +419,9 @@ def simulated_annealing(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
-        def check_goal(vrp): return False
+        def check_goal(timer): return False
     else:
-        def check_goal(vrp): return vrp.past_goal()
+        def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -464,7 +464,7 @@ def simulated_annealing(**kwargs):
             valid_individual = candidate_individual.valid
 
             # Should solution-finding via mutations take too long, it is halted here.
-            if check_goal(candidate_individual):
+            if check_goal(individual_timer):
                 return population, "(Simulated Annealing) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
