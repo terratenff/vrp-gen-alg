@@ -241,7 +241,7 @@ def set_algorithm_parameters(alg_params):
 
         user_input = input("Population Initializer\n"
                            "- 0 = Random\n"
-                           "- 1 = Allele Mutation\n"
+                           "- 1 = Allele Permutation\n"
                            "- 2 = Gene Permutation\n"
                            "- 3 = Simulated Annealing\n"
                            "- Current: {}\n- Default: 0\n> "

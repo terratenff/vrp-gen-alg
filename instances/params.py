@@ -397,7 +397,7 @@ class ParamsGENALG:
 
         self.str_population_initializer = [
             "Random",
-            "Allele Mutation",
+            "Allele Permutation",
             "Gene Permutation",
             "Simulated Annealing"
         ]
