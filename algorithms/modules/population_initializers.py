@@ -484,6 +484,9 @@ def simulated_annealing(**kwargs):
             population.append(candidate_individual)
             guide_individual = deepcopy(candidate_individual)
             guide_individual.assign_id()
+        else:
+            # Mutation has been rejected. Revert back to guide individual.
+            candidate_individual = deepcopy(guide_individual)
 
         # Reset individual timer upon completing an iteration.
         individual_timer.reset()
