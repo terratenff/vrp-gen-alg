@@ -73,8 +73,12 @@ def roulette_selection(population, **kwargs):
     total_fitness1 = sum(x.fitness for x in sample1)
     total_fitness2 = sum(x.fitness for x in sample2)
 
-    probability_set1 = [x.fitness / total_fitness1 for x in sample1]
-    probability_set2 = [x.fitness / total_fitness2 for x in sample2]
+    if maximize is True:
+        probability_set1 = [x.fitness / total_fitness1 for x in sample1]
+        probability_set2 = [x.fitness / total_fitness2 for x in sample2]
+    else:
+        probability_set1 = [1 - (x.fitness / total_fitness1) for x in sample1]
+        probability_set2 = [1 - (x.fitness / total_fitness2) for x in sample2]
 
     # One random float is generated for each sample. Converting probabilities
     # into cumulative probabilities allows easier comparisons.
