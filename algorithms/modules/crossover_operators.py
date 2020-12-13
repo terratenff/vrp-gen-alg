@@ -161,6 +161,31 @@ def one_point(vrp1, vrp2):
     parent1 = [i for i in parent1 if i is not None]
     parent2 = [i for i in parent2 if i is not None]
 
+    # Step 9: Upon performing the flip, there is a possibility that
+    # there are now duplicates of optional nodes, since None nodes
+    # are treated as such. To combat this, any duplicates are removed.
+    duplicate_list1, duplicate_list2 = [], []
+    for i in range(len(parent1)):
+        x1 = parent1[i]
+        x2 = parent2[i]
+        if x1 is not None:
+            if x1 in depot_list:
+                pass
+            elif parent1.count(x1) > 1 and x1 not in duplicate_list1:
+                duplicate_list1.append(x1)
+        if x2 is not None:
+            if x2 in depot_list:
+                pass
+            elif parent2.count(x2) > 1 and x2 not in duplicate_list2:
+                duplicate_list2.append(x2)
+
+    for x in duplicate_list1:
+        for i in range(parent1.count(x) - 1):
+            parent1.remove(x)
+    for x in duplicate_list2:
+        for i in range(parent2.count(x) - 1):
+            parent2.remove(x)
+
     offspring1.assign_solution(parent1)
     offspring2.assign_solution(parent2)
 
@@ -328,6 +353,31 @@ def two_point(vrp1, vrp2):
     # Step 8: Remove all None elements.
     parent1 = [i for i in parent1 if i is not None]
     parent2 = [i for i in parent2 if i is not None]
+
+    # Step 9: Upon performing the flip, there is a possibility that
+    # there are now duplicates of optional nodes, since None nodes
+    # are treated as such. To combat this, any duplicates are removed.
+    duplicate_list1, duplicate_list2 = [], []
+    for i in range(len(parent1)):
+        x1 = parent1[i]
+        x2 = parent2[i]
+        if x1 is not None:
+            if x1 in depot_list:
+                pass
+            elif parent1.count(x1) > 1 and x1 not in duplicate_list1:
+                duplicate_list1.append(x1)
+        if x2 is not None:
+            if x2 in depot_list:
+                pass
+            elif parent2.count(x2) > 1 and x2 not in duplicate_list2:
+                duplicate_list2.append(x2)
+
+    for x in duplicate_list1:
+        for i in range(parent1.count(x) - 1):
+            parent1.remove(x)
+    for x in duplicate_list2:
+        for i in range(parent2.count(x) - 1):
+            parent2.remove(x)
 
     offspring1.assign_solution(parent1)
     offspring2.assign_solution(parent2)
