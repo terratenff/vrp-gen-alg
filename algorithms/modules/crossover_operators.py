@@ -50,6 +50,9 @@ def one_point(vrp1, vrp2):
         offspring1 = deepcopy(vrp2)
         offspring2 = deepcopy(vrp1)
 
+    depot_indices = [i for i, x in enumerate(parent1) if x in depot_list]
+    depot_indices_active = deepcopy(depot_indices)
+
     offspring1.assign_id()
     offspring2.assign_id()
 
@@ -67,55 +70,76 @@ def one_point(vrp1, vrp2):
     parent1_cut1 = parent1[:cutoff]
     parent1_cut2 = parent1[cutoff:]
 
-    # Step 4: Keep track of list-wise number of optional nodes and
-    # list-wise number of depot nodes on cut lists.
-    parent1_cut1_depot_count = 0
-    parent1_cut2_depot_count = 0
+    # Step 4: Keep track of list-wise number of optional nodes on cut lists.
     parent1_cut1_optional_count = 0
     parent1_cut2_optional_count = 0
     for i in parent1_cut1:
-        parent1_cut1_depot_count += 1 if i in depot_list else 0
         parent1_cut1_optional_count += 1 if i in optional_list or i is None else 0
     for i in parent1_cut2:
-        parent1_cut2_depot_count += 1 if i in depot_list else 0
         parent1_cut2_optional_count += 1 if i in optional_list or i is None else 0
 
     # Step 5: Generate convenience lists for accessing cut lists.
     shortcut = [0] * len(parent1_cut1) + [1] * len(parent1_cut2)
     cut_list = [parent1_cut1, parent1_cut2]
-    depot_count = [parent1_cut1_depot_count, parent1_cut2_depot_count]
     optional_count = [parent1_cut1_optional_count, parent1_cut2_optional_count]
 
     # Step 6: Rearrange parent 2 in such a way that cut lists contain
     # the same elements (exact required nodes and any depot/optional nodes).
-    for i in range(len(parent2)):
-        # Case 1: Is selected node a depot node?
-        if parent2[i] in depot_list:
-            if depot_count[shortcut[i]] > 0:
-                # Sufficient number of depot nodes are accounted for.
-                depot_count[shortcut[i]] -= 1
+    i = 0
+    while i < len(parent2):
+        # Case 1a: Is selected spot reserved for a depot node?
+        if i in depot_indices:
+            if parent2[i] in depot_list:
+                # Current node is a depot node. Carry on.
+                i += 1
+                continue
+        # Case 1b: Is selected node a depot node?
+        elif parent2[i] in depot_list:
+            if i in depot_indices:
+                # Current spot is reserved for a depot node. Carry on.
+                i += 1
                 continue
         # Case 2: Is selected node an optional node?
         elif parent2[i] is None or parent2[i] in optional_list:
             if optional_count[shortcut[i]] > 0:
                 # Sufficient number of optional nodes are accounted for.
                 optional_count[shortcut[i]] -= 1
+                i += 1
                 continue
         # Case 3: Is selected node in the respective cut list?
         elif parent2[i] in cut_list[shortcut[i]]:
             # Selected element is in the cut list. Continue.
+            i += 1
             continue
         # Case 4: If selected node is not in the respective cut list,
         # start a new iteration that seeks a node that is in said list.
         # Then swap them.
-        for j in range(i + 1, len(parent2)):
-            if parent2[j] in depot_list:
-                if depot_count[shortcut[i]] > 0:
-                    # Sufficient number of depot nodes are accounted for.
-                    # Perform a swap.
-                    depot_count[shortcut[i]] -= 1
+        j = i + 1
+        while j < len(parent2):
+            if i in depot_indices_active:
+                if parent2[j] in depot_list:
+                    # Current node is a depot node. Perform a swap.
                     parent2[i], parent2[j] = parent2[j], parent2[i]
+                    # Now that a depot node is in place, it is disregarded
+                    # for the rest of the run.
+                    depot_indices_active.remove(i)
+                    i -= 1
                     break
+            elif parent2[i] in depot_list:
+                if j in depot_indices_active:
+                    # Current spot is reserved for a depot node.
+                    # Perform a swap.
+                    parent2[i], parent2[j] = parent2[j], parent2[i]
+                    # Now that a depot node is in place, it is disregarded
+                    # for the rest of the run.
+                    depot_indices_active.remove(j)
+                    i -= 1
+                    break
+            elif parent2[j] in depot_list:
+                # Sub-iteration comes across a depot node.
+                # It may be in its correct or incorrect position,
+                # for which reason it should be left alone for now.
+                pass
             elif parent2[j] is None or parent2[j] in optional_list:
                 if optional_count[shortcut[i]] > 0:
                     # Sufficient number of optional nodes are accounted for.
@@ -127,6 +151,8 @@ def one_point(vrp1, vrp2):
                 # Selected element is in the cut list. Perform a swap.
                 parent2[i], parent2[j] = parent2[j], parent2[i]
                 break
+            j += 1
+        i += 1
 
     # Step 7: Perform the flip on the cutoff point.
     parent1[cutoff:], parent2[cutoff:] = parent2[cutoff:], parent1[cutoff:]
@@ -181,6 +207,9 @@ def two_point(vrp1, vrp2):
         offspring1 = deepcopy(vrp2)
         offspring2 = deepcopy(vrp1)
 
+    depot_indices = [i for i, x in enumerate(parent1) if x in depot_list]
+    depot_indices_active = deepcopy(depot_indices)
+
     offspring1.assign_id()
     offspring2.assign_id()
 
@@ -200,32 +229,20 @@ def two_point(vrp1, vrp2):
     parent1_cut2 = parent1[cutoff[0]:cutoff[1]]
     parent1_cut3 = parent1[cutoff[1]:]
 
-    # Step 4: Keep track of list-wise number of optional nodes and
-    # list-wise number of depot nodes on cut lists.
-    parent1_cut1_depot_count = 0
-    parent1_cut2_depot_count = 0
-    parent1_cut3_depot_count = 0
+    # Step 4: Keep track of list-wise number of optional nodes on cut lists.
     parent1_cut1_optional_count = 0
     parent1_cut2_optional_count = 0
     parent1_cut3_optional_count = 0
     for i in parent1_cut1:
-        parent1_cut1_depot_count += 1 if i in depot_list else 0
         parent1_cut1_optional_count += 1 if i in optional_list or i is None else 0
     for i in parent1_cut2:
-        parent1_cut2_depot_count += 1 if i in depot_list else 0
         parent1_cut2_optional_count += 1 if i in optional_list or i is None else 0
     for i in parent1_cut3:
-        parent1_cut3_depot_count += 1 if i in depot_list else 0
         parent1_cut3_optional_count += 1 if i in optional_list or i is None else 0
 
     # Step 5: Generate convenience lists for accessing cut lists.
     shortcut = [0] * len(parent1_cut1) + [1] * len(parent1_cut2) + [2] * len(parent1_cut3)
     cut_list = [parent1_cut1, parent1_cut2, parent1_cut3]
-    depot_count = [
-        parent1_cut1_depot_count,
-        parent1_cut2_depot_count,
-        parent1_cut3_depot_count
-    ]
     optional_count = [
         parent1_cut1_optional_count,
         parent1_cut2_optional_count,
@@ -234,34 +251,62 @@ def two_point(vrp1, vrp2):
 
     # Step 6: Rearrange parent 2 in such a way that cut lists contain
     # the same elements (exact required nodes and any depot/optional nodes).
-    for i in range(len(parent2)):
-        # Case 1: Is selected node a depot node?
-        if parent2[i] in depot_list:
-            if depot_count[shortcut[i]] > 0:
-                # Sufficient number of depot nodes are accounted for.
-                depot_count[shortcut[i]] -= 1
+    i = 0
+    while i < len(parent2):
+        # Case 1a: Is selected spot reserved for a depot node?
+        if i in depot_indices:
+            if parent2[i] in depot_list:
+                # Current node is a depot node. Carry on.
+                i += 1
+                continue
+        # Case 1b: Is selected node a depot node?
+        elif parent2[i] in depot_list:
+            if i in depot_indices:
+                # Current spot is reserved for a depot node. Carry on.
+                i += 1
                 continue
         # Case 2: Is selected node an optional node?
         elif parent2[i] is None or parent2[i] in optional_list:
             if optional_count[shortcut[i]] > 0:
                 # Sufficient number of optional nodes are accounted for.
                 optional_count[shortcut[i]] -= 1
+                i += 1
                 continue
         # Case 3: Is selected node in the respective cut list?
         elif parent2[i] in cut_list[shortcut[i]]:
             # Selected element is in the cut list. Continue.
+            i += 1
             continue
         # Case 4: If selected node is not in the respective cut list,
         # start a new iteration that seeks a node that is in said list.
         # Then swap them.
-        for j in range(i + 1, len(parent2)):
-            if parent2[j] in depot_list:
-                if depot_count[shortcut[i]] > 0:
-                    # Sufficient number of depot nodes are accounted for.
-                    # Perform a swap.
-                    depot_count[shortcut[i]] -= 1
+        j = i + 1
+        while j < len(parent2):
+            if i in depot_indices_active:
+                if parent2[j] in depot_list:
+                    # Current node is a depot node. Perform a swap.
                     parent2[i], parent2[j] = parent2[j], parent2[i]
+                    # Now that a depot node is in place, it is disregarded
+                    # for the rest of the run.
+                    depot_indices_active.remove(i)
+                    i -= 1
                     break
+            elif parent2[i] in depot_list:
+                if j in depot_indices_active:
+                    # Current spot is reserved for a depot node.
+                    # Perform a swap.
+                    parent2[i], parent2[j] = parent2[j], parent2[i]
+                    # Now that a depot node is in place, it is disregarded
+                    # for the rest of the run.
+                    depot_indices_active.remove(j)
+                    i -= 1
+                    break
+            elif parent2[j] in depot_list:
+                # Sub-iteration comes across a depot node.
+                # It may be in its correct or incorrect position,
+                # for which reason it should be left alone for now.
+                j += 1
+                continue
             elif parent2[j] is None or parent2[j] in optional_list:
                 if optional_count[shortcut[i]] > 0:
                     # Sufficient number of optional nodes are accounted for.
@@ -273,6 +318,8 @@ def two_point(vrp1, vrp2):
                 # Selected element is in the cut list. Perform a swap.
                 parent2[i], parent2[j] = parent2[j], parent2[i]
                 break
+            j += 1
+        i += 1
 
     # Step 7: Perform the flip on the cutoff point.
     parent1[cutoff[0]:cutoff[1]], parent2[cutoff[0]:cutoff[1]] = \
