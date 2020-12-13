@@ -547,8 +547,11 @@ def vehicle_crossover(vrp1, vrp2):
         checkpoint = depot_indices2[target_selector2 + 1]
         gene2 = parent2[target_depot2:checkpoint]
 
-    gene1_start = target_depot1
-    gene2_start = target_depot2
+    # Since a vehicle route is subject to preservation, it is best placed
+    # at the beginning of the chromosome, since chromosome always begins
+    # with a depot node.
+    gene1_start = 0
+    gene2_start = 0
 
     # Step 2: Generate variables to keep track of the number of depot nodes.
     parent1_depot_count = 0
