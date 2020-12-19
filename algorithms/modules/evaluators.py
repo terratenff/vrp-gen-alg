@@ -308,3 +308,32 @@ def evaluate_profits(vrp, **kwargs):
             profit += node_profit_list[node]
 
     return profit
+
+
+def evaluate_profit_cost_difference(vrp, **kwargs):
+    """
+    Evaluates difference between total profits and total costs.
+    :param vrp: An individual of the population.
+    :param kwargs: Keyword arguments. The following are expected
+    from it:
+    - (numpy.ndarray) 'path_table': Square matrix that represents
+      distances between nodes.
+    - (function) 'distance_time_converter': Function that converts
+      distance to time.
+    - (function) 'distance_cost_converter': Function that converts
+      distance to cost.
+    - (function) 'time_cost_converter': Function that converts
+      time to cost.
+    - (list<tuple>) 'time_window': List of tuples that represent
+      time windows of each node.
+    - (list<int>) 'service_time': List of integers that represent
+      node service times.
+    - (list<float>) 'penalty': List of penalty coefficients that represent
+      the importance of the nodes.
+    - (list<int>) 'node_profit': List of profits that one could get
+      from visiting respective nodes.
+
+    :return: Total net profit.
+    """
+
+    return evaluate_profits(vrp, kwargs) - evaluate_travel_cost(vrp, kwargs)

@@ -68,6 +68,9 @@ class VRP:
         # Validity is check by some other module, and it leaves its mark here.
         self.valid = False
 
+    def __str__(self):
+        return "(VRP ID = {}, Fitness = {}, Valid = {})".format(self.individual_id, self.fitness, self.valid)
+
     def assign_id(self):
         self.individual_id = VRP.id_counter
         VRP.id_counter += 1
