@@ -94,17 +94,16 @@ class VRP:
         """
 
         route_set = []
-        route_j = []
-        for i in self.solution:
-            if i in self.depot_node_list:
-                if len(route_j) > 1:
-                    route_set.append(route_j)
-                route_j = []
-            route_j.append(i)
+        depot_indices = [i for i, x in enumerate(self.solution) if x in self.depot_node_list]
+        depot_indices.append(len(self.solution))
+        for i in range(1, len(depot_indices)):
+            route_j = self.solution[depot_indices[i - 1]:depot_indices[i]]
+            if len(route_j) > 1:
+                route_set.append(route_j)
 
         print("-------------------------------------------------")
         print("- Individual ID: {} ".format(self.individual_id if self.individual_id is not None else "None"))
-        print("- Solution:")
+        print("- Solution: {}".format(self.solution))
         for i in range(1, len(route_set) + 1):
             print("  - Route {}: {}".format(i, route_set[i - 1]))
         print("- Fitness: {}".format(self.fitness))

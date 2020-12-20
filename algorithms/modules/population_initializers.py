@@ -90,6 +90,10 @@ def random(**kwargs):
     - (int) 'minimum_cpu_time': CPU time that is allotted for the initialization of an individual solution.
       The purpose of this is to stop the algorithm if that is unable to create a valid individual
       (or it takes too long).
+    - (dict) 'validation_args': Dictionary of arguments that are used in individual validations. See
+      validation functions for what is expected of them.
+    - (dict) 'evaluation_args': Dictionary of arguments that are used in individual evaluations. See
+      evaluation functions for what is expected of them.
 
     :return: List of randomly generated individuals, representing the population. (list<VRP>)
     """
@@ -102,6 +106,8 @@ def random(**kwargs):
     vehicle_count = kwargs["vehicle_count"]
     population_count = kwargs["population_count"]
     minimum_cpu_time = kwargs["minimum_cpu_time"]
+    validation_args = kwargs["validation_args"]
+    evaluation_args = kwargs["evaluation_args"]
 
     # Set up two timers: one for measuring population initialization,
     # and another for measuring individual initializations.
@@ -132,17 +138,19 @@ def random(**kwargs):
             # Create an individual so that a solution can be assigned, validated and evaluated.
             candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
             candidate_individual.assign_solution(candidate_solution)
-            VRP.validator(candidate_individual)
+            for validator in VRP.validator:
+                valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+                if valid_individual is False:
+                    break
 
             # If the solution is invalid, restart the process.
-            valid_individual = candidate_individual.valid
-
+            candidate_individual.valid = valid_individual
             # Should solution-finding take too long, it is halted here.
             if check_goal(individual_timer):
                 return population, "(Random) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
-        VRP.evaluator(candidate_individual)
+        candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
 
         # With an individual both validated and evaluated, it is good to go.
         population.append(candidate_individual)
@@ -170,6 +178,10 @@ def allele_permutation(**kwargs):
     - (int) 'minimum_cpu_time': CPU time that is allotted for the initialization of an individual solution.
       The purpose of this is to stop the algorithm if that is unable to create a valid individual
       (or it takes too long).
+    - (dict) 'validation_args': Dictionary of arguments that are used in individual validations. See
+      validation functions for what is expected of them.
+    - (dict) 'evaluation_args': Dictionary of arguments that are used in individual evaluations. See
+      evaluation functions for what is expected of them.
 
     :return: List of randomly generated individuals, representing the population. (list<VRP>)
     """
@@ -182,6 +194,8 @@ def allele_permutation(**kwargs):
     vehicle_count = kwargs["vehicle_count"]
     population_count = kwargs["population_count"]
     minimum_cpu_time = kwargs["minimum_cpu_time"]
+    validation_args = kwargs["validation_args"]
+    evaluation_args = kwargs["evaluation_args"]
 
     # Set up two timers: one for measuring population initialization,
     # and another for measuring individual initializations.
@@ -198,7 +212,7 @@ def allele_permutation(**kwargs):
     individual_timer.start()
 
     # Start off with a completely random individual.
-    candidate_solution = random(
+    candidate_solution = random_solution(
         node_count=node_count,
         depot_nodes=depot_nodes,
         optional_nodes=optional_nodes,
@@ -213,17 +227,20 @@ def allele_permutation(**kwargs):
         while valid_individual is False:
             # Mutate the individual, creating a new solution. Then validate it.
             allele_swap(candidate_individual)
-            VRP.validator(candidate_individual)
+            for validator in VRP.validator:
+                valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+                if valid_individual is False:
+                    break
 
             # If the solution is invalid, mutate it again.
-            valid_individual = candidate_individual.valid
+            candidate_individual.valid = valid_individual
 
             # Should solution-finding via mutations take too long, it is halted here.
             if check_goal(individual_timer):
                 return population, "(Allele Mutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
-        VRP.evaluator(candidate_individual)
+        candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
 
         # With an individual both validated and evaluated, it is good to go.
         population.append(candidate_individual)
@@ -253,6 +270,10 @@ def gene_permutation(**kwargs):
     - (int) 'minimum_cpu_time': CPU time that is allotted for the initialization of an individual solution.
       The purpose of this is to stop the algorithm if that is unable to create a valid individual
       (or it takes too long).
+    - (dict) 'validation_args': Dictionary of arguments that are used in individual validations. See
+      validation functions for what is expected of them.
+    - (dict) 'evaluation_args': Dictionary of arguments that are used in individual evaluations. See
+      evaluation functions for what is expected of them.
 
     :return: List of randomly generated individuals, representing the population. (list<VRP>)
     """
@@ -265,6 +286,8 @@ def gene_permutation(**kwargs):
     vehicle_count = kwargs["vehicle_count"]
     population_count = kwargs["population_count"]
     minimum_cpu_time = kwargs["minimum_cpu_time"]
+    validation_args = kwargs["validation_args"]
+    evaluation_args = kwargs["evaluation_args"]
 
     # Set up two timers: one for measuring population initialization,
     # and another for measuring individual initializations.
@@ -301,7 +324,7 @@ def gene_permutation(**kwargs):
                 # All of the permutations in the list have been used. More is to be made.
                 # Generate a random solution along with indexes representing gene beginnings.
                 permutation_tracker = 0
-                candidate_solution = random(
+                candidate_solution = random_solution(
                     node_count=node_count,
                     depot_nodes=depot_nodes,
                     optional_nodes=optional_nodes,
@@ -340,10 +363,13 @@ def gene_permutation(**kwargs):
             # Create an individual so that a solution can be assigned, validated and evaluated.
             candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
             candidate_individual.assign_solution(permutation_list[permutation_tracker])
-            VRP.validator(candidate_individual)
+            for validator in VRP.validator:
+                valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+                if valid_individual is False:
+                    break
 
             # If the solution is invalid, restart the process.
-            valid_individual = candidate_individual.valid
+            candidate_individual.valid = valid_individual
 
             # Since a permutation has been used, it is now discarded.
             permutation_tracker += 1
@@ -353,7 +379,7 @@ def gene_permutation(**kwargs):
                 return population, "(Allele Mutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
-        VRP.evaluator(candidate_individual)
+        candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
 
         # With an individual both validated and evaluated, it is good to go.
         population.append(candidate_individual)
@@ -383,6 +409,10 @@ def simulated_annealing(**kwargs):
     - (int) 'minimum_cpu_time': CPU time that is allotted for the initialization of an individual solution.
       The purpose of this is to stop the algorithm if that is unable to create a valid individual
       (or it takes too long).
+    - (dict) 'validation_args': Dictionary of arguments that are used in individual validations. See
+      validation functions for what is expected of them.
+    - (dict) 'evaluation_args': Dictionary of arguments that are used in individual evaluations. See
+      evaluation functions for what is expected of them.
     - (int) 'sa_iteration_count': Number of iterations that SA is allowed to go for.
     - (int) 'sa_initial_temperature': Initial temperature, acts as how easily a solution could be accepted.
     - (float) 'sa_p_coeff': Annealing coefficient.
@@ -399,19 +429,21 @@ def simulated_annealing(**kwargs):
     vehicle_count = kwargs["vehicle_count"]
     population_count = kwargs["population_count"]
     minimum_cpu_time = kwargs["minimum_cpu_time"]
+    validation_args = kwargs["validation_args"]
+    evaluation_args = kwargs["evaluation_args"]
     sa_iteration_count = kwargs["sa_iteration_count"]
     sa_initial_temperature = kwargs["sa_initial_temperature"]
     sa_p_coeff = kwargs["sa_p_coeff"]
 
     if "maximize" in kwargs:
         if kwargs["maximize"] is True:
-            reverse_sort = False
+            reverse_sort = True
             max_factor = 1
         else:
-            reverse_sort = True
+            reverse_sort = False
             max_factor = -1
     else:
-        reverse_sort = True
+        reverse_sort = False
         max_factor = -1
 
     # Set up two timers: one for measuring population initialization,
@@ -429,7 +461,7 @@ def simulated_annealing(**kwargs):
     individual_timer.start()
 
     # Start off with a completely random individual.
-    candidate_solution = random(
+    candidate_solution = random_solution(
         node_count=node_count,
         depot_nodes=depot_nodes,
         optional_nodes=optional_nodes,
@@ -439,16 +471,23 @@ def simulated_annealing(**kwargs):
     candidate_individual.assign_solution(candidate_solution)
 
     # Validate and evaluate the first individual so that it can be used as a guide for SA.
+    valid_individual = False
     while candidate_individual.valid is False:
-        VRP.mutation_operator(candidate_individual)
-        VRP.validator(candidate_individual)
+        VRP.mutation_operator[randint(0, len(VRP.mutation_operator) - 1)](candidate_individual)
+        for validator in VRP.validator:
+            valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+            if valid_individual is False:
+                break
+        candidate_individual.valid = valid_individual
 
-    VRP.evaluator(candidate_individual)
+    candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
     individual_timer.reset()
 
     population.append(candidate_individual)
     guide_individual = deepcopy(candidate_individual)
+    candidate_individual = deepcopy(candidate_individual)
     guide_individual.assign_id()
+    candidate_individual.assign_id()
 
     for n in range(1, sa_iteration_count):
         # Once all of the iterations have been exhausted, the state of the population is checked.
@@ -459,18 +498,21 @@ def simulated_annealing(**kwargs):
             # Usually only one change is considered in SA. In this case, there is a possibility
             # that one change can invalidate the individual. For that reason, we'll keep changing it
             # until it is valid.
-            VRP.mutation_operator(candidate_individual)
-            VRP.validator(candidate_individual)
+            VRP.mutation_operator[randint(0, len(VRP.mutation_operator) - 1)](candidate_individual)
+            for validator in VRP.validator:
+                valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+                if valid_individual is False:
+                    break
 
             # If the solution is invalid, mutate it again.
-            valid_individual = candidate_individual.valid
+            candidate_individual.valid = valid_individual
 
             # Should solution-finding via mutations take too long, it is halted here.
             if check_goal(individual_timer):
                 return population, "(Simulated Annealing) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
-        VRP.evaluator(candidate_individual)
+        candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
 
         # Calculate temperature for current iteration and generate a "pass requirement".
         temperature = sa_initial_temperature * (1 - (n - 1) / (sa_iteration_count - 1)) ** sa_p_coeff
@@ -479,12 +521,24 @@ def simulated_annealing(**kwargs):
         # With the fitness values of both guide and candidate, SA probability can be calculated.
         sa_probability = exp(max_factor * (candidate_individual.fitness - guide_individual.fitness) / temperature)
 
+        # Test Print - Delete later
+        print("{} | FITNESS: {:> 5} | TEMP: {:.5f} | SA VALUE: {:.5f} | PASS: {:.5f}".format(
+            candidate_individual.solution,
+            candidate_individual.fitness,
+            temperature,
+            sa_probability,
+            pass_requirement
+        ), end=" | ")
+
         if sa_probability >= pass_requirement:
+            print("SELECTED")  # Test Print - Delete later
             # Mutation has been selected as the new guide.
             population.append(candidate_individual)
             guide_individual = deepcopy(candidate_individual)
             guide_individual.assign_id()
+            candidate_individual = deepcopy(guide_individual)
         else:
+            print("DISCARDED")  # Test Print - Delete later
             # Mutation has been rejected. Revert back to guide individual.
             candidate_individual = deepcopy(guide_individual)
 
@@ -494,8 +548,9 @@ def simulated_annealing(**kwargs):
     population_timer.stop()
     individual_timer.stop()
 
-    msg = "(Simulated Annealing) Population initialization OK (Time taken: {} ms)" \
-        .format(population_timer.elapsed())
+    msg = "(Simulated Annealing) Population initialization OK (Time taken: {} ms)\n" \
+          "- Result Population Size: {}" \
+        .format(population_timer.elapsed(), len(population))
 
     # Check the state of the population.
     # - If it is too large, sort by fitness in descending order and take an appropriate sublist.
@@ -512,7 +567,9 @@ def simulated_annealing(**kwargs):
             optional_nodes=optional_nodes,
             vehicle_count=vehicle_count,
             population_count=missing_population_count,
-            minimum_cpu_time=minimum_cpu_time
+            minimum_cpu_time=minimum_cpu_time,
+            validation_args=validation_args,
+            evaluation_args=evaluation_args
         )
         return population + missing_population, msg
 

@@ -6,7 +6,9 @@ genalg.py:
 Runner of the genetic algorithm.
 """
 
-from instances.params import ParamsVRP, ParamsGENALG
+from copy import deepcopy
+from operator import attrgetter
+
 from instances.vrp import VRP
 from algorithms.timer import Timer
 import algorithms.modules.population_initializers as population_initializers
@@ -43,6 +45,9 @@ def run_gen_alg(vrp_params, alg_params):
     # VRPTW: List of customer time windows.
     using_vrptw = vrp_params.vrptw_node_time_window is not None
 
+    # Maximization: Determined via VRPP.
+    maximization = using_vrpp
+
     # Exclude Travel Costs: Toggled (True/False -flag)
     exclude_travel_costs = vrp_params.vrpp_exclude_travel_costs
 
@@ -57,6 +62,7 @@ def run_gen_alg(vrp_params, alg_params):
     print("Using VRPP:  {}".format(using_vrpp))
     print("Using MDVRP: {}".format(using_mdvrp))
     print("Using VRPTW: {}".format(using_vrptw))
+    print("Maximize Objective:   {}".format(maximization))
     print("Travel Costs:         {}".format(exclude_travel_costs))
     print("Optimize Depot Nodes: {}".format(exclude_travel_costs))
     print("Hard Windows:         {}".format(using_hard_time_windows))
@@ -86,6 +92,9 @@ def run_gen_alg(vrp_params, alg_params):
         validation_functions.append(validation_collection[2])
     if using_vrptw and using_hard_time_windows:
         validation_functions.append(validation_collection[3])
+
+    if len(validation_functions) == 0:
+        validation_functions.append(lambda target_individual, **kwargs: (True, "No validation functions were used."))
     VRP.validator = validation_functions
 
     # GA Initialization, Step 4: Selecting suitable individual evaluation function.
@@ -171,14 +180,103 @@ def run_gen_alg(vrp_params, alg_params):
         def distance_to_cost(distance):
             return distance * distance_cost_var * (-1)
 
-    # GA Initialization, Step 9: Create variables relating to termination criteria.
-    global_timer = Timer(alg_params.cpu_total_limit)
-    individual_timer = Timer(alg_params.cpu_individual_limit)
+    # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
+    # - Deep-copied variables are potentially subject to modifications.
+    path_table = deepcopy(vrp_params.vrp_path_table)
+    node_count = len(path_table)
+    vehicle_count = vrp_params.vrp_vehicle_count
+    vehicle_capacity = vrp_params.cvrp_vehicle_capacity
+    depot_node_list = vrp_params.mdvrp_depot_node
+    optional_node_list = vrp_params.vrpp_optional_node if vrp_params.vrpp_optional_node is not None else []
+
+    if using_ovrp:
+        path_table[:, depot_node_list] = 0
+
+    maximum_time = vrp_params.vrp_maximum_route_time \
+        if vrp_params.vrp_maximum_route_time is not None else -1
+    maximum_distance = vrp_params.vrp_maximum_route_distance \
+        if vrp_params.vrp_maximum_route_distance is not None else -1
+    node_service_time = deepcopy(vrp_params.vrp_node_service_time)
+    if node_service_time is None:
+        node_service_time = [0] * node_count
+    node_demand_list = deepcopy(vrp_params.cvrp_node_demand)
+    if node_demand_list is None:
+        node_demand_list = [0] * node_count
+    time_windows = deepcopy(vrp_params.vrptw_node_time_window)
+    if time_windows is None:
+        time_windows = [(0, float("inf"))] * node_count
+    node_penalty_list = deepcopy(vrp_params.vrptw_node_penalty)
+    if node_penalty_list is None:
+        node_penalty_list = [0] * node_count
+    node_profit_list = deepcopy(vrp_params.vrpp_node_profit)
+    if node_profit_list is None:
+        node_profit_list = [0] * node_count
+
+    population_count = alg_params.population_count
+    parent_candidate_count = alg_params.parent_candidate_count
+    tournament_probability = alg_params.tournament_probability
+    crossover_probability = alg_params.crossover_probability
+    mutation_probability = alg_params.mutation_probability
+    filtration_frequency = alg_params.filtration_frequency
+    sa_iteration_count = alg_params.sa_iteration_count
+    sa_initial_temperature = alg_params.sa_initial_temperature
+    sa_p_coeff = alg_params.sa_p_coeff
+
+    # GA Initialization, Step 10: Create variables relating to termination criteria.
+    global_cpu_limit = alg_params.cpu_total_limit
+    individual_cpu_limit = alg_params.cpu_individual_limit
     upper_bound = alg_params.fitness_upper_bound
+    if upper_bound is None:
+        upper_bound = float("inf")
     lower_bound = alg_params.fitness_lower_bound
+    if lower_bound is None:
+        lower_bound = -float("inf")
     threshold = alg_params.fitness_threshold
     generation_count_min = alg_params.generation_count_min
     generation_count_max = alg_params.generation_count_max
+
+    global_timer = Timer(global_cpu_limit)
+
+    # GA Initialization, Step 11: Prepare keyword arguments for module functions.
+    evaluation_args = {
+        "path_table": path_table,
+        "distance_time_converter": distance_to_time,
+        "distance_cost_converter": distance_to_cost,
+        "time_cost_converter": time_to_cost,
+        "time_window": time_windows,
+        "service_time": node_service_time,
+        "penalty": node_penalty_list,
+        "node_profit": node_profit_list
+    }
+    validation_args = {
+        "path_table": path_table,
+        "capacity": vehicle_capacity,
+        "demand": node_demand_list,
+        "maximum_time": maximum_time,
+        "maximum_distance": maximum_distance,
+        "time_window": time_windows,
+        "service_time": node_service_time,
+        "distance_time_converter": distance_to_time
+    }
+    population_args = {
+        "node_count": node_count,
+        "depot_nodes": depot_node_list,
+        "optional_nodes": optional_node_list,
+        "vehicle_count": vehicle_count,
+        "population_count": population_count,
+        "minimum_cpu_time": individual_cpu_limit,
+        "sa_iteration_count": sa_iteration_count,
+        "sa_initial_temperature": sa_initial_temperature,
+        "sa_p_coeff": sa_p_coeff,
+        "maximize": maximization,
+        "validation_args": validation_args,
+        "evaluation_args": evaluation_args
+    }
+    parent_selection_args = {
+        "parent_candidate_count": parent_candidate_count,
+        "maximize": maximization,
+        "tournament_probability": tournament_probability
+    }
 
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
@@ -187,5 +285,11 @@ def run_gen_alg(vrp_params, alg_params):
     # -----------------------------------------------------------------------------------------------------------------
 
     # TODO: Test module functions.
+
+    population, msg = VRP.population_initializer(**population_args)
+    # population.sort(key=attrgetter("fitness"))
+    print(msg)
+    for individual in population:
+        print("{:> 4} | {:> 5} | {}".format(individual.individual_id, individual.fitness, individual.solution))
 
     print("TODO")

@@ -505,5 +505,6 @@ def initialize(name):
         return var
     except IOError:
         matrix = np.random.randint(10, 100, (10, 10))
+        np.fill_diagonal(matrix, 0)
         np.savetxt("variables/cost_matrices/" + name + ".txt", matrix, fmt="%.0f")
         return load_data(name, "cost_matrices")

@@ -19,7 +19,7 @@ def allele_swap(vrp):
     """
 
     solution = vrp.solution
-    swap_indices = sample(range(1, len(solution) - 1), 2)
+    swap_indices = sample(range(1, len(solution)), 2)
     swap_indices.sort()
     solution[swap_indices[0]], solution[swap_indices[1]] = \
         solution[swap_indices[1]], solution[swap_indices[0]]
@@ -37,7 +37,7 @@ def sequence_inversion(vrp):
     """
 
     solution = vrp.solution
-    gene_border = sample(range(1, len(solution)), 2)
+    gene_border = sample(range(1, len(solution) + 1), 2)
     gene_border.sort()
     solution[gene_border[0]:gene_border[1]] = \
         solution[gene_border[0]:gene_border[1]][::-1]
@@ -55,7 +55,7 @@ def sequence_shuffle(vrp):
     """
 
     solution = vrp.solution
-    gene_border = sample(range(1, len(solution)), 2)
+    gene_border = sample(range(1, len(solution) + 1), 2)
     gene_border.sort()
     subject_gene = solution[gene_border[0]:gene_border[1]]
     shuffle(subject_gene)
@@ -75,12 +75,12 @@ def sequence_relocation(vrp):
     """
 
     solution = vrp.solution
-    gene_border = sample(range(1, len(solution)), 2)
+    gene_border = sample(range(1, len(solution) + 1), 2)
     gene_border.sort()
     subject_gene = solution[gene_border[0]:gene_border[1]]
-    for allele in subject_gene:
-        solution.remove(allele)
-    destination = randint(1, len(solution) - 1)
+    del solution[gene_border[0]:gene_border[1]]
+
+    destination = randint(1, len(solution))
     for allele in subject_gene[::-1]:
         solution.insert(destination, allele)
 
@@ -100,7 +100,7 @@ def add_optional_node(vrp):
     solution = vrp.solution
     unused_nodes = vrp.unvisited_optional_nodes
     subject_node = unused_nodes[randint(0, len(unused_nodes) - 1)]
-    destination = randint(1, len(solution) - 1)
+    destination = randint(1, len(solution))
     solution.insert(destination, subject_node)
 
     vrp.assign_solution(solution)
