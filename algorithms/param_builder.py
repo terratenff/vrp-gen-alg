@@ -23,18 +23,18 @@ def set_vrp_parameters(vrp_params):
     try:
         user_input = input("VRP - Vehicle Count\n- Current: {}\n- Default: 3\n> "
                            .format(vrp_params.vrp_vehicle_count))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrp_vehicle_count = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("VRP - Node Service Times\n- Current: {}\n- Default: None\nInput File Name > "
                            .format(vrp_params.node_service_times_name))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrp_node_service_time = \
                 list(np.loadtxt("variables/node_service_times/" + user_input + ".txt",
                                 dtype=int))
@@ -44,18 +44,18 @@ def set_vrp_parameters(vrp_params):
 
         user_input = input("VRP - Maximum Route Time\n- Current: {}\n- Default: None\n> "
                            .format(vrp_params.vrp_maximum_route_time))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrp_maximum_route_time = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("VRP - Maximum Route Distance\n- Current: {}\n- Default: None\n> "
                            .format(vrp_params.vrp_maximum_route_distance))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrp_maximum_route_distance = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -65,9 +65,9 @@ def set_vrp_parameters(vrp_params):
                            "Negative integer: 1 distance unit to 'n' time units\n"
                            "0: 'n' distance units to 0 time units\n> "
                            .format(vrp_params.vrp_distance_time_ratio))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrp_distance_time_ratio = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -77,9 +77,9 @@ def set_vrp_parameters(vrp_params):
                            "Negative integer: 1 time unit to 'n' cost units\n"
                            "0: 'n' time units to 0 cost units\n> "
                            .format(vrp_params.vrp_time_cost_ratio))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrp_time_cost_ratio = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -89,27 +89,27 @@ def set_vrp_parameters(vrp_params):
                            "Negative integer: 1 distance unit to 'n' cost units\n"
                            "0: 'n' distance units to 0 cost units\n> "
                            .format(vrp_params.vrp_distance_cost_ratio))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrp_distance_cost_ratio = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("CVRP - Vehicle Capacity\n- Current: {}\n- Default: 0\n> "
                            .format(vrp_params.cvrp_vehicle_capacity))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.cvrp_vehicle_capacity = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("CVRP - Node Demands\n- Current: {}\n- Default: None\nInput File Name > "
                            .format(vrp_params.node_demands_name))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.cvrp_node_demand = \
                 list(np.loadtxt("variables/node_demands/" + user_input + ".txt",
                                 dtype=int))
@@ -119,18 +119,18 @@ def set_vrp_parameters(vrp_params):
 
         user_input = input("OVRP - Enable Open Routes\n- Current: {}\n- Default: False\n(True/False) > "
                            .format(vrp_params.ovrp_enabled))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.ovrp_enabled = bool(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("VRPP - Node Profits\n- Current: {}\n- Default: None\nInput File Name > "
                            .format(vrp_params.node_profits_name))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrpp_node_profit = \
                 list(np.loadtxt("variables/node_profits/" + user_input + ".txt",
                                 dtype=int))
@@ -140,9 +140,9 @@ def set_vrp_parameters(vrp_params):
 
         user_input = input("VRPP - Exclude Travel Costs\n- Current: {}\n- Default: False\n(True/False) > "
                            .format(vrp_params.vrpp_exclude_travel_costs))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrpp_exclude_travel_costs = bool(user_input)
 
         # -----------------------------------------------------------------------
@@ -150,9 +150,9 @@ def set_vrp_parameters(vrp_params):
         user_input = input("VRPP - Optional Nodes\n- Current: {}\n- Default: None\n"
                            "Input Nodes separated by whitespace (Example: '0 1 2')\n> "
                            .format(vrp_params.vrpp_optional_node))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrpp_optional_node = [int(i) for i in user_input.split(" ")]
 
         # -----------------------------------------------------------------------
@@ -160,18 +160,18 @@ def set_vrp_parameters(vrp_params):
         user_input = input("MDVRP - Depot Nodes\n- Current: {}\n- Default: 0\n"
                            "Input Nodes separated by whitespace (Example: '0 1 2')\n> "
                            .format(vrp_params.mdvrp_depot_node))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.mdvrp_depot_node = [int(i) for i in user_input.split(" ")]
 
         # -----------------------------------------------------------------------
 
         user_input = input("MDVRP - Optimize Depot Nodes\n- Current: {}\n- Default: False\n(True/False) > "
                            .format(vrp_params.mdvrp_optimize_depot_nodes))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.mdvrp_optimize_depot_nodes = bool(user_input)
 
         # -----------------------------------------------------------------------
@@ -179,9 +179,9 @@ def set_vrp_parameters(vrp_params):
         user_input = input("VRPTW - Node Time Windows\n- Current: {}\n- Default: None\n"
                            "Input File Name (or 'None') > "
                            .format(vrp_params.node_time_windows_name))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             if user_input.upper() == "NONE":
                 vrp_params.vrptw_node_time_window = None
             else:
@@ -195,9 +195,9 @@ def set_vrp_parameters(vrp_params):
         user_input = input("VRPTW - Node Penalty Coefficients\n- Current: {}\n- Default: None\n"
                            "Input File Name (or 'None') > "
                            .format(vrp_params.node_penalties_name))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             if user_input.upper() == "NONE":
                 vrp_params.vrptw_node_penalty = None
             else:
@@ -210,9 +210,9 @@ def set_vrp_parameters(vrp_params):
 
         user_input = input("VRPTW - Hard Time Windows\n- Current: {}\n- Default: False\n(True/False) > "
                            .format(vrp_params.vrptw_hard_windows))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             vrp_params.vrptw_hard_windows = bool(user_input)
 
     except ValueError:
@@ -232,9 +232,9 @@ def set_algorithm_parameters(alg_params):
     try:
         user_input = input("Population Count\n- Current: {}\n- Default: 100\n> "
                            .format(alg_params.population_count))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.population_count = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -246,9 +246,9 @@ def set_algorithm_parameters(alg_params):
                            "- 3 = Simulated Annealing\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.population_initializer))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             if int(user_input) < 0 or int(user_input) > 3:
                 while int(user_input) < 0 or int(user_input) > 3:
                     print("Input value is outside expected range.")
@@ -259,72 +259,72 @@ def set_algorithm_parameters(alg_params):
 
         user_input = input("Minimum Generation Count\n- Current: {}\n- Default: 100\n> "
                            .format(alg_params.generation_count_min))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.generation_count_min = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("Maximum Generation Count\n- Current: {}\n- Default: 1500\n> "
                            .format(alg_params.generation_count_max))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.generation_count_max = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("Individual CPU Time Limit\n- Current: {} ms\n- Default: 5000 ms\nms > "
                            .format(alg_params.cpu_individual_limit))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.cpu_individual_limit = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("Total CPU Time Limit\n- Current: {} ms\n- Default: 60000 ms\nms > "
                            .format(alg_params.cpu_total_limit))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.cpu_total_limit = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("Fitness Lower Bound\n- Current: {}\n- Default: None\n> "
                            .format(alg_params.fitness_lower_bound))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.fitness_lower_bound = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("Fitness Upper Bound\n- Current: {}\n- Default: None\n> "
                            .format(alg_params.fitness_upper_bound))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.fitness_upper_bound = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("Fitness Threshold\n- Current: {}\n- Default: 0\n> "
                            .format(alg_params.fitness_threshold))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.fitness_threshold = int(user_input)
 
         # -----------------------------------------------------------------------
 
         user_input = input("Parent Candidate Count\n- Current: {}\n- Default: 5\n> "
                            .format(alg_params.parent_candidate_count))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.parent_candidate_count = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -335,9 +335,9 @@ def set_algorithm_parameters(alg_params):
                            "- 2 = Tournament Selection\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.parent_selection_function))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             if int(user_input) < 0 or int(user_input) > 2:
                 while int(user_input) < 0 or int(user_input) > 2:
                     print("Input value is outside expected range.")
@@ -350,9 +350,9 @@ def set_algorithm_parameters(alg_params):
                            "Input Range: [0.00, 1.00]\n"
                            "This parameter applies only if Tournament Selection is used.\n> "
                            .format(alg_params.tournament_probability))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.tournament_probability = float(user_input)
 
         # -----------------------------------------------------------------------
@@ -364,9 +364,9 @@ def set_algorithm_parameters(alg_params):
                            "- 3 = Vehicle Crossover\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.crossover_operator))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             if int(user_input) < 0 or int(user_input) > 3:
                 while int(user_input) < 0 or int(user_input) > 3:
                     print("Input value is outside expected range.")
@@ -378,9 +378,9 @@ def set_algorithm_parameters(alg_params):
         user_input = input("Crossover Probability\n- Current: {:0.2f}\n- Default: 0.90\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.crossover_probability))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.crossover_probability = float(user_input)
 
         # -----------------------------------------------------------------------
@@ -388,9 +388,9 @@ def set_algorithm_parameters(alg_params):
         user_input = input("Mutation Probability\n- Current: {:0.2f}\n- Default: 0.10\n"
                            "Input Range: [0.00, 1.00] > "
                            .format(alg_params.mutation_probability))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.mutation_probability = float(user_input)
 
         # -----------------------------------------------------------------------
@@ -406,9 +406,9 @@ def set_algorithm_parameters(alg_params):
                            "- Default: Never\n"
                            "Input in terms of 'once every x generations'. Input <= 0 for 'Never'.\n> "
                            .format(filtration_fr_str))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.filtration_frequency = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -416,9 +416,9 @@ def set_algorithm_parameters(alg_params):
         user_input = input("SA - Iteration Count\n- Current: {}\n- Default: 300\n"
                            "This parameter applies only if Simulated Annealing is used.\n> "
                            .format(alg_params.sa_iteration_count))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.sa_iteration_count = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -426,9 +426,9 @@ def set_algorithm_parameters(alg_params):
         user_input = input("SA - Initial Temperature\n- Current: {}\n- Default: 300\n"
                            "This parameter applies only if Simulated Annealing is used.\n> "
                            .format(alg_params.sa_initial_temperature))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.sa_initial_temperature = int(user_input)
 
         # -----------------------------------------------------------------------
@@ -437,9 +437,9 @@ def set_algorithm_parameters(alg_params):
                            "Recommended Input Range: (1.00, 2.00]\n"
                            "This parameter applies only if Simulated Annealing is used.\n> "
                            .format(alg_params.sa_p_coeff))
-        if user_input == "Q":
+        if user_input.upper() == "Q":
             return
-        elif user_input != "N":
+        elif user_input.upper() != "N":
             alg_params.sa_p_coeff = float(user_input)
     except ValueError:
         print("Invalid value. Aborting...")
