@@ -156,6 +156,7 @@ def run_gen_alg(vrp_params, alg_params):
     VRP.mutation_operator = mutation_functions
 
     # GA Initialization, Step 8: Create conversion functions between distance, time and cost.
+    # Also create a function that conducts the filtration strategy.
     distance_time_var = vrp_params.vrp_distance_time_ratio
     time_cost_var = vrp_params.vrp_time_cost_ratio
     distance_cost_var = vrp_params.vrp_distance_cost_ratio
@@ -179,6 +180,82 @@ def run_gen_alg(vrp_params, alg_params):
     else:
         def distance_to_cost(distance):
             return distance * distance_cost_var * (-1)
+    
+    # Filtration strategy.
+    if alg_params.filtration_frequency <= 0:
+        filtration_counter = float("inf")
+        def filtration(population_old, population_new, **kwargs):
+            return population_new, "Filtration operation skipped."
+    else:
+        filtration_counter = alg_params.filtration_frequency
+        def filtration(population_old, population_new, **kwargs):
+            node_count = kwargs["node_count"]
+            depot_nodes = kwargs["depot_nodes"]
+            optional_nodes = kwargs["optional_nodes"]
+            vehicle_count = kwargs["vehicle_count"]
+            maximize = kwargs["maximize"]
+            minimum_cpu_time = kwargs["minimum_cpu_time"]
+            
+            # If minimum CPU time is set to None, it is to be ignored.
+            if minimum_cpu_time is None:
+                def check_goal(timer): return False
+            else:
+                def check_goal(timer): return timer.past_goal()
+            
+            filtration_timer = Timer()
+            filtration_timer.start()
+            population_size = len(population_new)
+            combined_population = population_old + population_new
+            combined_population.sort(key=attrgetter("fitness"), reverse=maximize)
+            cut_population = combined_population[:population_size]
+            
+            # Multiple weak solutions can share the same fitness value.
+            # However, with potentially optimal solutions, it is very
+            # likely that solutions with the same fitness value
+            # are the same. For that reason, it is assumed that solutions
+            # that have the same fitness value are the same.
+            replacement_indices = []
+            previous_fitness = cut_population[0].fitness 
+            for i in range(1, cut_population):
+                if cut_population[i].fitness == previous_fitness:
+                    replacement_indices.append(i)
+                else:
+                    previous_fitness = cut_population[i].fitness
+            
+            # Create random individuals to replace duplicates.
+            individual_timer = Timer(goal=minimum_cpu_time)
+            for i in range(len(replacement_indices)):
+                individual_timer.start()
+                
+                valid_individual = False
+                candidate_individual = None
+                while valid_individual is False:
+
+                    candidate_solution = population_initializers.random_solution(
+                        node_count=node_count,
+                        depot_nodes=depot_nodes,
+                        optional_nodes=optional_nodes,
+                        vehicle_count=vehicle_count
+                    )
+
+                    candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
+                    candidate_individual.assign_solution(candidate_solution)
+                    for validator in VRP.validator:
+                        valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+                        if valid_individual is False:
+                            break
+
+                    candidate_individual.valid = valid_individual
+                    if check_goal(individual_timer):
+                        return cut_population, "(Filtration) Individual initialization is taking too long."
+
+                candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
+                cut_population[replacement_indices[i]] = candidate_individual
+                individual_timer.reset()
+            
+            filtration_timer.stop()
+            msg = "Replacement operation OK (Time taken: {} ms)".format(filtration_timer.elapsed())
+            return cut_population, msg
 
     # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
@@ -283,6 +360,8 @@ def run_gen_alg(vrp_params, alg_params):
     # ----- Genetic Algorithm starts here -----------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
+
+    current_generation = 1
 
     # TODO: Test module functions.
 
