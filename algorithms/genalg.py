@@ -200,9 +200,9 @@ def run_gen_alg(vrp_params, alg_params):
             
             # If minimum CPU time is set to None, it is to be ignored.
             if fl_minimum_cpu_time is None:
-                def check_goal(timer): return False
+                def fl_check_goal(timer): return False
             else:
-                def check_goal(timer): return timer.past_goal()
+                def fl_check_goal(timer): return timer.past_goal()
             
             filtration_timer = Timer()
             filtration_timer.start()
@@ -225,35 +225,25 @@ def run_gen_alg(vrp_params, alg_params):
                     previous_fitness = cut_population[i].fitness
             
             # Create random individuals to replace duplicates.
-            individual_timer = Timer(goal=fl_minimum_cpu_time)
+            fl_individual_timer = Timer(goal=fl_minimum_cpu_time)
+            fl_individual_args = {
+                "node_count": fl_node_count,
+                "depot_nodes": fl_depot_nodes,
+                "optional_nodes": fl_optional_nodes,
+                "vehicle_count": fl_vehicle_count,
+                "failure_msg": "(Filtration) Individual initialization is taking too long.",
+                "individual_timer": fl_individual_timer,
+                "check_goal": fl_check_goal,
+                "validation_args": validation_args,
+                "evaluation_args": evaluation_args
+            }
+            fl_individual_timer.start()
             for i in range(len(replacement_indices)):
-                individual_timer.start()
-                
-                valid_individual = False
-                candidate_individual = None
-                while valid_individual is False:
-
-                    candidate_solution = population_initializers.random_solution(
-                        node_count=fl_node_count,
-                        depot_nodes=fl_depot_nodes,
-                        optional_nodes=fl_optional_nodes,
-                        vehicle_count=fl_vehicle_count
-                    )
-
-                    candidate_individual = VRP(fl_node_count, fl_vehicle_count, fl_depot_nodes, fl_optional_nodes)
-                    candidate_individual.assign_solution(candidate_solution)
-                    for validator in VRP.validator:
-                        valid_individual, validation_msg = validator(candidate_individual, **validation_args)
-                        if valid_individual is False:
-                            break
-
-                    candidate_individual.valid = valid_individual
-                    if check_goal(individual_timer):
-                        return cut_population, "(Filtration) Individual initialization is taking too long."
-
-                candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
+                candidate_individual, error_msg = population_initializers.random_valid_individual(fl_individual_args)
+                if candidate_individual is None:
+                    return population_new, error_msg
                 cut_population[replacement_indices[i]] = candidate_individual
-                individual_timer.reset()
+                fl_individual_timer.reset()
             
             filtration_timer.stop()
             fl_msg = "Filtration operation OK (Time taken: {} ms)".format(filtration_timer.elapsed())

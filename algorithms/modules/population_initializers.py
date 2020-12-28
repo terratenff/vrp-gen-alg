@@ -77,6 +77,69 @@ def random_solution(**kwargs):
     return solution
 
 
+def random_valid_individual(**kwargs):
+    """
+    Creates a random individual the solution of which that has been both validated
+    and evaluated.
+
+    :param kwargs: Dictionary of expected parameters:
+    - (int) 'node_count': Number of nodes used in the problem. Includes depot nodes and optional nodes.
+    - (list<int>) 'depot_nodes': List of depot nodes used in the problem.
+    - (list<int>) 'optional_nodes': List of optional nodes used in the problem.
+    - (int) 'vehicle_count': Number of vehicles used in the problem.
+    - (str) 'failure_msg': Text to represent if individual creation is taking too long.
+    - (Timer) 'individual_timer': Timer based on specified minimum CPU time. Should be started before
+      calling this function.
+    - (function) 'check_goal': Convenience function that checks whether minimum CPU time has passed.
+    - (dict) 'validation_args': Dictionary of arguments that are used in individual validations. See
+      validation functions for what is expected of them.
+    - (dict) 'evaluation_args': Dictionary of arguments that are used in individual evaluations. See
+      evaluation functions for what is expected of them.
+
+    :return: List of randomly generated individuals, representing the population. (list<VRP>)
+    """
+    node_count = kwargs["node_count"]
+    depot_nodes = kwargs["depot_nodes"]
+    optional_nodes = kwargs["optional_nodes"]
+    vehicle_count = kwargs["vehicle_count"]
+    failure_msg = kwargs["failure_msg"]
+    individual_timer = kwargs["individual_timer"]
+    check_goal = kwargs["check_goal"]
+    validation_args = kwargs["validation_args"]
+    evaluation_args = kwargs["evaluation_args"]
+
+    valid_individual = False
+    candidate_individual = None
+    while valid_individual is False:
+
+        candidate_solution = random_solution(
+            node_count=node_count,
+            depot_nodes=depot_nodes,
+            optional_nodes=optional_nodes,
+            vehicle_count=vehicle_count
+        )
+
+        # Create an individual so that a solution can be assigned, validated and evaluated.
+        candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
+        candidate_individual.assign_solution(candidate_solution)
+        for validator in VRP.validator:
+            valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+            if valid_individual is False:
+                break
+
+        # If the solution is invalid, restart the process.
+        candidate_individual.valid = valid_individual
+        # Should solution-finding take too long, it is halted here.
+        if check_goal(individual_timer):
+            return None, failure_msg
+
+    # Once the solution is valid, evaluate it.
+    candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
+
+    # The individual is now ready for use.
+    return candidate_individual, "Individual Creation OK (Time taken: {} ms)".format(individual_timer.elapsed())
+
+
 def random(**kwargs):
     """
     Creates a population of randomly generated individuals that are also validated and evaluated.
@@ -122,35 +185,24 @@ def random(**kwargs):
 
     population_timer.start()
     individual_timer.start()
+
+    individual_args = {
+        "node_count": node_count,
+        "depot_nodes": depot_nodes,
+        "optional_nodes": optional_nodes,
+        "vehicle_count": vehicle_count,
+        "failure_msg": "(Random) Individual initialization is taking too long.",
+        "individual_timer": individual_timer,
+        "check_goal": check_goal,
+        "validation_args": validation_args,
+        "evaluation_args": evaluation_args
+    }
     for i in range(population_count):
 
-        valid_individual = False
-        candidate_individual = None
-        while valid_individual is False:
-
-            candidate_solution = random_solution(
-                node_count=node_count,
-                depot_nodes=depot_nodes,
-                optional_nodes=optional_nodes,
-                vehicle_count=vehicle_count
-            )
-
-            # Create an individual so that a solution can be assigned, validated and evaluated.
-            candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
-            candidate_individual.assign_solution(candidate_solution)
-            for validator in VRP.validator:
-                valid_individual, validation_msg = validator(candidate_individual, **validation_args)
-                if valid_individual is False:
-                    break
-
-            # If the solution is invalid, restart the process.
-            candidate_individual.valid = valid_individual
-            # Should solution-finding take too long, it is halted here.
-            if check_goal(individual_timer):
-                return population, "(Random) Individual initialization is taking too long."
-
-        # Once the solution is valid, evaluate it.
-        candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
+        # Create a random, validated and evaluated individual.
+        candidate_individual, individual_msg = random_valid_individual(**individual_args)
+        if candidate_individual is None:
+            return population, individual_msg
 
         # With an individual both validated and evaluated, it is good to go.
         population.append(candidate_individual)
@@ -211,7 +263,7 @@ def allele_permutation(**kwargs):
     population_timer.start()
     individual_timer.start()
 
-    # Start off with a completely random individual.
+    # Start off with a completely random, unvalidated individual.
     candidate_solution = random_solution(
         node_count=node_count,
         depot_nodes=depot_nodes,
@@ -460,27 +512,20 @@ def simulated_annealing(**kwargs):
     population_timer.start()
     individual_timer.start()
 
-    # Start off with a completely random individual.
-    candidate_solution = random_solution(
-        node_count=node_count,
-        depot_nodes=depot_nodes,
-        optional_nodes=optional_nodes,
-        vehicle_count=vehicle_count
-    )
-    candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
-    candidate_individual.assign_solution(candidate_solution)
-
-    # Validate and evaluate the first individual so that it can be used as a guide for SA.
-    valid_individual = False
-    while candidate_individual.valid is False:
-        VRP.mutation_operator[randint(0, len(VRP.mutation_operator) - 1)](candidate_individual)
-        for validator in VRP.validator:
-            valid_individual, validation_msg = validator(candidate_individual, **validation_args)
-            if valid_individual is False:
-                break
-        candidate_individual.valid = valid_individual
-
-    candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
+    individual_args = {
+        "node_count": node_count,
+        "depot_nodes": depot_nodes,
+        "optional_nodes": optional_nodes,
+        "vehicle_count": vehicle_count,
+        "failure_msg": "(Simulated Annealing - Random) Individual initialization is taking too long.",
+        "individual_timer": individual_timer,
+        "check_goal": check_goal,
+        "validation_args": validation_args,
+        "evaluation_args": evaluation_args
+    }
+    candidate_individual, individual_msg = random_valid_individual(**individual_args)
+    if candidate_individual is None:
+        return population, individual_msg
     individual_timer.reset()
 
     population.append(candidate_individual)
