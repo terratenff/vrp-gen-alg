@@ -184,20 +184,22 @@ def run_gen_alg(vrp_params, alg_params):
     # Filtration strategy.
     if alg_params.filtration_frequency <= 0:
         filtration_counter = float("inf")
+
         def filtration(population_old, population_new, **kwargs):
             return population_new, "Filtration operation skipped."
     else:
         filtration_counter = alg_params.filtration_frequency
+
         def filtration(population_old, population_new, **kwargs):
-            node_count = kwargs["node_count"]
-            depot_nodes = kwargs["depot_nodes"]
-            optional_nodes = kwargs["optional_nodes"]
-            vehicle_count = kwargs["vehicle_count"]
-            maximize = kwargs["maximize"]
-            minimum_cpu_time = kwargs["minimum_cpu_time"]
+            fl_node_count = kwargs["node_count"]
+            fl_depot_nodes = kwargs["depot_nodes"]
+            fl_optional_nodes = kwargs["optional_nodes"]
+            fl_vehicle_count = kwargs["vehicle_count"]
+            fl_maximize = kwargs["maximize"]
+            fl_minimum_cpu_time = kwargs["minimum_cpu_time"]
             
             # If minimum CPU time is set to None, it is to be ignored.
-            if minimum_cpu_time is None:
+            if fl_minimum_cpu_time is None:
                 def check_goal(timer): return False
             else:
                 def check_goal(timer): return timer.past_goal()
@@ -206,7 +208,7 @@ def run_gen_alg(vrp_params, alg_params):
             filtration_timer.start()
             population_size = len(population_new)
             combined_population = population_old + population_new
-            combined_population.sort(key=attrgetter("fitness"), reverse=maximize)
+            combined_population.sort(key=attrgetter("fitness"), reverse=fl_maximize)
             cut_population = combined_population[:population_size]
             
             # Multiple weak solutions can share the same fitness value.
@@ -223,7 +225,7 @@ def run_gen_alg(vrp_params, alg_params):
                     previous_fitness = cut_population[i].fitness
             
             # Create random individuals to replace duplicates.
-            individual_timer = Timer(goal=minimum_cpu_time)
+            individual_timer = Timer(goal=fl_minimum_cpu_time)
             for i in range(len(replacement_indices)):
                 individual_timer.start()
                 
@@ -232,13 +234,13 @@ def run_gen_alg(vrp_params, alg_params):
                 while valid_individual is False:
 
                     candidate_solution = population_initializers.random_solution(
-                        node_count=node_count,
-                        depot_nodes=depot_nodes,
-                        optional_nodes=optional_nodes,
-                        vehicle_count=vehicle_count
+                        node_count=fl_node_count,
+                        depot_nodes=fl_depot_nodes,
+                        optional_nodes=fl_optional_nodes,
+                        vehicle_count=fl_vehicle_count
                     )
 
-                    candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
+                    candidate_individual = VRP(fl_node_count, fl_vehicle_count, fl_depot_nodes, fl_optional_nodes)
                     candidate_individual.assign_solution(candidate_solution)
                     for validator in VRP.validator:
                         valid_individual, validation_msg = validator(candidate_individual, **validation_args)
@@ -254,8 +256,8 @@ def run_gen_alg(vrp_params, alg_params):
                 individual_timer.reset()
             
             filtration_timer.stop()
-            msg = "Replacement operation OK (Time taken: {} ms)".format(filtration_timer.elapsed())
-            return cut_population, msg
+            fl_msg = "Filtration operation OK (Time taken: {} ms)".format(filtration_timer.elapsed())
+            return cut_population, fl_msg
 
     # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
