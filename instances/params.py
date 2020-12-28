@@ -7,6 +7,7 @@ Class instances for general VRP parameters and genetic algorithm parameters.
 """
 
 import numpy as np
+from scipy.spatial import distance
 
 
 class ParamsVRP:
@@ -22,7 +23,7 @@ class ParamsVRP:
                  vrp_maximum_route_time=None,
                  vrp_maximum_route_distance=None,
                  vrp_distance_time_ratio=1,
-                 vrp_time_cost_ratio=1,
+                 vrp_time_cost_ratio=0,
                  vrp_distance_cost_ratio=1,
                  cvrp_vehicle_capacity=0,
                  cvrp_node_demand=None,
@@ -39,9 +40,8 @@ class ParamsVRP:
         """
         Constructor for general VRP parameters.
         :param vrp_contents: Contents of the VRP. Either a path table or a list of node positions.
-        Provide a path table as a NumPy square matrix, preferably with integer elements, since
-        floats will be rounded to integers.
-        List of node positions can be given with a list of tuples. [(x1,y1), (x2,y2), (x3,y3), ...]
+        Provide a path table as a NumPy square matrix.
+        List of node positions can be given with a NumPy n x 2 matrix where n is the number of nodes.
         Support for drawing a map is available for the latter content format.
 
         :param vrp_path_table_override: Contents that are to be used in the VRP - ONLY IF
@@ -50,9 +50,8 @@ class ParamsVRP:
         :param vrp_vehicle_count: Number of vehicles that are to be used for the problem.
 
         :param vrp_node_service_time: Time taken to supply the nodes upon vehicle arrival.
-        If given as a single value, every node will have the same service time.
-        If given as a list, its length must match total number of nodes, including depot node.
         List index is a node, and the value within is that node's service time.
+        If set to None, service does not take time.
 
         :param vrp_maximum_route_time: Determines the time that each vehicle is allowed to spend
         on their routes. If this limit is exceeded, the solution the vehicles represent is invalid.
@@ -62,26 +61,21 @@ class ParamsVRP:
         to move on their routes. If this limit is exceeded, the solution the vehicles represent is invalid.
         If set to None, no limit is set.
 
-        :param vrp_distance_time_ratio: Conversion rate from distance to time. Multiply by -1 for reverse operation.
-        Example values: Ratio 1 converts 1 distance unit to 1 time unit.
-        Ratio 5 converts every 5 distance units to 1 time unit. Integer division by 5 is performed.
-        Ratio -10 converts 1 distance unit into 10 time units. Integer multiplication by 10 is performed.
-        Use integers only. If set to zero, distance units do not convert to time; in other words,
-        any amount of distance converts to 0 time units.
+        :param vrp_distance_time_ratio: Conversion rate from distance to time.
+        Multiplying distance with this results in the time equivalent.
 
-        :param vrp_time_cost_ratio: Conversion rate from time to cost. Multiply by -1 for reverse operation.
-        See vrp_distance_time_ratio for more details.
+        :param vrp_time_cost_ratio: Conversion rate from time to cost.
+        Multiplying time with this results in the cost equivalent.
 
-        :param vrp_distance_cost_ratio: Conversion rate from distance to cost. Multiply by -1 for reverse operation.
-        See vrp_distance_time_ratio for more details.
+        :param vrp_distance_cost_ratio: Conversion rate from distance to cost.
+        Multiplying distance with this results in the cost equivalent.
 
         :param cvrp_vehicle_capacity: Maximum supply capacity of each vehicle.
-        If given as a single value, every vehicle will have the same capacity.
-        If given as a list, its length must match total number of vehicles.
-        List index is a vehicle, and the value within is that vehicle's supply capacity.
+        A single value is expected: it is assumed that every vehicle has the same capacity.
 
         :param cvrp_node_demand: Supply demand of each node. This is ignored with the depot node.
-        A single integer value is expected: it is assumed that every vehicle has the same capacity.
+        List index is a node, and the value within is that node's supply demand.
+        If set to None, nodes do not have any demands.
 
         :param ovrp_enabled: Flag that determines whether the vehicles have to return to the depot
         once they complete their rounds.
@@ -89,10 +83,8 @@ class ParamsVRP:
         If False, the problem is "closed", forcing vehicles to go back to the depot.
 
         :param vrpp_node_profit: Profit gained from visiting nodes.
-        If set to None, VRPP nature of the problem is disabled.
-        If given as a single value, every vehicle will yield the same profit.
-        If given as a list, its length must match total number of nodes, including depot nodes.
         List index is a node, and the value within is that node's profit value.
+        If set to None, VRPP nature of the problem is disabled.
 
         :param vrpp_optional_node: List of nodes that are considered optional, meaning that these nodes
         do not have to be visited.
@@ -113,15 +105,13 @@ class ParamsVRP:
         If time windows are to be used, provide a list of tuples, totaling to the number of nodes,
         including the depot node (recommended time window for depot node is between 0 and maximum time
         that a vehicle is allowed to be out for).
-        Expected tuple-list format: [(start0, end0), (start1, end1), (start2, end2), ...]
+        Expected to be an n x 2 matrix where n is the number of nodes.
         If set to None, this is ignored.
 
         :param vrptw_node_penalty: Coefficient that determines the scale of the penalty value.
+        List index is a node, and the value within is that node's penalty coefficient.
         Penalty value is based on how late a vehicle arrives at a node.
         This is used ONLY IF time windows are being used.
-        If given as a single value, every node will have the same penalty coefficient.
-        If given as a list, its length must match total number of nodes, including the depot node.
-        List index is a node, and the value within is that node's penalty coefficient.
 
         :param vrptw_hard_windows: Determines whether every single time window is a hard time window. If set to True,
         every time window is hard, and in so doing, those that violate the time window are cast aside. If set to False,
@@ -202,18 +192,10 @@ class ParamsVRP:
         """
 
         try:
-            nodes = len(self.vrp_coordinates)
-            self.vrp_path_table = np.zeros([nodes, nodes], dtype=int)
-            for i in range(nodes):
-                xy1 = self.vrp_coordinates[i]
-                for j in range(nodes):
-                    xy2 = self.vrp_coordinates[j]
-                    dx = xy2[0] - xy1[0]
-                    dy = xy2[1] - xy1[1]
-                    self.vrp_path_table[i][j] = round(np.sqrt([dx * dx + dy * dy])[0])
-        except (ValueError, TypeError, IndexError):
+            self.vrp_path_table = distance.cdist(self.vrp_coordinates, self.vrp_coordinates)
+        except (ValueError, TypeError):
             raise ValueError("Invalid data format / Flawed coordinate structure.\n"
-                             "Expecting structure of type [(x1,y1), (x2,y2), ...]")
+                             "Expecting a numpy array of size n x 2.")
 
     def print(self):
         """
@@ -248,23 +230,17 @@ class ParamsVRP:
                 .replace("\n", "")
 
         if self.vrp_distance_time_ratio > 0:
-            conversion1_str = "{} to 1".format(str(self.vrp_distance_time_ratio))
-        elif self.vrp_distance_time_ratio < 0:
-            conversion1_str = "1 to {}".format(str(self.vrp_distance_time_ratio * (-1)))
+            conversion1_str = "{:0.2f}".format(self.vrp_distance_time_ratio)
         else:
             conversion1_str = "Does not convert to time"
 
         if self.vrp_time_cost_ratio > 0:
-            conversion2_str = "{} to 1".format(str(self.vrp_time_cost_ratio))
-        elif self.vrp_time_cost_ratio < 0:
-            conversion2_str = "1 to {}".format(str(self.vrp_time_cost_ratio * (-1)))
+            conversion2_str = "{:0.2f}".format(self.vrp_time_cost_ratio)
         else:
             conversion2_str = "Does not convert to cost"
 
         if self.vrp_distance_cost_ratio > 0:
-            conversion3_str = "{} to 1".format(str(self.vrp_distance_cost_ratio))
-        elif self.vrp_distance_cost_ratio < 0:
-            conversion3_str = "1 to {}".format(str(self.vrp_distance_cost_ratio * (-1)))
+            conversion3_str = "{:0.2f}".format(self.vrp_distance_cost_ratio)
         else:
             conversion3_str = "Does not convert to cost"
 

@@ -84,7 +84,7 @@ def data_selector(vrp_params, code, sub_code):
             print("Penalties have no meaning without time windows: they have been deselected too.")
     elif code == 4:  # View
         if sub_code == 1:    # Cost Matrix
-            print(str(vrp_params.vrp_path_table))
+            print(str(vrp_params.vrp_path_table).replace("\n  ", " "))
         elif sub_code == 2:  # Coordinates
             print(str(vrp_params.vrp_coordinates))
         elif sub_code == 3:  # Demands
@@ -99,7 +99,7 @@ def data_selector(vrp_params, code, sub_code):
             print(str(vrp_params.vrptw_node_time_window))
 
 
-def load_data(name, subdirectory, data_type: type = int):
+def load_data(name, subdirectory, data_type: type = float):
     """
     Loads a text file from the variables folder.
     :param name: Name of the text file within the "variables" folder.
@@ -131,16 +131,16 @@ def generate_cost_matrix(vrp_params):
           "you can edit the text files under the folder 'cost_matrices', in 'variables'.")
     matrix_name = input("Cost Matrix Name > ")
     nodes = int(input("Node Count > "))
-    minimum = int(input("Minimum Element > "))
-    maximum = int(input("Maximum Element (greater than {}) > ".format(minimum)))
+    minimum = float(input("Minimum Element > "))
+    maximum = float(input("Maximum Element (greater than {}) > ".format(minimum)))
     symmetric = input("Make a Symmetric Matrix? (y/n) > ")
     if symmetric.upper() == "Y":
-        matr = np.random.randint(minimum, maximum, (nodes, nodes))
+        matr = np.random.uniform(minimum, maximum, (nodes, nodes))
         matrix = (matr + matr.T) / 2
     else:
-        matrix = np.random.randint(minimum, maximum, (nodes, nodes))
+        matrix = np.random.uniform(minimum, maximum, (nodes, nodes))
 
-    np.savetxt("variables/cost_matrices/" + matrix_name + ".txt", matrix, fmt="%.0f")
+    np.savetxt("variables/cost_matrices/" + matrix_name + ".txt", matrix, fmt="%.8f")
     matrix = load_data(matrix_name, "cost_matrices")
     vrp_params.set_contents(matrix, name=matrix_name)
 
@@ -157,22 +157,22 @@ def generate_coordinates_matrix(vrp_params):
           "you can edit the text files under the folder 'coordinates', in 'variables'.")
     matrix_name = input("Coordinate List Name > ")
     nodes = int(input("Node Count > "))
-    minimum_x = int(input("Minimum X-Coordinate > "))
-    maximum_x = int(input("Maximum X-Coordinate (greater than {}) > ".format(minimum_x)))
-    minimum_y = int(input("Minimum Y-Coordinate > "))
-    maximum_y = int(input("Maximum Y-Coordinate (greater than {}) > ".format(minimum_y)))
-    matrix1 = np.random.randint(minimum_x, maximum_x, [nodes, 1])
-    matrix2 = np.random.randint(minimum_y, maximum_y, [nodes, 1])
+    minimum_x = float(input("Minimum X-Coordinate > "))
+    maximum_x = float(input("Maximum X-Coordinate (greater than {}) > ".format(minimum_x)))
+    minimum_y = float(input("Minimum Y-Coordinate > "))
+    maximum_y = float(input("Maximum Y-Coordinate (greater than {}) > ".format(minimum_y)))
+    matrix1 = np.random.uniform(minimum_x, maximum_x, [nodes, 1])
+    matrix2 = np.random.uniform(minimum_y, maximum_y, [nodes, 1])
     matrix = np.concatenate((matrix1, matrix2), axis=1)
 
     # noinspection PyTypeChecker
-    np.savetxt("variables/coordinates/" + matrix_name + ".txt", matrix, fmt="%.0f")
+    np.savetxt("variables/coordinates/" + matrix_name + ".txt", matrix, fmt="%.8f")
     matrix = load_data(matrix_name, "coordinates")
     vrp_params.set_contents(matrix, name=matrix_name)
     response = input("Create and save an overriding cost matrix? (y/n) > ")
     if response.upper() == "Y":
         new_name = input("Overriding Cost Matrix Name > ")
-        np.savetxt("variables/cost_matrices/" + new_name + ".txt", vrp_params.vrp_path_table, fmt="%.0f")
+        np.savetxt("variables/cost_matrices/" + new_name + ".txt", vrp_params.vrp_path_table, fmt="%.8f")
 
 
 def generate_demands_matrix(vrp_params):
@@ -191,12 +191,12 @@ def generate_demands_matrix(vrp_params):
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
-    demand_min = int(input("Minimum Demand > "))
-    demand_max = int(input("Maximum Demand (greater than {}) > ".format(demand_min)))
-    matrix = np.random.randint(demand_min, demand_max, [nodes, 1])
+    demand_min = float(input("Minimum Demand > "))
+    demand_max = float(input("Maximum Demand (greater than {}) > ".format(demand_min)))
+    matrix = np.random.uniform(demand_min, demand_max, [nodes, 1])
     matrix[depot_node] = 0
 
-    np.savetxt("variables/node_demands/" + matrix_name + ".txt", matrix, fmt="%.0f")
+    np.savetxt("variables/node_demands/" + matrix_name + ".txt", matrix, fmt="%.8f")
     matrix = load_data(matrix_name, "node_demands")
     vrp_params.cvrp_node_demand = matrix
 
@@ -217,8 +217,8 @@ def generate_penalties_matrix(vrp_params):
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
-    affect_depot_nodes = bool(input("Should Depot Nodes have penalty coefficients?\n(1 = True, 0 = False) > "))
-    penalty_min = float(input("Minimum Penalty Coefficient (use floats)\n"
+    affect_depot_nodes = input("Should Depot Nodes have penalty coefficients? (y/n)\n > ").upper() == "Y"
+    penalty_min = float(input("Minimum Penalty Coefficient\n"
                               "- 1.00 is equivalent to time late.\n"
                               "- Low penalty implies low priority\n"
                               "- High penalty implies high priority\n"
@@ -228,8 +228,8 @@ def generate_penalties_matrix(vrp_params):
     if affect_depot_nodes is True:
         matrix[depot_node] = 0.00
 
-    np.savetxt("variables/node_penalties/" + matrix_name + ".txt", matrix, fmt="%.5f")
-    matrix = load_data(matrix_name, "node_penalties", data_type=float)
+    np.savetxt("variables/node_penalties/" + matrix_name + ".txt", matrix, fmt="%.8f")
+    matrix = load_data(matrix_name, "node_penalties")
     vrp_params.vrptw_node_penalty = matrix
 
 
@@ -249,12 +249,12 @@ def generate_profits_matrix(vrp_params):
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
-    profit_min = int(input("Minimum Profit > "))
-    profit_max = int(input("Maximum Profit (greater than {}) > ".format(profit_min)))
-    matrix = np.random.randint(profit_min, profit_max, [nodes, 1])
+    profit_min = float(input("Minimum Profit > "))
+    profit_max = float(input("Maximum Profit (greater than {}) > ".format(profit_min)))
+    matrix = np.random.uniform(profit_min, profit_max, [nodes, 1])
     matrix[depot_node] = 0
 
-    np.savetxt("variables/node_profits/" + matrix_name + ".txt", matrix, fmt="%.0f")
+    np.savetxt("variables/node_profits/" + matrix_name + ".txt", matrix, fmt="%.8f")
     matrix = load_data(matrix_name, "node_profits")
     vrp_params.vrpp_node_profit = matrix
 
@@ -275,12 +275,12 @@ def generate_service_times_matrix(vrp_params):
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
-    service_time_min = int(input("Minimum Service Time > "))
-    service_time_max = int(input("Maximum Service Time (greater than {}) > ".format(service_time_min)))
-    matrix = np.random.randint(service_time_min, service_time_max, [nodes, 1])
+    service_time_min = float(input("Minimum Service Time > "))
+    service_time_max = float(input("Maximum Service Time (greater than {}) > ".format(service_time_min)))
+    matrix = np.random.uniform(service_time_min, service_time_max, [nodes, 1])
     matrix[depot_node] = 0
 
-    np.savetxt("variables/node_service_times/" + matrix_name + ".txt", matrix, fmt="%.0f")
+    np.savetxt("variables/node_service_times/" + matrix_name + ".txt", matrix, fmt="%.8f")
     matrix = load_data(matrix_name, "node_service_times")
     vrp_params.vrp_node_service_time = matrix
 
@@ -301,21 +301,25 @@ def generate_time_windows_matrix(vrp_params):
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
-    lower_bound_min = int(input("Minimum Lower Bound Time Window\n"
-                                "(0 or greater) > "))
-    lower_bound_max = int(input("Maximum Lower Bound Time Window\n"
-                                "(greater than {}) > ".format(lower_bound_min)))
-    upper_bound_min = int(input("Minimum Upper Bound Time Window\n"
-                                "(greater than {}) > ".format(lower_bound_max)))
-    upper_bound_max = int(input("Maximum Upper Bound Time Window\n"
-                                "(greater than {}) > ".format(upper_bound_min)))
+    lower_bound_min = float(input("Minimum Lower Bound Time Window\n"
+                                  "(0 or greater) > "))
+    lower_bound_max = float(input("Maximum Lower Bound Time Window\n"
+                                  "(greater than {}) > ".format(lower_bound_min)))
+    upper_bound_min = float(input("Minimum Upper Bound Time Window\n"
+                                  "(greater than {}) > ".format(lower_bound_max)))
+    upper_bound_max = float(input("Maximum Upper Bound Time Window\n"
+                                  "(greater than {}) > ".format(upper_bound_min)))
+    depot_time_window = float(input("Depot Node Maximum Upper Bound Time Window\n"
+                                    "(greater than {}) > ".format(upper_bound_max)))
     matrix1 = np.random.randint(lower_bound_min, lower_bound_max, [nodes, 1])
     matrix2 = np.random.randint(upper_bound_min, upper_bound_max, [nodes, 1])
     matrix = np.concatenate((matrix1, matrix2), axis=1)
-    matrix[depot_node, :] = np.array([0, 999999999], dtype=int)
+    for depot in depot_node:
+        depot_upper_bound = np.random.uniform(depot_time_window)
+        matrix[depot, :] = np.array([0, depot_upper_bound], dtype=float)
 
     # noinspection PyTypeChecker
-    np.savetxt("variables/node_time_windows/" + matrix_name + ".txt", matrix, fmt="%.0f")
+    np.savetxt("variables/node_time_windows/" + matrix_name + ".txt", matrix, fmt="%.8f")
     matrix = load_data(matrix_name, "node_time_windows")
     vrp_params.vrptw_node_time_window = matrix
 
@@ -420,7 +424,7 @@ def select_penalties_matrix(vrp_params, name=None):
         return
     else:
         matrix_name = name
-    temp_data = load_data(matrix_name, "node_penalties", data_type=float)
+    temp_data = load_data(matrix_name, "node_penalties")
     if temp_data is not None:
         vrp_params.vrptw_node_penalty = temp_data
         vrp_params.node_penalties_name = matrix_name
@@ -503,10 +507,10 @@ def initialize(name):
     """
 
     try:
-        var = np.loadtxt("variables/cost_matrices/" + name + ".txt", dtype=int)
+        var = np.loadtxt("variables/cost_matrices/" + name + ".txt", dtype=float)
         return var
     except IOError:
-        matrix = np.random.randint(10, 100, (10, 10))
+        matrix = np.random.uniform(10, 100, (10, 10))
         np.fill_diagonal(matrix, 0)
-        np.savetxt("variables/cost_matrices/" + name + ".txt", matrix, fmt="%.0f")
+        np.savetxt("variables/cost_matrices/" + name + ".txt", matrix, fmt="%.8f")
         return load_data(name, "cost_matrices")

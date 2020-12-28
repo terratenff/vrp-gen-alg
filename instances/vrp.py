@@ -58,7 +58,7 @@ class VRP:
         # In VRPP, optional nodes can remain unvisited. Those are kept here.
         self.unvisited_optional_nodes = optional_node_list
 
-        # Used optional nodes are mainained here.
+        # Used optional nodes are maintained here.
         self.visited_optional_nodes = []
 
         # Fitness value of the individual, evaluated by some other module.

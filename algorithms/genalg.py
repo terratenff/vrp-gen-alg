@@ -160,26 +160,32 @@ def run_gen_alg(vrp_params, alg_params):
     distance_time_var = vrp_params.vrp_distance_time_ratio
     time_cost_var = vrp_params.vrp_time_cost_ratio
     distance_cost_var = vrp_params.vrp_distance_cost_ratio
-    if distance_time_var > 0:
+    if distance_time_var >= 0:
         def distance_to_time(distance):
-            return distance / distance_time_var
+            return distance * distance_time_var
     else:
+        print("Warning: conversion factor from distance to time is less than zero. It has been set to zero for now.")
+
         def distance_to_time(distance):
-            return distance * distance_time_var * (-1)
+            return 0
 
-    if time_cost_var > 0:
+    if time_cost_var >= 0:
         def time_to_cost(time):
-            return time / time_cost_var
+            return time * time_cost_var
     else:
-        def time_to_cost(time):
-            return time * time_cost_var * (-1)
+        print("Warning: conversion factor from time to cost is less than zero. It has been set to zero for now.")
 
-    if distance_cost_var > 0:
+        def time_to_cost(time):
+            return 0
+
+    if distance_cost_var >= 0:
         def distance_to_cost(distance):
-            return distance / distance_cost_var
+            return distance * distance_cost_var
     else:
+        print("Warning: conversion factor from distance to cost is less than zero. It has been set to zero for now.")
+
         def distance_to_cost(distance):
-            return distance * distance_cost_var * (-1)
+            return 0
     
     # Filtration strategy.
     if alg_params.filtration_frequency <= 0:

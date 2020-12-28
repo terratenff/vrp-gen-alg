@@ -37,7 +37,7 @@ def set_vrp_parameters(vrp_params):
         elif user_input.upper() != "N":
             vrp_params.vrp_node_service_time = \
                 list(np.loadtxt("variables/node_service_times/" + user_input + ".txt",
-                                dtype=int))
+                                dtype=float))
             vrp_params.node_service_times_name = user_input
 
         # -----------------------------------------------------------------------
@@ -47,7 +47,7 @@ def set_vrp_parameters(vrp_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.vrp_maximum_route_time = int(user_input)
+            vrp_params.vrp_maximum_route_time = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -56,43 +56,34 @@ def set_vrp_parameters(vrp_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.vrp_maximum_route_distance = int(user_input)
+            vrp_params.vrp_maximum_route_distance = float(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Distance-to-Time Ratio\n- Current: {}\n- Default: 1\n"
-                           "Positive integer: 'n' distance units to 1 time unit\n"
-                           "Negative integer: 1 distance unit to 'n' time units\n"
-                           "0: 'n' distance units to 0 time units\n> "
+        user_input = input("VRP - Distance-to-Time Ratio\n- Current: {}\n- Default: 1.00\n- Must be 0.00 or greater\n> "
                            .format(vrp_params.vrp_distance_time_ratio))
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.vrp_distance_time_ratio = int(user_input)
+            vrp_params.vrp_distance_time_ratio = float(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Time-to-Cost Ratio\n- Current: {}\n- Default: 1\n"
-                           "Positive integer: 'n' time units to 1 cost unit\n"
-                           "Negative integer: 1 time unit to 'n' cost units\n"
-                           "0: 'n' time units to 0 cost units\n> "
+        user_input = input("VRP - Time-to-Cost Ratio\n- Current: {}\n- Default: 0.00\n- Must be 0.00 or greater\n> "
                            .format(vrp_params.vrp_time_cost_ratio))
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.vrp_time_cost_ratio = int(user_input)
+            vrp_params.vrp_time_cost_ratio = float(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Distance-to-Cost Ratio\n- Current: {}\n- Default: 1\n"
-                           "Positive integer: 'n' distance units to 1 cost unit\n"
-                           "Negative integer: 1 distance unit to 'n' cost units\n"
-                           "0: 'n' distance units to 0 cost units\n> "
+        user_input = input("VRP - Distance-to-Cost Ratio\n- Current: {}\n- Default: 1.00\n- Must be 0.00 or greater\n> "
                            .format(vrp_params.vrp_distance_cost_ratio))
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.vrp_distance_cost_ratio = int(user_input)
+            vrp_params.vrp_distance_cost_ratio = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -101,7 +92,7 @@ def set_vrp_parameters(vrp_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.cvrp_vehicle_capacity = int(user_input)
+            vrp_params.cvrp_vehicle_capacity = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -112,7 +103,7 @@ def set_vrp_parameters(vrp_params):
         elif user_input.upper() != "N":
             vrp_params.cvrp_node_demand = \
                 list(np.loadtxt("variables/node_demands/" + user_input + ".txt",
-                                dtype=int))
+                                dtype=float))
             vrp_params.node_demands_name = user_input
 
         # -----------------------------------------------------------------------
@@ -122,7 +113,7 @@ def set_vrp_parameters(vrp_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.ovrp_enabled = bool(user_input)
+            vrp_params.ovrp_enabled = bool(user_input) or user_input.upper() == "TRUE"
 
         # -----------------------------------------------------------------------
 
@@ -133,7 +124,7 @@ def set_vrp_parameters(vrp_params):
         elif user_input.upper() != "N":
             vrp_params.vrpp_node_profit = \
                 list(np.loadtxt("variables/node_profits/" + user_input + ".txt",
-                                dtype=int))
+                                dtype=float))
             vrp_params.node_profits_name = user_input
 
         # -----------------------------------------------------------------------
@@ -143,7 +134,7 @@ def set_vrp_parameters(vrp_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.vrpp_exclude_travel_costs = bool(user_input)
+            vrp_params.vrpp_exclude_travel_costs = bool(user_input) or user_input.upper() == "TRUE"
 
         # -----------------------------------------------------------------------
 
@@ -172,7 +163,7 @@ def set_vrp_parameters(vrp_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.mdvrp_optimize_depot_nodes = bool(user_input)
+            vrp_params.mdvrp_optimize_depot_nodes = bool(user_input) or user_input.upper() == "TRUE"
 
         # -----------------------------------------------------------------------
 
@@ -187,7 +178,7 @@ def set_vrp_parameters(vrp_params):
             else:
                 vrp_params.vrptw_node_time_window = \
                     list(map(tuple, np.loadtxt("variables/node_time_windows/" + user_input + ".txt",
-                                               dtype=int)))
+                                               dtype=float)))
                 vrp_params.node_time_windows_name = user_input
 
         # -----------------------------------------------------------------------
@@ -213,7 +204,7 @@ def set_vrp_parameters(vrp_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            vrp_params.vrptw_hard_windows = bool(user_input)
+            vrp_params.vrptw_hard_windows = bool(user_input) or user_input.upper() == "TRUE"
 
     except ValueError:
         print("Invalid value. Aborting...")
@@ -298,7 +289,7 @@ def set_algorithm_parameters(alg_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            alg_params.fitness_lower_bound = int(user_input)
+            alg_params.fitness_lower_bound = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -307,7 +298,7 @@ def set_algorithm_parameters(alg_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            alg_params.fitness_upper_bound = int(user_input)
+            alg_params.fitness_upper_bound = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -316,7 +307,7 @@ def set_algorithm_parameters(alg_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            alg_params.fitness_threshold = int(user_input)
+            alg_params.fitness_threshold = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -429,7 +420,7 @@ def set_algorithm_parameters(alg_params):
         if user_input.upper() == "Q":
             return
         elif user_input.upper() != "N":
-            alg_params.sa_initial_temperature = int(user_input)
+            alg_params.sa_initial_temperature = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -559,37 +550,37 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrp_node_service_time":
             matrix_builder.select_service_times_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrp_maximum_route_time":
-            vrp_params.vrp_maximum_route_time = int(key_value[1])
+            vrp_params.vrp_maximum_route_time = float(key_value[1])
         elif key_value[0] == "vrp_maximum_route_distance":
-            vrp_params.vrp_maximum_route_distance = int(key_value[1])
+            vrp_params.vrp_maximum_route_distance = float(key_value[1])
         elif key_value[0] == "vrp_distance_time_ratio":
-            vrp_params.vrp_distance_time_ratio = int(key_value[1])
+            vrp_params.vrp_distance_time_ratio = float(key_value[1])
         elif key_value[0] == "vrp_time_cost_ratio":
-            vrp_params.vrp_time_cost_ratio = int(key_value[1])
+            vrp_params.vrp_time_cost_ratio = float(key_value[1])
         elif key_value[0] == "vrp_distance_cost_ratio":
-            vrp_params.vrp_distance_cost_ratio = int(key_value[1])
+            vrp_params.vrp_distance_cost_ratio = float(key_value[1])
         elif key_value[0] == "cvrp_vehicle_capacity":
-            vrp_params.cvrp_vehicle_capacity = int(key_value[1])
+            vrp_params.cvrp_vehicle_capacity = float(key_value[1])
         elif key_value[0] == "cvrp_node_demand":
             matrix_builder.select_demands_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "ovrp_enabled":
-            vrp_params.ovrp_enabled = key_value[1] == "True"
+            vrp_params.ovrp_enabled = key_value[1].upper() == "TRUE"
         elif key_value[0] == "vrpp_node_profit":
             matrix_builder.select_profits_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrpp_exclude_travel_costs":
-            vrp_params.vrpp_exclude_travel_costs = key_value[1] == "True"
+            vrp_params.vrpp_exclude_travel_costs = key_value[1].upper() == "TRUE"
         elif key_value[0] == "vrpp_optional_node":
             vrp_params.vrpp_optional_node = [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "mdvrp_depot_node":
             vrp_params.mdvrp_depot_node = [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "mdvrp_optimize_depot_nodes":
-            vrp_params.mdvrp_optimize_depot_nodes = key_value[1] == "True"
+            vrp_params.mdvrp_optimize_depot_nodes = key_value[1].upper() == "TRUE"
         elif key_value[0] == "vrptw_node_time_window":
             matrix_builder.select_time_windows_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrptw_node_penalty":
             matrix_builder.select_penalties_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrptw_hard_windows":
-            vrp_params.vrptw_hard_windows = key_value[1] == "True"
+            vrp_params.vrptw_hard_windows = key_value[1].upper() == "TRUE"
 
     if coordinates is not None:
         if overriding_matrix == "None":
@@ -623,11 +614,11 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "cpu_total_limit":
             alg_params.cpu_total_limit = int(key_value[1])
         elif key_value[0] == "fitness_lower_bound":
-            alg_params.fitness_lower_bound = None if key_value[1] == str(None) else int(key_value[1])
+            alg_params.fitness_lower_bound = None if key_value[1] == str(None) else float(key_value[1])
         elif key_value[0] == "fitness_upper_bound":
-            alg_params.fitness_upper_bound = None if key_value[1] == str(None) else int(key_value[1])
+            alg_params.fitness_upper_bound = None if key_value[1] == str(None) else float(key_value[1])
         elif key_value[0] == "fitness_threshold":
-            alg_params.fitness_threshold = int(key_value[1])
+            alg_params.fitness_threshold = float(key_value[1])
         elif key_value[0] == "parent_candidate_count":
             alg_params.parent_candidate_count = int(key_value[1])
         elif key_value[0] == "parent_selection_function":
@@ -647,6 +638,6 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "sa_iteration_count":
             alg_params.sa_iteration_count = int(key_value[1])
         elif key_value[0] == "sa_initial_temperature":
-            alg_params.sa_initial_temperature = int(key_value[1])
+            alg_params.sa_initial_temperature = float(key_value[1])
         elif key_value[0] == "sa_p_coeff":
             alg_params.sa_p_coeff = float(key_value[1])
