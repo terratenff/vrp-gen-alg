@@ -218,11 +218,11 @@ def run_gen_alg(vrp_params, alg_params):
             # that have the same fitness value are the same.
             replacement_indices = []
             previous_fitness = cut_population[0].fitness 
-            for i in range(1, cut_population):
-                if cut_population[i].fitness == previous_fitness:
-                    replacement_indices.append(i)
+            for fl_i in range(1, cut_population):
+                if cut_population[fl_i].fitness == previous_fitness:
+                    replacement_indices.append(fl_i)
                 else:
-                    previous_fitness = cut_population[i].fitness
+                    previous_fitness = cut_population[fl_i].fitness
             
             # Create random individuals to replace duplicates.
             fl_individual_timer = Timer(goal=fl_minimum_cpu_time)
@@ -238,11 +238,11 @@ def run_gen_alg(vrp_params, alg_params):
                 "evaluation_args": evaluation_args
             }
             fl_individual_timer.start()
-            for i in range(len(replacement_indices)):
-                candidate_individual, error_msg = population_initializers.random_valid_individual(fl_individual_args)
+            for fl_i in range(len(replacement_indices)):
+                candidate_individual, error_msg = population_initializers.random_valid_individual(**fl_individual_args)
                 if candidate_individual is None:
                     return population_new, error_msg
-                cut_population[replacement_indices[i]] = candidate_individual
+                cut_population[replacement_indices[fl_i]] = candidate_individual
                 fl_individual_timer.reset()
             
             filtration_timer.stop()
@@ -258,6 +258,8 @@ def run_gen_alg(vrp_params, alg_params):
     depot_node_list = vrp_params.mdvrp_depot_node
     optional_node_list = vrp_params.vrpp_optional_node if vrp_params.vrpp_optional_node is not None else []
 
+    # In OVRP, vehicles do not return to the depots.
+    # This is simulated by reducing all travels distances, where the destination is a depot, to zero.
     if using_ovrp:
         path_table[:, depot_node_list] = 0
 
@@ -265,21 +267,40 @@ def run_gen_alg(vrp_params, alg_params):
         if vrp_params.vrp_maximum_route_time is not None else -1
     maximum_distance = vrp_params.vrp_maximum_route_distance \
         if vrp_params.vrp_maximum_route_distance is not None else -1
+
     node_service_time = deepcopy(vrp_params.vrp_node_service_time)
     if node_service_time is None:
         node_service_time = [0] * node_count
+
     node_demand_list = deepcopy(vrp_params.cvrp_node_demand)
     if node_demand_list is None:
         node_demand_list = [0] * node_count
+
+    # Depot nodes do not have supply demands associated with them.
+    for depot_node in depot_node_list:
+        node_demand_list[depot_node] = 0
+
     time_windows = deepcopy(vrp_params.vrptw_node_time_window)
     if time_windows is None:
         time_windows = [(0, float("inf"))] * node_count
+
+    # Time windows of the depot nodes are the same as maximum time
+    # unless it is specified. (Although it is pointless to set a time window
+    # that is greater than maximum time: maximum time takes precedence over time windows)
+
     node_penalty_list = deepcopy(vrp_params.vrptw_node_penalty)
     if node_penalty_list is None:
         node_penalty_list = [0] * node_count
+
+    # Depot nodes can have penalty coefficients.
+
     node_profit_list = deepcopy(vrp_params.vrpp_node_profit)
     if node_profit_list is None:
         node_profit_list = [0] * node_count
+
+    # Depot nodes do not have profits associated with them.
+    for depot_node in depot_node_list:
+        node_profit_list[depot_node] = 0
 
     population_count = alg_params.population_count
     parent_candidate_count = alg_params.parent_candidate_count
@@ -346,6 +367,34 @@ def run_gen_alg(vrp_params, alg_params):
         "maximize": maximization,
         "tournament_probability": tournament_probability
     }
+
+    # GA Initialization, Step 12: Miscellaneous collection of tests.
+
+    # Capacity test: total capacity potential (vehicle_capacity * vehicle_capacity) is compared
+    # to total required capacity (sum of every required node capacity).
+    capacity_potential = vehicle_capacity * vehicle_count
+    required_capacity = 0
+    for i in range(len(node_demand_list)):
+        if i not in optional_node_list:
+            # Depot nodes do not have supply demands.
+            node_capacity = node_demand_list[i]
+            required_capacity += node_capacity
+    if required_capacity > capacity_potential:
+        print("Capacity requirements are too strict ({} required, {} available)".format(required_capacity,
+                                                                                        capacity_potential))
+        # This test assumes that every node is a delivery node, while the depot nodes
+        # are the pickup nodes, or every node is a pickup node, while the depot nodes
+        # are delivery nodes.
+        return
+
+    # Valid depot test: optional nodes cannot be depot nodes. This will be checked here.
+    offending_list = []
+    for depot_node in depot_node_list:
+        if depot_node in optional_node_list:
+            offending_list.append(depot_node)
+    if len(offending_list) > 0:
+        print("Optional nodes cannot be depot nodes (Offending nodes: {})".format(offending_list))
+        return
 
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------

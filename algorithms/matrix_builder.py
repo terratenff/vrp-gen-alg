@@ -217,6 +217,7 @@ def generate_penalties_matrix(vrp_params):
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
+    affect_depot_nodes = bool(input("Should Depot Nodes have penalty coefficients?\n(1 = True, 0 = False) > "))
     penalty_min = float(input("Minimum Penalty Coefficient (use floats)\n"
                               "- 1.00 is equivalent to time late.\n"
                               "- Low penalty implies low priority\n"
@@ -224,7 +225,8 @@ def generate_penalties_matrix(vrp_params):
                               "- Very high penalty simulates hard time window\n > "))
     penalty_max = float(input("Maximum Penalty Coefficient (greater than {}) > ".format(penalty_min)))
     matrix = np.random.uniform(penalty_min, penalty_max, [nodes, 1])
-    matrix[depot_node] = 0.00
+    if affect_depot_nodes is True:
+        matrix[depot_node] = 0.00
 
     np.savetxt("variables/node_penalties/" + matrix_name + ".txt", matrix, fmt="%.5f")
     matrix = load_data(matrix_name, "node_penalties", data_type=float)
