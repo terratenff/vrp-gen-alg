@@ -11,6 +11,7 @@ from operator import attrgetter
 
 from instances.vrp import VRP
 from algorithms.timer import Timer
+from algorithms.plotting.plot_manager import test_plot_creation, test_map_creation
 import algorithms.modules.population_initializers as population_initializers
 import algorithms.modules.validators as validators
 import algorithms.modules.evaluators as evaluators
@@ -27,6 +28,8 @@ def run_gen_alg(vrp_params, alg_params):
     :param alg_params: Parameters for the genetic algorithm.
     :return: Computed solution for the VRP.
     """
+    test_plot_creation()
+    test_map_creation()
 
     # GA Initialization, Step 1: Detecting which extensions are being solved.
 
@@ -408,14 +411,19 @@ def run_gen_alg(vrp_params, alg_params):
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
 
+    global_timer.start()
+
     current_generation = 1
 
     # TODO: Test module functions.
 
     population, msg = VRP.population_initializer(**population_args)
-    # population.sort(key=attrgetter("fitness"))
+    population.sort(key=attrgetter("fitness"))
     print(msg)
     for individual in population:
         print("{:> 4} | {:> 5} | {}".format(individual.individual_id, individual.fitness, individual.solution))
 
     print("TODO")
+
+    global_timer.stop()
+    print("Algorithm has finished. (Time taken: {} ms)".format(global_timer.elapsed()))
