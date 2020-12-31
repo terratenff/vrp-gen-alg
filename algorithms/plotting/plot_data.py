@@ -6,6 +6,9 @@ plot_data.py:
 Implementation for plot data and various plotting functions.
 """
 
+from os import mkdir, listdir
+from os.path import isdir, exists
+
 import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.path import Path
@@ -115,11 +118,36 @@ class PlotData:
         files are placed.
         @param base_name: Primary name of the collection of data. If set to None,
         name convention "R-<n>" is used, where <n> is replaced with an integer.
+        If a name is provided, the suffix '.txt' must be excluded.
         """
 
-        # TODO
+        if exists(destination) is False:
+            mkdir(destination)
 
-        pass
+        if base_name is None:
+            i = 0
+            file_str = "R{}".format(i)
+            file_list = listdir(destination)
+            existing_name = file_str in file_list
+            while existing_name is True:
+                i += 1
+                file_str = "R{}.txt".format(i)
+                existing_name = file_str in file_list
+            folder_name = file_str
+        else:
+            folder_name = base_name
+
+        new_destination = destination + folder_name + "/"
+        mkdir(new_destination)
+
+        if len(self.data.shape) == 2:
+            np.savetxt(new_destination + "results.txt", self.data, fmt="%.8f")
+        elif self.data.shape[0] == 1:
+            np.savetxt(new_destination + "results.txt", self.data[0], fmt="%.8f")
+        else:
+            for i in range(self.data.shape[0]):
+                temp_name = "results_{}.txt".format(i)
+                np.savetxt(new_destination + temp_name, self.data[i], fmt="%.8f")
 
 
 def plot_graph(plot_data):
@@ -141,6 +169,7 @@ def plot_graph(plot_data):
     if plot_data.legend is True:
         figure_axes.legend()
 
+    plot_data.save_data()
     return figure, figure_axes
 
 
@@ -162,6 +191,7 @@ def plot_bar(plot_data):
     if plot_data.legend is True:
         figure_axes.legend()
 
+    plot_data.save_data()
     return figure, figure_axes
 
 

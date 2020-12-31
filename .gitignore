@@ -139,6 +139,7 @@ variables/node_service_times/*
 variables/node_time_windows/*
 variables/parameter_settings/vrp/*
 variables/parameter_settings/genalg/*
+variables/plot_data/*
 !variables/coordinates/sample.txt
 !variables/cost_matrices/sample.txt
 !variables/node_demands/sample.txt
@@ -148,3 +149,4 @@ variables/parameter_settings/genalg/*
 !variables/node_time_windows/sample.txt
 !variables/parameter_settings/vrp/sample.txt
 !variables/parameter_settings/genalg/sample.txt
+!variables/plot_data/sample/results.txt
