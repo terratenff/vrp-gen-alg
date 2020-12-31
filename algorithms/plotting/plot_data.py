@@ -7,7 +7,7 @@ Implementation for plot data and various plotting functions.
 """
 
 from os import mkdir, listdir
-from os.path import isdir, exists
+from os.path import exists
 
 import numpy as np
 from matplotlib.figure import Figure
@@ -51,6 +51,11 @@ class PlotData:
         self.legend = plot_details["legend"]
         self.expected_plot_count = plot_details["expected_plot_count"]
         self.current_plot_count = plot_details["current_plot_count"]
+
+        if "misc" in plot_details:
+            self.misc = plot_details["misc"]
+        else:
+            self.misc = None
 
         # The following variables are only needed in making maps.
         # These are to be configured separately using methods
@@ -131,7 +136,7 @@ class PlotData:
             existing_name = file_str in file_list
             while existing_name is True:
                 i += 1
-                file_str = "R{}.txt".format(i)
+                file_str = "R{}".format(i)
                 existing_name = file_str in file_list
             folder_name = file_str
         else:
@@ -154,6 +159,12 @@ def plot_graph(plot_data):
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
+    draw_textbox = False
+    textbox_details = ""
+
+    if plot_data.misc is not None:
+        textbox_details = "\n".join(plot_data.misc)
+        draw_textbox = True
 
     figure = Figure(figsize=(6.4, 4.8), dpi=100)
     figure_axes = figure.add_subplot(111)
@@ -167,9 +178,17 @@ def plot_graph(plot_data):
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend()
+        figure_axes.legend(loc="lower left")
+    if draw_textbox is True:
+        props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
+        figure_axes.text(0.05, 0.95, textbox_details,
+                         transform=figure_axes.transAxes,
+                         fontsize=12,
+                         verticalalignment="top",
+                         horizontalalignment="left",
+                         bbox=props)
 
-    plot_data.save_data()
+    # plot_data.save_data()
     return figure, figure_axes
 
 
@@ -177,6 +196,12 @@ def plot_bar(plot_data):
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
+    draw_textbox = False
+    textbox_details = ""
+
+    if plot_data.misc is not None:
+        textbox_details = "\n".join(plot_data.misc)
+        draw_textbox = True
 
     figure = Figure(figsize=(6.4, 4.8), dpi=100)
     figure_axes = figure.add_subplot(111)
@@ -189,9 +214,17 @@ def plot_bar(plot_data):
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend()
+        figure_axes.legend(loc="lower left")
+    if draw_textbox is True:
+        props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
+        figure_axes.text(0.05, 0.95, textbox_details,
+                         transform=figure_axes.transAxes,
+                         fontsize=12,
+                         verticalalignment="top",
+                         horizontalalignment="left",
+                         bbox=props)
 
-    plot_data.save_data()
+    # plot_data.save_data()
     return figure, figure_axes
 
 
@@ -207,6 +240,12 @@ def plot_map(plot_data):
     required_nodes = plot_data.required_nodes
     optional_nodes = plot_data.optional_nodes
     depot_nodes = plot_data.depot_nodes
+
+    draw_textbox = False
+    textbox_details = ""
+    if plot_data.misc is not None:
+        textbox_details = "\n".join(plot_data.misc)
+        draw_textbox = True
 
     figure = Figure(figsize=(6.4, 4.8), dpi=100)
     figure_axes = figure.add_subplot(111)
@@ -277,6 +316,14 @@ def plot_map(plot_data):
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend()
+        figure_axes.legend(loc="lower left")
+    if draw_textbox is True:
+        props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
+        figure_axes.text(0.05, 0.95, textbox_details,
+                         transform=figure_axes.transAxes,
+                         fontsize=12,
+                         verticalalignment="top",
+                         horizontalalignment="left",
+                         bbox=props)
 
     return figure, figure_axes

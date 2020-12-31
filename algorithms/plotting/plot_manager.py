@@ -44,17 +44,25 @@ def test_plot_creation():
     y3 = x**3
     y = np.array([y1, y2, y3])
     plot_dict1 = {
-        "legend": True,
+        "legend": False,
         "title": "Genetic Algorithm - Best Individual",
         "xlabel": "Generation Count",
         "ylabel": "Fitness",
         "expected_plot_count": 3,
-        "current_plot_count": 1
+        "current_plot_count": 1,
+        "misc": [
+            "Simulated Annealing",
+            "$n_{max} = 300$",
+            "$T^{(1)} = 300$",
+            "$p = 1.15$"
+        ]
     }
     plot_dict2 = deepcopy(plot_dict1)
     plot_dict3 = deepcopy(plot_dict1)
     plot_dict2["current_plot_count"] = 2
     plot_dict3["current_plot_count"] = 3
+    plot_dict2["legend"] = True
+    plot_dict3["legend"] = True
     data_labels = ["Linear", "Quadratic", "Cubic"]
     data_set = np.array([x, y[0]])
 
@@ -104,7 +112,13 @@ def test_map_creation():
         "xlabel": "X-Coordinate",
         "ylabel": "Y-Coordinate",
         "expected_plot_count": 3,
-        "current_plot_count": 1
+        "current_plot_count": 1,
+        "misc": [
+            "Simulated Annealing",
+            "$n_{max} = 300$",
+            "$T^{(1)} = 300$",
+            "$p = 1.15$"
+        ]
     }
     plot_dict2 = deepcopy(plot_dict1)
     plot_dict3 = deepcopy(plot_dict1)
@@ -157,13 +171,36 @@ def plot_population_initializer(population, details):
     return plot_functions, plot_list
 
 
-def plot_best_individual_fitness(best_fitness_history, details):
+def plot_population_development(population_collection, details):
+    """
+    Compiles data from the population in such a manner that
+    a line graph could be plotted. The plot demonstrates
+    population development from one generation to another.
+    @param population_collection: List of populations
+    from different generations.
+    @param details: Dictionary that contains relevant
+    information about provided populations, such as
+    used parameters, maximum number of populations subject to
+    plotting and the means of how said populations are selected.
+    @return: List of plotting functions that are to be used,
+    and a list of plot data objects that are to be used in
+    the plotting.
+    """
+
+    # TODO
+
+    plot_functions = []
+    plot_list = []
+    return plot_functions, plot_list
+
+
+def plot_best_individual_fitness(best_individual_history, details):
     """
     Compiles data from the population in such a manner that
     the fitness value of the best individuals can be plotted
     over the course of generations.
-    @param best_fitness_history: List of fitness values from
-    individuals that are considered the best in their generations.
+    @param best_individual_history: List of individuals that were found
+    to be the best in their generations.
     @param details: Dictionary that contains relevant
     information about the development of the best individual, such as
     parameters used in the genetic algorithm.
@@ -179,14 +216,35 @@ def plot_best_individual_fitness(best_fitness_history, details):
     return plot_functions, plot_list
 
 
-def plot_best_individual_solution(best_individual_history, details):
+def plot_best_individual_initial_solution(best_initial_individual, details):
+    """
+    Compiles data for plotting the best individual's solution that
+    was generated during population initialization.
+    @param best_initial_individual: The individual that was considered
+    the best during initialization.
+    @param details: Dictionary that contains relevant
+    information about the development of the best individual, such as
+    used population initializer and other parameters.
+    @return: List of plotting functions that are to be used,
+    and a list of plot data objects that are to be used in
+    the plotting.
+    """
+
+    # TODO
+
+    plot_functions = []
+    plot_list = []
+    return plot_functions, plot_list
+
+
+def plot_best_individual_solution(best_unique_individual_history, details):
     """
     Compiles data from the population in such a manner that
     the solution of the best individuals can be plotted
     over the course of generations. Whenever a new best individual
     emerges, a plot representing its solution will be drawn.
-    @param best_individual_history: List of individuals that were found
-    to be the best find during the search.
+    @param best_unique_individual_history: List of unique individuals
+    that were found to be the best find during the search.
     @param details: Dictionary that contains relevant
     information about the development of the best individual, such as
     parameters used in the genetic algorithm.
