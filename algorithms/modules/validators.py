@@ -7,29 +7,6 @@ Collection of functions that are used to validate individuals in the population.
 """
 
 
-def _get_route_list(vrp):
-    """
-    Converts individual's solution into a list of routes that it consists of.
-    :param vrp: An individual within the population.
-    :return: List of vehicle routes, in which the first element represents the depot node being used.
-    """
-
-    vehicle_count = vrp.vehicle_count
-    solution = vrp.solution
-    depot_nodes = vrp.depot_node_list
-    depot_indices = [i for i, x in enumerate(solution) if x in depot_nodes]
-
-    route_list = []
-    for i in range(1, vehicle_count):
-        route_start = depot_indices[i - 1]
-        route_end = depot_indices[i]
-        route = solution[route_start:route_end]
-        route_list.append(route)
-
-    route_list.append(solution[depot_indices[vehicle_count - 1]:])
-    return route_list
-
-
 def validate_capacity(vrp, **kwargs):
     """
     Validates the vehicle capacity aspect of given individual's solution.
@@ -47,7 +24,7 @@ def validate_capacity(vrp, **kwargs):
     vehicle_capacity = kwargs["capacity"]
     node_demands = kwargs["demand"]
 
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     for active_route in route_list:
         current_capacity = 0
@@ -100,7 +77,7 @@ def validate_maximum_time(vrp, **kwargs):
     time_windows = kwargs["time_window"]
     service_time = kwargs["service_time"]
 
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     for active_route in route_list:
         route_time = 0
@@ -164,7 +141,7 @@ def validate_maximum_distance(vrp, **kwargs):
     maximum_distance = kwargs["maximum_distance"]
     path_table = kwargs["path_table"]
 
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     for active_route in route_list:
         route_distance = 0
@@ -221,7 +198,7 @@ def validate_time_windows(vrp, **kwargs):
     time_windows = kwargs["time_window"]
     service_time = kwargs["service_time"]
 
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     for active_route in route_list:
         route_time = 0

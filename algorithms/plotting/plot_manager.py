@@ -155,7 +155,8 @@ def plot_population_initializer(population, details):
     Compiles data from the population in such a manner that
     a bar graph could be plotted. The bar graph demonstrates
     population diversity in terms of fitness value.
-    @param population: Population subject to plotting.
+    @param population: Population subject to plotting. Note
+    that the population is assumed to be already sorted.
     @param details: Dictionary that contains relevant
     information about population initialization, such as
     used population initializer and other relevant parameters.
@@ -164,10 +165,39 @@ def plot_population_initializer(population, details):
     the plotting.
     """
 
-    # TODO
+    fitness_list = [individual.fitness for individual in population]
+    population_initializer = details["population_initializer"]
 
-    plot_functions = []
-    plot_list = []
+    individual_indices = list(range(len(fitness_list)))
+
+    xy_data = np.array([individual_indices, fitness_list])
+
+    plot_dict = {
+        "legend": False,
+        "title": "GA - Population Initialization ({} Individuals)".format(len(population)),
+        "xlabel": "Population Individuals (best to worst)",
+        "ylabel": "Fitness",
+        "expected_plot_count": 1,
+        "current_plot_count": 1
+    }
+
+    if population_initializer == "Simulated Annealing":
+        iteration_count = details["sa_iteration_count"]
+        initial_temperature = details["sa_initial_temperature"]
+        annealing_coefficient = details["sa_p_coeff"]
+        misc_list = [
+            "Simulated Annealing",
+            "$n_{max} = " + iteration_count + "$",
+            "$T^{(1)} = " + initial_temperature + "$",
+            "$p = " + annealing_coefficient + "$"
+        ]
+    else:
+        misc_list = [population_initializer]
+
+    plot_dict["misc"] = misc_list
+
+    plot_functions = [plot_data.plot_graph]
+    plot_list = [plot_data.PlotData(xy_data, population_initializer, plot_dict)]
     return plot_functions, plot_list
 
 
@@ -177,20 +207,67 @@ def plot_population_development(population_collection, details):
     a line graph could be plotted. The plot demonstrates
     population development from one generation to another.
     @param population_collection: List of populations
-    from different generations.
+    from different generations. They are assumed to be
+    already sorted.
     @param details: Dictionary that contains relevant
-    information about provided populations, such as
-    used parameters, maximum number of populations subject to
-    plotting and the means of how said populations are selected.
+    information about provided populations, such as used
+    parameters and maximum number of populations to plot.
     @return: List of plotting functions that are to be used,
     and a list of plot data objects that are to be used in
     the plotting.
     """
 
-    # TODO
+    line_count = details["line_count"]
+    generation_count = len(population_collection)
+    population_count = details["population_count"]
+    parent_selector = details["parent_selector"]
+    crossover_operator = details["crossover_operator"]
+    tournament_probability = details["tournament_probability"]
+    crossover_probability = details["crossover_probability"]
+    mutation_probability = details["mutation_probability"]
 
-    plot_functions = []
-    plot_list = []
+    selected_populations = []
+    generation_str = []
+    incrementer = generation_count // (line_count + 1)
+    index = incrementer
+    for i in range(1, line_count + 1):
+        selected_populations.append(population_collection[index])
+        generation_str.append("Generation {}".format(index))
+        index += incrementer
+
+    fitness_lists = []
+    for population in selected_populations:
+        fitness_lists.append([individual.fitness for individual in population])
+
+    population_tracker = list(range(1, population_count + 1))
+
+    xy_data = np.array([population_tracker, fitness_lists[0]])
+
+    if parent_selector == "Tournament":
+        parent_selector_str = parent_selector + "($p_t = " + tournament_probability + "$)"
+    else:
+        parent_selector_str = parent_selector
+    plot_dict = {
+        "legend": True,
+        "title": "GA - Population Development ({} Individuals)".format(population_count),
+        "xlabel": "Population Individuals (best to worst)",
+        "ylabel": "Fitness",
+        "expected_plot_count": 1,
+        "current_plot_count": 1,
+        "misc": [
+            parent_selector_str,
+            crossover_operator,
+            "$p_c = " + crossover_probability + "$",
+            "$p_m = " + mutation_probability + "$"
+        ]
+    }
+
+    plot_data_object = plot_data.PlotData(xy_data, generation_str[0], plot_dict)
+    for i in range(1, len(generation_str)):
+        plot_data_object.add_data(np.array([population_tracker, fitness_lists[i]]), generation_str[i])
+
+    plot_functions = [plot_data.plot_graph]
+    plot_list = [plot_data_object]
     return plot_functions, plot_list
 
 
@@ -209,10 +286,40 @@ def plot_best_individual_fitness(best_individual_history, details):
     the plotting.
     """
 
-    # TODO
+    generation_count = len(best_individual_history)
+    population_count = details["population_count"]
+    parent_selector = details["parent_selector"]
+    crossover_operator = details["crossover_operator"]
+    tournament_probability = details["tournament_probability"]
+    crossover_probability = details["crossover_probability"]
+    mutation_probability = details["mutation_probability"]
 
-    plot_functions = []
-    plot_list = []
+    fitness_values = [individual.fitness for individual in best_individual_history]
+    generation_tracker = list(range(1, generation_count + 1))
+
+    xy_data = np.array([generation_tracker, fitness_values])
+
+    if parent_selector == "Tournament":
+        parent_selector_str = parent_selector + "($p_t = " + tournament_probability + "$)"
+    else:
+        parent_selector_str = parent_selector
+    plot_dict = {
+        "legend": False,
+        "title": "GA - Optimal Individual ({} Individuals)".format(population_count),
+        "xlabel": "Generation",
+        "ylabel": "Fitness",
+        "expected_plot_count": 1,
+        "current_plot_count": 1,
+        "misc": [
+            parent_selector_str,
+            crossover_operator,
+            "$p_c = " + crossover_probability + "$",
+            "$p_m = " + mutation_probability + "$"
+        ]
+    }
+
+    plot_functions = [plot_data.plot_graph]
+    plot_list = [plot_data.PlotData(xy_data, "", plot_dict)]
     return plot_functions, plot_list
 
 
@@ -230,14 +337,50 @@ def plot_best_individual_initial_solution(best_initial_individual, details):
     the plotting.
     """
 
-    # TODO
+    xy_data = details["coordinates"]
+    route_list = best_initial_individual.get_route_list()
+    fitness = best_initial_individual.fitness
+    open_routes = details["open_routes"]
+    node_count = best_initial_individual.node_count
+    optional_nodes = best_initial_individual.optional_nodes
+    depot_nodes = best_initial_individual.depot_nodes
+    population_initializer = details["population_initializer"]
 
-    plot_functions = []
-    plot_list = []
+    plot_dict = {
+        "legend": True,
+        "title": "GA - Best Initialization Individual",
+        "xlabel": "X-Coordinate",
+        "ylabel": "Y-Coordinate",
+        "expected_plot_count": 1,
+        "current_plot_count": 1
+    }
+
+    if population_initializer == "Simulated Annealing":
+        iteration_count = details["sa_iteration_count"]
+        initial_temperature = details["sa_initial_temperature"]
+        annealing_coefficient = details["sa_p_coeff"]
+        misc_list = [
+            "Simulated Annealing",
+            "Fitness: {}".format(fitness),
+            "$n_{max} = " + iteration_count + "$",
+            "$T^{(1)} = " + initial_temperature + "$",
+            "$p = " + annealing_coefficient + "$"
+        ]
+    else:
+        misc_list = [population_initializer, "Fitness: {}".format(fitness)]
+
+    plot_dict["misc"] = misc_list
+
+    plot_data_object = plot_data.PlotData(xy_data, "Node Locations", plot_dict)
+    plot_data_object.set_node_data(node_count, optional_nodes, depot_nodes)
+    plot_data_object.set_route_data(route_list, open_routes)
+
+    plot_functions = [plot_data.plot_map]
+    plot_list = [plot_data_object]
     return plot_functions, plot_list
 
 
-def plot_best_individual_solution(best_unique_individual_history, details):
+def plot_best_individual_solution(best_unique_individual_history, generation_history, details):
     """
     Compiles data from the population in such a manner that
     the solution of the best individuals can be plotted
@@ -245,6 +388,8 @@ def plot_best_individual_solution(best_unique_individual_history, details):
     emerges, a plot representing its solution will be drawn.
     @param best_unique_individual_history: List of unique individuals
     that were found to be the best find during the search.
+    @param generation_history: List of generation numbers during which
+    best individuals were discovered.
     @param details: Dictionary that contains relevant
     information about the development of the best individual, such as
     parameters used in the genetic algorithm.
@@ -253,8 +398,74 @@ def plot_best_individual_solution(best_unique_individual_history, details):
     the plotting.
     """
 
-    # TODO
+    xy_data = details["coordinates"]
+    open_routes = details["open_routes"]
+    node_count = best_unique_individual_history[0].node_count
+    optional_nodes = best_unique_individual_history[0].optional_nodes
+    depot_nodes = best_unique_individual_history[0].depot_nodes
+
+    population_count = details["population_count"]
+    parent_selector = details["parent_selector"]
+    crossover_operator = details["crossover_operator"]
+    tournament_probability = details["tournament_probability"]
+    crossover_probability = details["crossover_probability"]
+    mutation_probability = details["mutation_probability"]
+
+    if parent_selector == "Tournament":
+        parent_selector_str = parent_selector + "($p_t = " + tournament_probability + "$)"
+    else:
+        parent_selector_str = parent_selector
+    plot_dict = {
+        "legend": True,
+        "title": "GA - Best Individual of Generation X (Among Y Individuals)",
+        "xlabel": "X-Coordinate",
+        "ylabel": "Y-Coordinate",
+        "expected_plot_count": 1,
+        "current_plot_count": 1,
+        "misc": [
+            "Individual Fitness: Z",
+            parent_selector_str,
+            crossover_operator,
+            "$p_c = " + crossover_probability + "$",
+            "$p_m = " + mutation_probability + "$"
+        ]
+    }
 
     plot_functions = []
     plot_list = []
+    for i in range(len(best_unique_individual_history)):
+        individual = best_unique_individual_history[i]
+        generation = generation_history[i]
+        route_list = individual.get_route_list()
+        fitness = individual.fitness
+        individual_dict = deepcopy(plot_dict)
+        individual_title = "GA - Best Individual of Generation {} (Among {} Individuals)".format(generation,
+                                                                                                 population_count)
+        fitness_text = "Individual Fitness: {}".format(fitness)
+        individual_dict["title"] = individual_title
+        individual_dict["misc"][0] = fitness_text
+        plot_data_object = plot_data.PlotData(xy_data, "Node Locations", individual_dict)
+        plot_data_object.set_node_data(node_count, optional_nodes, depot_nodes)
+        plot_data_object.set_route_data(route_list, open_routes)
+        
+        plot_functions.append(plot_data.plot_map)
+        plot_list.append(plot_data_object)
+
     return plot_functions, plot_list
+
+
+def set_total_plot_count(plot_list):
+    """
+    Updates PlotData objects by counting their total amount
+    in the provided list. This function should be called
+    as soon as all of the necessary PlotData objects
+    have been created.
+    @param plot_list: List of PlotData objects that are to
+    be updated.
+    """
+    total = len(plot_list)
+    i = 1
+    for plot_data_item in plot_list:
+        plot_data_item.expected_plot_count = total
+        plot_data_item.current_plot_count = i
+        i += 1

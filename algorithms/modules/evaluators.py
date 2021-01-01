@@ -7,29 +7,6 @@ Collection of functions that are used to evaluate individuals in the population.
 """
 
 
-def _get_route_list(vrp):
-    """
-    Converts individual's solution into a list of routes that it consists of.
-    :param vrp: An individual within the population.
-    :return: List of vehicle routes, in which the first element represents the depot node being used.
-    """
-
-    vehicle_count = vrp.vehicle_count
-    solution = vrp.solution
-    depot_nodes = vrp.depot_node_list
-    depot_indices = [i for i, x in enumerate(solution) if x in depot_nodes]
-
-    route_list = []
-    for i in range(1, vehicle_count):
-        route_start = depot_indices[i - 1]
-        route_end = depot_indices[i]
-        route = solution[route_start:route_end]
-        route_list.append(route)
-
-    route_list.append(solution[depot_indices[vehicle_count - 1]:])
-    return route_list
-
-
 def optimize_depot_nodes(vrp, **kwargs):
     """
     Attempts to optimize depot nodes by selecting them for each
@@ -47,7 +24,7 @@ def optimize_depot_nodes(vrp, **kwargs):
 
     depot_nodes = vrp.depot_node_list
     path_table = kwargs["path_table"]
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     optimized_solution = []
     for route in route_list:
@@ -97,7 +74,7 @@ def evaluate_travel_distance(vrp, **kwargs):
 
     path_table = kwargs["path_table"]
 
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     route_distances = []
     for active_route in route_list:
@@ -151,7 +128,7 @@ def evaluate_travel_time(vrp, **kwargs):
     time_windows = kwargs["time_window"]
     service_time = kwargs["service_time"]
 
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     route_times = []
     for active_route in route_list:
@@ -228,7 +205,7 @@ def evaluate_travel_cost(vrp, **kwargs):
     service_time = kwargs["service_time"]
     penalty = kwargs["penalty"]
 
-    route_list = _get_route_list(vrp)
+    route_list = vrp.get_route_list()
 
     time = 0
     cost = 0
@@ -336,4 +313,4 @@ def evaluate_profit_cost_difference(vrp, **kwargs):
     :return: Total net profit.
     """
 
-    return evaluate_profits(vrp, kwargs) - evaluate_travel_cost(vrp, kwargs)
+    return evaluate_profits(vrp, **kwargs) - evaluate_travel_cost(vrp, **kwargs)

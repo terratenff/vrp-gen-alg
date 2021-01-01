@@ -88,6 +88,27 @@ class VRP:
         self.fitness = np.inf
         self.valid = False
 
+    def get_route_list(self):
+        """
+        Converts individual's solution into a list of routes that it consists of.
+        :return: List of vehicle routes, in which the first element represents the depot node being used.
+        """
+
+        vehicle_count = self.vehicle_count
+        solution = self.solution
+        depot_nodes = self.depot_node_list
+        depot_indices = [i for i, x in enumerate(solution) if x in depot_nodes]
+
+        route_list = []
+        for i in range(1, vehicle_count):
+            route_start = depot_indices[i - 1]
+            route_end = depot_indices[i]
+            route = solution[route_start:route_end]
+            route_list.append(route)
+
+        route_list.append(solution[depot_indices[vehicle_count - 1]:])
+        return route_list
+
     def print(self):
         """
         Prints unique information about the individual.

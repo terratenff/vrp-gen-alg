@@ -155,7 +155,7 @@ class PlotData:
                 np.savetxt(new_destination + temp_name, self.data[i], fmt="%.8f")
 
 
-def plot_graph(plot_data):
+def plot_graph(plot_data, save_plot_data=False):
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
@@ -188,11 +188,13 @@ def plot_graph(plot_data):
                          horizontalalignment="left",
                          bbox=props)
 
-    # plot_data.save_data()
+    if save_plot_data:
+        plot_data.save_data()
+
     return figure, figure_axes
 
 
-def plot_bar(plot_data):
+def plot_bar(plot_data, save_plot_data=False):
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
@@ -224,7 +226,9 @@ def plot_bar(plot_data):
                          horizontalalignment="left",
                          bbox=props)
 
-    # plot_data.save_data()
+    if save_plot_data:
+        plot_data.save_data()
+
     return figure, figure_axes
 
 
