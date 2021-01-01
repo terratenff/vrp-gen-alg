@@ -41,7 +41,7 @@ def random_solution(**kwargs):
     # Generating a random solution, step 1: Depot Nodes
     selected_depots = [
         depot_nodes[randint(0, len(depot_nodes) - 1)]
-        for i in range(vehicle_count)
+        for _ in range(vehicle_count)
         ]
 
     solution = solution + selected_depots
@@ -179,6 +179,7 @@ def random(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
+        # noinspection PyUnusedLocal
         def check_goal(timer): return False
     else:
         def check_goal(timer): return timer.past_goal()
@@ -256,6 +257,7 @@ def allele_permutation(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
+        # noinspection PyUnusedLocal
         def check_goal(timer): return False
     else:
         def check_goal(timer): return timer.past_goal()
@@ -348,6 +350,7 @@ def gene_permutation(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
+        # noinspection PyUnusedLocal
         def check_goal(timer): return False
     else:
         def check_goal(timer): return timer.past_goal()
@@ -505,6 +508,7 @@ def simulated_annealing(**kwargs):
 
     # If minimum CPU time is set to None, it is to be ignored.
     if minimum_cpu_time is None:
+        # noinspection PyUnusedLocal
         def check_goal(timer): return False
     else:
         def check_goal(timer): return timer.past_goal()

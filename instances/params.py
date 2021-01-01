@@ -6,7 +6,6 @@ params.py:
 Class instances for general VRP parameters and genetic algorithm parameters.
 """
 
-import numpy as np
 from scipy.spatial import distance
 
 

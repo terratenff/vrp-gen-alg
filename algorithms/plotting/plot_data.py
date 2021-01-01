@@ -156,18 +156,34 @@ class PlotData:
 
 
 def plot_graph(plot_data, save_plot_data=False):
+    """
+    Plots a regular graph based on provided data. Resulting figure
+    has to be separately viewed. Supports multiple datasets.
+    @param plot_data: Plot Data Object that contains everything
+    necessary for the graph.
+    @param save_plot_data: Flag that determines whether the data
+    in the Plot Data Object should be saved into a folder of
+    text files.
+    @return: Figure and Figure Axes that encompass the graph.
+    """
+
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
     draw_textbox = False
     textbox_details = ""
 
+    # A textbox is created and placed to the top left corner
+    # of the plot if a string list under "misc" is defined.
     if plot_data.misc is not None:
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
 
     figure = Figure(figsize=(6.4, 4.8), dpi=100)
     figure_axes = figure.add_subplot(111)
+
+    # Add data to the figure. Multiple datasets are added
+    # to the same subplot.
     for i in range(len(plot_data.labels)):
         xy_data, data_label = plot_data.get_data(i)
         x = xy_data[0]
@@ -178,7 +194,7 @@ def plot_graph(plot_data, save_plot_data=False):
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend(loc="lower left")
+        figure_axes.legend(loc="lower left")  # Location is set to avoid collision with "misc" text box.
     if draw_textbox is True:
         props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
         figure_axes.text(0.05, 0.95, textbox_details,
@@ -195,12 +211,25 @@ def plot_graph(plot_data, save_plot_data=False):
 
 
 def plot_bar(plot_data, save_plot_data=False):
+    """
+    Plots a bar graph based on provided data. Resulting figure
+    has to be separately viewed. Supports only one dataset.
+    @param plot_data: Plot Data Object that contains everything
+    necessary for the graph.
+    @param save_plot_data: Flag that determines whether the data
+    in the Plot Data Object should be saved into a folder of
+    text files.
+    @return: Figure and Figure Axes that encompass the graph.
+    """
+
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
     draw_textbox = False
     textbox_details = ""
 
+    # A textbox is created and placed to the top left corner
+    # of the plot if a string list under "misc" is defined.
     if plot_data.misc is not None:
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
@@ -216,7 +245,7 @@ def plot_bar(plot_data, save_plot_data=False):
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend(loc="lower left")
+        figure_axes.legend(loc="lower left")  # Location is set to avoid collision with "misc" text box.
     if draw_textbox is True:
         props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
         figure_axes.text(0.05, 0.95, textbox_details,
@@ -233,6 +262,15 @@ def plot_bar(plot_data, save_plot_data=False):
 
 
 def plot_map(plot_data):
+    """
+    Plots a scatter graph with lines connecting the dots based on
+    provided data. Resulting figure has to be separately viewed.
+    Supports only one dataset.
+    @param plot_data: Plot Data Object that contains everything
+    necessary for the graph.
+    @return: Figure and Figure Axes that encompass the graph.
+    """
+
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
@@ -244,9 +282,11 @@ def plot_map(plot_data):
     required_nodes = plot_data.required_nodes
     optional_nodes = plot_data.optional_nodes
     depot_nodes = plot_data.depot_nodes
-
     draw_textbox = False
     textbox_details = ""
+
+    # A textbox is created and placed to the top left corner
+    # of the plot if a string list under "misc" is defined.
     if plot_data.misc is not None:
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
@@ -258,9 +298,20 @@ def plot_map(plot_data):
     all_vertices, data_label = plot_data.get_data(0)
 
     # Colors to separate different routes.
-    color_collection = ["black", "red", "blue", "green", "yellow", "orange", "cyan", "magenta", "brown", "grey", "teal"]
+    color_collection = [
+        "black", "red", "blue",
+        "green", "yellow", "orange",
+        "cyan", "magenta", "brown",
+        "lime", "teal", "gold",
+        "yellowgreen", "darkseagreen", "darkslateblue",
+        "lightgrey", "grey", "darkgrey"
+    ]
+    if len(color_collection) < vehicle_count:  # In case named colors are not enough.
+        pass
+
+    # Lines connecting the dots represent routes.
+    # They are added here.
     for i in range(vehicle_count):
-        # Vertices for routes.
         route_vertices = []
         route_codes = []
         route = route_list[i]
@@ -272,6 +323,7 @@ def plot_map(plot_data):
             route_codes.append(Path.LINETO)
             route_vertices.append(all_vertices[route[j]])
 
+        # In OVRP, vehicle does not return to where it started.
         if open_routes is False:
             route_codes.append(Path.LINETO)
             route_vertices.append(all_vertices[depot_node])
@@ -320,7 +372,7 @@ def plot_map(plot_data):
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend(loc="lower left")
+        figure_axes.legend(loc="lower left")  # Location is set to avoid collision with "misc" text box.
     if draw_textbox is True:
         props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
         figure_axes.text(0.05, 0.95, textbox_details,

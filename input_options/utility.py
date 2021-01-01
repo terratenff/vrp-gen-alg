@@ -21,6 +21,7 @@ def get_input(min_input=None, max_input=None):
     elif max_input is None:
         def condition(x): return x >= min_input
     else:
+        # noinspection PyUnusedLocal
         def condition(x): return True
 
     number = None
