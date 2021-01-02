@@ -11,7 +11,8 @@ from operator import attrgetter
 
 from instances.vrp import VRP
 from algorithms.timer import Timer
-from algorithms.plotting.plot_manager import test_plot_creation, test_map_creation
+
+import algorithms.plotting.plot_manager as plot_manager
 import algorithms.modules.population_initializers as population_initializers
 import algorithms.modules.validators as validators
 import algorithms.modules.evaluators as evaluators
@@ -28,8 +29,8 @@ def run_gen_alg(vrp_params, alg_params):
     :param alg_params: Parameters for the genetic algorithm.
     :return: Computed solution for the VRP.
     """
-    test_plot_creation()
-    test_map_creation()
+    # test_plot_creation()
+    # test_map_creation()
 
     # GA Initialization, Step 1: Detecting which extensions are being solved.
 
@@ -261,6 +262,7 @@ def run_gen_alg(vrp_params, alg_params):
     # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
     path_table = deepcopy(vrp_params.vrp_path_table)
+    coordinates = deepcopy(vrp_params.vrp_coordinates)
     node_count = len(path_table)
     vehicle_count = vrp_params.vrp_vehicle_count
     vehicle_capacity = vrp_params.cvrp_vehicle_capacity
@@ -411,19 +413,133 @@ def run_gen_alg(vrp_params, alg_params):
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
 
+    population_history = []                     # Used in drawing graph 3 / 5. TODO: Use in Main Loop.
+    best_generation_individual_history = []     # Used in drawing graph 4 / 5. TODO: Use in Main Loop.
+    best_overall_individual_history = []        # Used in drawing graph 5 / 5. TODO: Use in Main Loop.
+    best_overall_generation_tracker = []        # Used in drawing graph 5 / 5. TODO: Use in Main Loop.
+
     global_timer.start()
 
     current_generation = 1
-
-    # TODO: Test module functions.
+    current_generation_min = 1
 
     population, msg = VRP.population_initializer(**population_args)
     population.sort(key=attrgetter("fitness"))
+    population_history.append(deepcopy(population))
+    initial_population = deepcopy(population)                   # Used in drawing graph 1 / 5. TODO: Use in Main Loop.
+    best_individual = deepcopy(population[0])
+    best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 5. TODO: Use in Main Loop.
+    best_generation_individual_history.append(deepcopy(best_individual))
+    best_overall_individual_history.append(deepcopy(best_individual))
+    best_overall_generation_tracker.append(current_generation)
     print(msg)
-    for individual in population:
-        print("{:> 4} | {:> 5} | {}".format(individual.individual_id, individual.fitness, individual.solution))
 
-    print("TODO")
+    # for individual in population:
+    #     print("{:> 4} | {:> 5} | {}".format(individual.individual_id, individual.fitness, individual.solution))
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # - The Beginning of the Main Loop of the Genetic Algorithm. -------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+    while not global_timer.past_goal() \
+            and lower_bound + threshold <= best_individual.fitness <= upper_bound - threshold \
+            and current_generation <= generation_count_max \
+            and current_generation_min <= generation_count_min:
+        # TODO: Main Loop of the Genetic Algorithm.
+        print("TODO")
+        break
 
     global_timer.stop()
     print("Algorithm has finished. (Time taken: {} ms)".format(global_timer.elapsed()))
+    print("Preparing data for drawing plots...")
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # - Plot Drawing starts here. --------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
+
+    plot_function_list = []
+    plot_data_list = []
+
+    # Graph 1 / 5
+    # Bar Graph that illustrates diversity of population created using a population initializer.
+    details1 = {
+        "population_initializer": alg_params.str_population_initializer[alg_params.population_initializer],
+        "sa_iteration_count": sa_iteration_count,
+        "sa_initial_temperature": sa_initial_temperature,
+        "sa_p_coeff": sa_p_coeff
+    }
+    plot_function1, plot_data1 = plot_manager.plot_population_initializer(population, details1)
+    plot_function_list, plot_data_list = plot_function_list + plot_function1, plot_data_list + plot_data1
+
+    # Graph 2 / 5
+    # Scatter Graph that illustrates the solution of the best individual created by the population initializer.
+    # This is drawn only if node coordinates are available.
+    if coordinates is not None:
+        details2 = {
+            "population_initializer": alg_params.str_population_initializer[alg_params.population_initializer],
+            "coordinates": coordinates,
+            "open_routes": using_ovrp,
+            "sa_iteration_count": sa_iteration_count,
+            "sa_initial_temperature": sa_initial_temperature,
+            "sa_p_coeff": sa_p_coeff
+        }
+        plot_function2, plot_data2 = plot_manager.plot_best_individual_initial_solution(best_individual, details2)
+        plot_function_list, plot_data_list = plot_function_list + plot_function2, plot_data_list + plot_data2
+
+    # Graph 3 / 5
+    # Line Graph that illustrates the development of the population. Fitness values of every individual over
+    # multiple generations are presented.
+    details3 = {
+        "line_count": 10 if generation_count_max // 50 > 10 else generation_count_max // 50,
+        "population_count": population_count,
+        "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
+        "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
+        "tournament_probability": tournament_probability,
+        "crossover_probability": crossover_probability,
+        "mutation_probability": mutation_probability
+    }
+    plot_function3, plot_data3 = plot_manager.plot_population_development(population_history, details3)
+    plot_function_list, plot_data_list = plot_function_list + plot_function3, plot_data_list + plot_data3
+
+    # Graph 4 / 5
+    # Line Graph that illustrates fitness development of the competing individuals of their generations.
+    details4 = {
+        "population_count": population_count,
+        "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
+        "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
+        "tournament_probability": tournament_probability,
+        "crossover_probability": crossover_probability,
+        "mutation_probability": mutation_probability
+    }
+    plot_function4, plot_data4 = plot_manager.plot_best_individual_fitness(best_generation_individual_history, details4)
+    plot_function_list, plot_data_list = plot_function_list + plot_function4, plot_data_list + plot_data4
+
+    # Graph 5 / 5
+    # Collection Scatter Graph that illustrate the development of the solution of the best individual.
+    # This is drawn only if node coordinates are available.
+    if coordinates is not None:
+        details5 = {
+            "coordinates": coordinates,
+            "open_routes": using_ovrp,
+            "population_count": population_count,
+            "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
+            "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
+            "tournament_probability": tournament_probability,
+            "crossover_probability": crossover_probability,
+            "mutation_probability": mutation_probability
+        }
+        plot_function5, plot_data5 = plot_manager.plot_best_individual_solution(
+            best_overall_individual_history,
+            best_overall_generation_tracker,
+            details5
+        )
+        plot_function_list, plot_data_list = plot_function_list + plot_function5, plot_data_list + plot_data5
+
+    plot_manager.set_total_plot_count(plot_data_list)
+
+    print("Drawing plots...")
+    print("(Once a window appears, closing it resumes execution.)")
+
+    plot_manager.summon_window(plot_function_list, plot_data_list)
+
+    print("Returning to menu...")

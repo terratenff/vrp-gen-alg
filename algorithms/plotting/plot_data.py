@@ -239,7 +239,10 @@ def plot_bar(plot_data, save_plot_data=False):
 
     # With a bar graph only 1 set of data is expected.
     xy_data, data_label = plot_data.get_data(0)
-    figure_axes.bar(xy_data[:, 0], xy_data[:, 1], label=data_label)
+    low, high = min(xy_data[1, :]), max(xy_data[1, :])
+    print("Low: {} | High: {}".format(low, high))
+    figure_axes.bar(xy_data[0, :], xy_data[1, :], label=data_label)
+    figure_axes.set_ylim([np.ceil(low - 0.05*(high - low)), np.ceil(high + 0.05*(high - low))])
 
     figure_axes.set_title(title)
     figure_axes.set_xlabel(xlabel)

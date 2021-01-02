@@ -187,17 +187,17 @@ def plot_population_initializer(population, details):
         annealing_coefficient = details["sa_p_coeff"]
         misc_list = [
             "Simulated Annealing",
-            "$n_{max} = " + iteration_count + "$",
-            "$T^{(1)} = " + initial_temperature + "$",
-            "$p = " + annealing_coefficient + "$"
+            "$n_{max} = " + str(iteration_count) + "$",
+            "$T^{(1)} = " + str(initial_temperature) + "$",
+            "$p = " + str(annealing_coefficient) + "$"
         ]
     else:
         misc_list = [population_initializer]
 
     plot_dict["misc"] = misc_list
 
-    plot_functions = [plot_data.plot_graph]
-    plot_list = [plot_data.PlotData(xy_data, population_initializer, plot_dict)]
+    plot_functions = [plot_data.plot_bar]
+    plot_list = [plot_data.PlotData(xy_data, [population_initializer], plot_dict)]
     return plot_functions, plot_list
 
 
@@ -243,7 +243,7 @@ def plot_population_development(population_collection, details):
 
     xy_data = np.array([population_tracker, fitness_lists[0]])
 
-    if parent_selector == "Tournament":
+    if parent_selector == "Tournament Selection":
         parent_selector_str = parent_selector + "($p_t = " + tournament_probability + "$)"
     else:
         parent_selector_str = parent_selector
@@ -257,12 +257,12 @@ def plot_population_development(population_collection, details):
         "misc": [
             parent_selector_str,
             crossover_operator,
-            "$p_c = " + crossover_probability + "$",
-            "$p_m = " + mutation_probability + "$"
+            "$p_c = " + str(crossover_probability) + "$",
+            "$p_m = " + str(mutation_probability) + "$"
         ]
     }
 
-    plot_data_object = plot_data.PlotData(xy_data, generation_str[0], plot_dict)
+    plot_data_object = plot_data.PlotData(xy_data, [generation_str[0]], plot_dict)
     for i in range(1, len(generation_str)):
         plot_data_object.add_data(np.array([population_tracker, fitness_lists[i]]), generation_str[i])
 
@@ -299,8 +299,8 @@ def plot_best_individual_fitness(best_individual_history, details):
 
     xy_data = np.array([generation_tracker, fitness_values])
 
-    if parent_selector == "Tournament":
-        parent_selector_str = parent_selector + "($p_t = " + tournament_probability + "$)"
+    if parent_selector == "Tournament Selection":
+        parent_selector_str = parent_selector + "($p_t = " + str(tournament_probability) + "$)"
     else:
         parent_selector_str = parent_selector
     plot_dict = {
@@ -313,13 +313,13 @@ def plot_best_individual_fitness(best_individual_history, details):
         "misc": [
             parent_selector_str,
             crossover_operator,
-            "$p_c = " + crossover_probability + "$",
-            "$p_m = " + mutation_probability + "$"
+            "$p_c = " + str(crossover_probability) + "$",
+            "$p_m = " + str(mutation_probability) + "$"
         ]
     }
 
     plot_functions = [plot_data.plot_graph]
-    plot_list = [plot_data.PlotData(xy_data, "", plot_dict)]
+    plot_list = [plot_data.PlotData(xy_data, [""], plot_dict)]
     return plot_functions, plot_list
 
 
@@ -362,16 +362,16 @@ def plot_best_individual_initial_solution(best_initial_individual, details):
         misc_list = [
             "Simulated Annealing",
             "Fitness: {}".format(fitness),
-            "$n_{max} = " + iteration_count + "$",
-            "$T^{(1)} = " + initial_temperature + "$",
-            "$p = " + annealing_coefficient + "$"
+            "$n_{max} = " + str(iteration_count) + "$",
+            "$T^{(1)} = " + str(initial_temperature) + "$",
+            "$p = " + str(annealing_coefficient) + "$"
         ]
     else:
         misc_list = [population_initializer, "Fitness: {}".format(fitness)]
 
     plot_dict["misc"] = misc_list
 
-    plot_data_object = plot_data.PlotData(xy_data, "Node Locations", plot_dict)
+    plot_data_object = plot_data.PlotData(xy_data, ["Node Locations"], plot_dict)
     plot_data_object.set_node_data(node_count, optional_nodes, depot_nodes)
     plot_data_object.set_route_data(route_list, open_routes)
 
@@ -411,13 +411,13 @@ def plot_best_individual_solution(best_unique_individual_history, generation_his
     crossover_probability = details["crossover_probability"]
     mutation_probability = details["mutation_probability"]
 
-    if parent_selector == "Tournament":
-        parent_selector_str = parent_selector + "($p_t = " + tournament_probability + "$)"
+    if parent_selector == "Tournament Selection":
+        parent_selector_str = parent_selector + "($p_t = " + str(tournament_probability) + "$)"
     else:
         parent_selector_str = parent_selector
     plot_dict = {
         "legend": True,
-        "title": "GA - Best Individual of Generation X (Among Y Individuals)",
+        "title": "GA - New Best Individual from Generation X (Among Y Individuals)",
         "xlabel": "X-Coordinate",
         "ylabel": "Y-Coordinate",
         "expected_plot_count": 1,
@@ -426,8 +426,8 @@ def plot_best_individual_solution(best_unique_individual_history, generation_his
             "Individual Fitness: Z",
             parent_selector_str,
             crossover_operator,
-            "$p_c = " + crossover_probability + "$",
-            "$p_m = " + mutation_probability + "$"
+            "$p_c = " + str(crossover_probability) + "$",
+            "$p_m = " + str(mutation_probability) + "$"
         ]
     }
 
@@ -444,7 +444,7 @@ def plot_best_individual_solution(best_unique_individual_history, generation_his
         fitness_text = "Individual Fitness: {}".format(fitness)
         individual_dict["title"] = individual_title
         individual_dict["misc"][0] = fitness_text
-        plot_data_object = plot_data.PlotData(xy_data, "Node Locations", individual_dict)
+        plot_data_object = plot_data.PlotData(xy_data, ["Node Locations"], individual_dict)
         plot_data_object.set_node_data(node_count, optional_nodes, depot_nodes)
         plot_data_object.set_route_data(route_list, open_routes)
         
