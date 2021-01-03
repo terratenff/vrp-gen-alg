@@ -177,12 +177,7 @@ def random(**kwargs):
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
-    # If minimum CPU time is set to None, it is to be ignored.
-    if minimum_cpu_time is None:
-        # noinspection PyUnusedLocal
-        def check_goal(timer): return False
-    else:
-        def check_goal(timer): return timer.past_goal()
+    def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -203,7 +198,7 @@ def random(**kwargs):
         # Create a random, validated and evaluated individual.
         candidate_individual, individual_msg = random_valid_individual(**individual_args)
         if candidate_individual is None:
-            return population, individual_msg
+            return None, individual_msg
 
         # With an individual both validated and evaluated, it is good to go.
         population.append(candidate_individual)
@@ -255,12 +250,7 @@ def allele_permutation(**kwargs):
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
-    # If minimum CPU time is set to None, it is to be ignored.
-    if minimum_cpu_time is None:
-        # noinspection PyUnusedLocal
-        def check_goal(timer): return False
-    else:
-        def check_goal(timer): return timer.past_goal()
+    def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -291,7 +281,7 @@ def allele_permutation(**kwargs):
 
             # Should solution-finding via mutations take too long, it is halted here.
             if check_goal(individual_timer):
-                return population, "(Allele Mutation) Individual initialization is taking too long."
+                return None, "(Allele Mutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
         candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
@@ -348,12 +338,7 @@ def gene_permutation(**kwargs):
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
-    # If minimum CPU time is set to None, it is to be ignored.
-    if minimum_cpu_time is None:
-        # noinspection PyUnusedLocal
-        def check_goal(timer): return False
-    else:
-        def check_goal(timer): return timer.past_goal()
+    def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -431,7 +416,7 @@ def gene_permutation(**kwargs):
 
             # Should solution-finding via mutations take too long, it is halted here.
             if check_goal(individual_timer):
-                return population, "(Allele Mutation) Individual initialization is taking too long."
+                return None, "(Allele Mutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
         candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
@@ -506,12 +491,7 @@ def simulated_annealing(**kwargs):
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
-    # If minimum CPU time is set to None, it is to be ignored.
-    if minimum_cpu_time is None:
-        # noinspection PyUnusedLocal
-        def check_goal(timer): return False
-    else:
-        def check_goal(timer): return timer.past_goal()
+    def check_goal(timer): return timer.past_goal()
 
     population_timer.start()
     individual_timer.start()
@@ -529,7 +509,7 @@ def simulated_annealing(**kwargs):
     }
     candidate_individual, individual_msg = random_valid_individual(**individual_args)
     if candidate_individual is None:
-        return population, individual_msg
+        return None, individual_msg
     individual_timer.reset()
 
     population.append(candidate_individual)
@@ -558,7 +538,7 @@ def simulated_annealing(**kwargs):
 
             # Should solution-finding via mutations take too long, it is halted here.
             if check_goal(individual_timer):
-                return population, "(Simulated Annealing) Individual initialization is taking too long."
+                return None, "(Simulated Annealing) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
         candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)

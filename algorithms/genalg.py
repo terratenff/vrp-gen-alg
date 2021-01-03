@@ -8,6 +8,7 @@ Runner of the genetic algorithm.
 
 from copy import deepcopy
 from operator import attrgetter
+import numpy as np
 
 from instances.vrp import VRP
 from algorithms.timer import Timer
@@ -29,8 +30,8 @@ def run_gen_alg(vrp_params, alg_params):
     :param alg_params: Parameters for the genetic algorithm.
     :return: Computed solution for the VRP.
     """
-    # test_plot_creation()
-    # test_map_creation()
+    # GA Initialization, Step 0: Reset ID Counter.
+    VRP.id_counter = 0
 
     # GA Initialization, Step 1: Detecting which extensions are being solved.
 
@@ -50,7 +51,7 @@ def run_gen_alg(vrp_params, alg_params):
     using_vrptw = vrp_params.vrptw_node_time_window is not None
 
     # Maximization: Determined via VRPP.
-    maximization = using_vrpp
+    maximize = using_vrpp
 
     # Exclude Travel Costs: Toggled (True/False -flag)
     exclude_travel_costs = vrp_params.vrpp_exclude_travel_costs
@@ -66,7 +67,7 @@ def run_gen_alg(vrp_params, alg_params):
     print("Using VRPP:  {}".format(using_vrpp))
     print("Using MDVRP: {}".format(using_mdvrp))
     print("Using VRPTW: {}".format(using_vrptw))
-    print("Maximize Objective:   {}".format(maximization))
+    print("Maximize Objective:   {}".format(maximize))
     print("Travel Costs:         {}".format(exclude_travel_costs))
     print("Optimize Depot Nodes: {}".format(exclude_travel_costs))
     print("Hard Windows:         {}".format(using_hard_time_windows))
@@ -119,6 +120,12 @@ def run_gen_alg(vrp_params, alg_params):
 
     VRP.evaluator = evaluation_function
 
+    # For maximization, a proper comparison function is needed.
+    if maximize:
+        def compare(vrp1, vrp2): return vrp1.fitness > vrp2.fitness
+    else:
+        def compare(vrp1, vrp2): return vrp1.fitness < vrp2.fitness
+
     # GA Initialization, Step 5: Selecting suitable parent selector function.
     selector_collection = {
         0: parent_selectors.best_fitness,
@@ -158,106 +165,80 @@ def run_gen_alg(vrp_params, alg_params):
     if using_mdvrp and not optimize_depot_nodes:
         mutation_functions.append(mutation_collection[6])
     VRP.mutation_operator = mutation_functions
+    mutation_function_count = len(mutation_functions)
 
     # GA Initialization, Step 8: Create conversion functions between distance, time and cost.
     # Also create a function that conducts the filtration strategy.
-    distance_time_var = vrp_params.vrp_distance_time_ratio
-    time_cost_var = vrp_params.vrp_time_cost_ratio
-    distance_cost_var = vrp_params.vrp_distance_cost_ratio
-    if distance_time_var >= 0:
-        def distance_to_time(distance):
-            return distance * distance_time_var
-    else:
-        print("Warning: conversion factor from distance to time is less than zero. It has been set to zero for now.")
+    distance_time_var = max(0, vrp_params.vrp_distance_time_ratio)
+    time_cost_var = max(0, vrp_params.vrp_time_cost_ratio)
+    distance_cost_var = max(0, vrp_params.vrp_distance_cost_ratio)
 
-        def distance_to_time(distance):
-            return 0
-
-    if time_cost_var >= 0:
-        def time_to_cost(time):
-            return time * time_cost_var
-    else:
-        print("Warning: conversion factor from time to cost is less than zero. It has been set to zero for now.")
-
-        def time_to_cost(time):
-            return 0
-
-    if distance_cost_var >= 0:
-        def distance_to_cost(distance):
-            return distance * distance_cost_var
-    else:
-        print("Warning: conversion factor from distance to cost is less than zero. It has been set to zero for now.")
-
-        def distance_to_cost(distance):
-            return 0
+    def distance_to_time(distance): return distance * distance_time_var
+    def time_to_cost(time): return time * time_cost_var
+    def distance_to_cost(distance): return distance * distance_cost_var
     
     # Filtration strategy.
     if alg_params.filtration_frequency <= 0:
         filtration_counter = float("inf")
-
-        def filtration(population_old, population_new, **kwargs):
-            return population_new, "Filtration operation skipped."
     else:
         filtration_counter = alg_params.filtration_frequency
 
-        def filtration(population_old, population_new, **kwargs):
-            fl_node_count = kwargs["node_count"]
-            fl_depot_nodes = kwargs["depot_nodes"]
-            fl_optional_nodes = kwargs["optional_nodes"]
-            fl_vehicle_count = kwargs["vehicle_count"]
-            fl_maximize = kwargs["maximize"]
-            fl_minimum_cpu_time = kwargs["minimum_cpu_time"]
+    def filtration(population_old, population_new, **kwargs):
+        fl_node_count = kwargs["node_count"]
+        fl_depot_nodes = kwargs["depot_nodes"]
+        fl_optional_nodes = kwargs["optional_nodes"]
+        fl_vehicle_count = kwargs["vehicle_count"]
+        fl_maximize = kwargs["maximize"]
+        fl_minimum_cpu_time = kwargs["minimum_cpu_time"]
+
+        def fl_check_goal(timer): return timer.past_goal()
+
+        filtration_timer = Timer()
+        filtration_timer.start()
+        population_size = len(population_new)
+        combined_population = population_old + population_new
+        combined_population.sort(key=attrgetter("fitness"), reverse=fl_maximize)
+        cut_population = combined_population[:population_size]
             
-            # If minimum CPU time is set to None, it is to be ignored.
-            if fl_minimum_cpu_time is None:
-                def fl_check_goal(timer): return False
+        # Multiple weak solutions can share the same fitness value.
+        # However, with potentially optimal solutions, it is very
+        # likely that solutions with the same fitness value
+        # are the same. For that reason, it is assumed that solutions
+        # that have the same fitness value are the same.
+        replacement_indices = []
+        previous_fitness = cut_population[0].fitness
+        for fl_i in range(1, len(cut_population)):
+            if cut_population[fl_i].fitness == previous_fitness:
+                replacement_indices.append(fl_i)
             else:
-                def fl_check_goal(timer): return timer.past_goal()
+                previous_fitness = cut_population[fl_i].fitness
             
-            filtration_timer = Timer()
-            filtration_timer.start()
-            population_size = len(population_new)
-            combined_population = population_old + population_new
-            combined_population.sort(key=attrgetter("fitness"), reverse=fl_maximize)
-            cut_population = combined_population[:population_size]
+        # Create random individuals to replace duplicates.
+        fl_individual_timer = Timer(goal=fl_minimum_cpu_time)
+        fl_individual_args = {
+            "node_count": fl_node_count,
+            "depot_nodes": fl_depot_nodes,
+            "optional_nodes": fl_optional_nodes,
+            "vehicle_count": fl_vehicle_count,
+            "failure_msg": "(Filtration) Individual initialization is taking too long.",
+            "individual_timer": fl_individual_timer,
+            "check_goal": fl_check_goal,
+            "validation_args": validation_args,
+            "evaluation_args": evaluation_args
+        }
+        fl_individual_timer.start()
+        for fl_i in range(len(replacement_indices)):
+            fl_candidate_individual, error_msg = population_initializers.random_valid_individual(
+                **fl_individual_args
+            )
+            if fl_candidate_individual is None:
+                return population_new, error_msg
+            cut_population[replacement_indices[fl_i]] = fl_candidate_individual
+            fl_individual_timer.reset()
             
-            # Multiple weak solutions can share the same fitness value.
-            # However, with potentially optimal solutions, it is very
-            # likely that solutions with the same fitness value
-            # are the same. For that reason, it is assumed that solutions
-            # that have the same fitness value are the same.
-            replacement_indices = []
-            previous_fitness = cut_population[0].fitness 
-            for fl_i in range(1, cut_population):
-                if cut_population[fl_i].fitness == previous_fitness:
-                    replacement_indices.append(fl_i)
-                else:
-                    previous_fitness = cut_population[fl_i].fitness
-            
-            # Create random individuals to replace duplicates.
-            fl_individual_timer = Timer(goal=fl_minimum_cpu_time)
-            fl_individual_args = {
-                "node_count": fl_node_count,
-                "depot_nodes": fl_depot_nodes,
-                "optional_nodes": fl_optional_nodes,
-                "vehicle_count": fl_vehicle_count,
-                "failure_msg": "(Filtration) Individual initialization is taking too long.",
-                "individual_timer": fl_individual_timer,
-                "check_goal": fl_check_goal,
-                "validation_args": validation_args,
-                "evaluation_args": evaluation_args
-            }
-            fl_individual_timer.start()
-            for fl_i in range(len(replacement_indices)):
-                candidate_individual, error_msg = population_initializers.random_valid_individual(**fl_individual_args)
-                if candidate_individual is None:
-                    return population_new, error_msg
-                cut_population[replacement_indices[fl_i]] = candidate_individual
-                fl_individual_timer.reset()
-            
-            filtration_timer.stop()
-            fl_msg = "Filtration operation OK (Time taken: {} ms)".format(filtration_timer.elapsed())
-            return cut_population, fl_msg
+        filtration_timer.stop()
+        fl_msg = "Filtration operation OK (Time taken: {} ms)".format(filtration_timer.elapsed())
+        return cut_population, fl_msg
 
     # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
@@ -318,7 +299,6 @@ def run_gen_alg(vrp_params, alg_params):
     tournament_probability = alg_params.tournament_probability
     crossover_probability = alg_params.crossover_probability
     mutation_probability = alg_params.mutation_probability
-    filtration_frequency = alg_params.filtration_frequency
     sa_iteration_count = alg_params.sa_iteration_count
     sa_initial_temperature = alg_params.sa_initial_temperature
     sa_p_coeff = alg_params.sa_p_coeff
@@ -337,6 +317,8 @@ def run_gen_alg(vrp_params, alg_params):
     generation_count_max = alg_params.generation_count_max
 
     global_timer = Timer(global_cpu_limit)
+    individual_timer = Timer(individual_cpu_limit)
+    def check_goal(timer): return timer.past_goal()
 
     # GA Initialization, Step 11: Prepare keyword arguments for module functions.
     evaluation_args = {
@@ -369,14 +351,33 @@ def run_gen_alg(vrp_params, alg_params):
         "sa_iteration_count": sa_iteration_count,
         "sa_initial_temperature": sa_initial_temperature,
         "sa_p_coeff": sa_p_coeff,
-        "maximize": maximization,
+        "maximize": maximize,
+        "validation_args": validation_args,
+        "evaluation_args": evaluation_args
+    }
+    individual_args = {
+        "node_count": node_count,
+        "depot_nodes": depot_node_list,
+        "optional_nodes": optional_node_list,
+        "vehicle_count": vehicle_count,
+        "failure_msg": "(Invalid Individual Replacement) Individual initialization is taking too long.",
+        "individual_timer": individual_timer,
+        "check_goal": check_goal,
         "validation_args": validation_args,
         "evaluation_args": evaluation_args
     }
     parent_selection_args = {
         "parent_candidate_count": parent_candidate_count,
-        "maximize": maximization,
+        "maximize": maximize,
         "tournament_probability": tournament_probability
+    }
+    filtration_args = {
+        "node_count": node_count,
+        "depot_nodes": depot_node_list,
+        "optional_nodes": optional_node_list,
+        "vehicle_count": vehicle_count,
+        "maximize": maximize,
+        "minimum_cpu_time": individual_cpu_limit
     }
 
     # GA Initialization, Step 12: Miscellaneous collection of tests.
@@ -413,22 +414,28 @@ def run_gen_alg(vrp_params, alg_params):
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
 
-    population_history = []                     # Used in drawing graph 3 / 5. TODO: Use in Main Loop.
-    best_generation_individual_history = []     # Used in drawing graph 4 / 5. TODO: Use in Main Loop.
-    best_overall_individual_history = []        # Used in drawing graph 5 / 5. TODO: Use in Main Loop.
-    best_overall_generation_tracker = []        # Used in drawing graph 5 / 5. TODO: Use in Main Loop.
+    population_history = []                     # Used in drawing graph 3 / 5.
+    best_generation_individual_history = []     # Used in drawing graph 4 / 5.
+    best_overall_individual_history = []        # Used in drawing graph 5 / 5.
+    best_overall_generation_tracker = []        # Used in drawing graph 5 / 5.
 
-    global_timer.start()
-
-    current_generation = 1
-    current_generation_min = 1
+    current_generation = 0
+    current_generation_min = 0
 
     population, msg = VRP.population_initializer(**population_args)
-    population.sort(key=attrgetter("fitness"))
+
+    # Population initialization can fail due to taking too long in creating a valid individual.
+    # If this happens, GA execution is terminated, without results.
+    if population is None:
+        print(msg)
+        print("Returning to menu...")
+        return
+
+    population.sort(key=attrgetter("fitness"), reverse=maximize)
     population_history.append(deepcopy(population))
-    initial_population = deepcopy(population)                   # Used in drawing graph 1 / 5. TODO: Use in Main Loop.
+    initial_population = deepcopy(population)                   # Used in drawing graph 1 / 5.
     best_individual = deepcopy(population[0])
-    best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 5. TODO: Use in Main Loop.
+    best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 5.
     best_generation_individual_history.append(deepcopy(best_individual))
     best_overall_individual_history.append(deepcopy(best_individual))
     best_overall_generation_tracker.append(current_generation)
@@ -437,20 +444,133 @@ def run_gen_alg(vrp_params, alg_params):
     # for individual in population:
     #     print("{:> 4} | {:> 5} | {}".format(individual.individual_id, individual.fitness, individual.solution))
 
+    timeout = False
+    global_timer.start()
+
     # ------------------------------------------------------------------------------------------------------------------
     # - The Beginning of the Main Loop of the Genetic Algorithm. -------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
-    while not global_timer.past_goal() \
+    while not timeout \
             and lower_bound + threshold <= best_individual.fitness <= upper_bound - threshold \
             and current_generation <= generation_count_max \
             and current_generation_min <= generation_count_min:
-        # TODO: Main Loop of the Genetic Algorithm.
-        print("TODO")
-        break
+
+        print("Generation {} / {} (Min: {} / {}) | Best Fitness: {}".format(
+            current_generation,
+            generation_count_max,
+            current_generation_min,
+            generation_count_min,
+            best_individual.fitness
+        ))  # Test print. Delete later.
+
+        new_population = []
+        while len(new_population) < population_count and not timeout:
+            # Two new individuals are created for the new population in each loop.
+            # 1. Select two parents from current generation.
+            parent1, parent2 = VRP.parent_selector(population, **parent_selection_args)
+
+            # 2. Perform crossover operation.
+            crossover_check = np.random.random()
+            if crossover_probability >= crossover_check:
+                offspring1, offspring2 = VRP.crossover_operator(parent1, parent2)
+            else:
+                offspring1, offspring2 = deepcopy(parent1), deepcopy(parent2)
+
+            offspring1.assign_id()
+            offspring2.assign_id()
+
+            # 3. Perform mutation operation.
+            mutation_check1, mutation_check2 = np.random.random(), np.random.random()
+            if mutation_probability >= mutation_check1:
+                mutation_selector = np.random.randint(0, mutation_function_count - 1)
+                VRP.mutation_operator[mutation_selector](offspring1)
+            if mutation_probability >= mutation_check2:
+                mutation_selector = np.random.randint(0, mutation_function_count - 1)
+                VRP.mutation_operator[mutation_selector](offspring2)
+
+            new_population.append(offspring1)
+            new_population.append(offspring2)
+            timeout = global_timer.past_goal()
+
+        # If population count is set to an uneven number, chances are one individual
+        # has to be removed.
+        if len(new_population) > population_count:
+            del new_population[np.random.randint(0, len(new_population))]
+
+        # With the new population now created, its individuals now have to be
+        # both validated and evaluated.
+        for i in range(len(new_population)):
+            for validator in VRP.validator:
+                new_population[i].valid, validation_msg = validator(new_population[i], **validation_args)
+                if new_population[i].valid is False:
+                    # New individual is deemed invalid. It is now subject to a replacement
+                    # with a completely random, but valid, individual.
+                    individual_timer.start()
+                    replacement, msg = population_initializers.random_valid_individual(**individual_args)
+                    individual_timer.stop()
+                    if replacement is None:
+                        # Minimum CPU Time Termination Criterion has been violated.
+                        # GA will be concluded here, with partial results.
+                        print(msg)
+                        timeout = True
+                    else:
+                        new_population[i] = replacement
+
+            # A valid individual is then evaluated.
+            new_population[i].fitness = VRP.evaluator(new_population[i], **evaluation_args)
+
+            if timeout:
+                break
+
+        # If GA termination is requested in the middle of creating
+        # a new population, the population in question is ignored.
+        if timeout:
+            break
+
+        new_population.sort(key=attrgetter("fitness"), reverse=maximize)
+        candidate_individual = new_population[0]
+
+        # Data collection for plotting purposes.
+        population_history.append(deepcopy(new_population))
+        best_generation_individual_history.append(deepcopy(candidate_individual))
+
+        # Check if next generation's best individual is the best overall.
+        if compare(candidate_individual, best_individual):
+            # New best individual takes over as the potential optimal solution.
+            best_individual = deepcopy(candidate_individual)
+
+            # Add said individual into a separate list so that it could be plotted
+            # later.
+            best_overall_individual_history.append(deepcopy(candidate_individual))
+            best_overall_generation_tracker.append(current_generation)
+
+            # Since new best individual was discovered, minimum generation count
+            # is now reset.
+            current_generation_min = -1
+
+        current_generation += 1
+        current_generation_min += 1
+
+        # Filtration Check.
+        if current_generation % filtration_counter == 0:
+            # Filtration Strategy: combine the two recent populations into one,
+            # and throw away the worst individuals and replace duplicates with
+            # random individuals, until population count matches.
+            population, filtration_msg = filtration(population, new_population, **filtration_args)
+        else:
+            # No Filtration performed: new population becomes current population.
+            population = new_population
 
     global_timer.stop()
-    print("Algorithm has finished. (Time taken: {} ms)".format(global_timer.elapsed()))
+    if timeout:
+        print("Algorithm has finished incomplete. (Time taken: {} ms)".format(global_timer.elapsed()))
+    else:
+        print("Algorithm has finished. (Time taken: {} ms)".format(global_timer.elapsed()))
+
+    print("Discovered an individual with the following details:")
+    best_individual.print()
+
     print("Preparing data for drawing plots...")
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -468,7 +588,10 @@ def run_gen_alg(vrp_params, alg_params):
         "sa_initial_temperature": sa_initial_temperature,
         "sa_p_coeff": sa_p_coeff
     }
-    plot_function1, plot_data1 = plot_manager.plot_population_initializer(population, details1)
+    plot_function1, plot_data1 = plot_manager.plot_population_initializer(
+        initial_population,
+        details1
+    )
     plot_function_list, plot_data_list = plot_function_list + plot_function1, plot_data_list + plot_data1
 
     # Graph 2 / 5
@@ -483,14 +606,17 @@ def run_gen_alg(vrp_params, alg_params):
             "sa_initial_temperature": sa_initial_temperature,
             "sa_p_coeff": sa_p_coeff
         }
-        plot_function2, plot_data2 = plot_manager.plot_best_individual_initial_solution(best_individual, details2)
+        plot_function2, plot_data2 = plot_manager.plot_best_individual_initial_solution(
+            best_initialized_individual,
+            details2
+        )
         plot_function_list, plot_data_list = plot_function_list + plot_function2, plot_data_list + plot_data2
 
     # Graph 3 / 5
     # Line Graph that illustrates the development of the population. Fitness values of every individual over
     # multiple generations are presented.
     details3 = {
-        "line_count": 10 if generation_count_max // 50 > 10 else generation_count_max // 50,
+        "line_count": 10 if current_generation > 10 else current_generation,
         "population_count": population_count,
         "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
         "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
@@ -498,7 +624,10 @@ def run_gen_alg(vrp_params, alg_params):
         "crossover_probability": crossover_probability,
         "mutation_probability": mutation_probability
     }
-    plot_function3, plot_data3 = plot_manager.plot_population_development(population_history, details3)
+    plot_function3, plot_data3 = plot_manager.plot_population_development(
+        population_history,
+        details3
+    )
     plot_function_list, plot_data_list = plot_function_list + plot_function3, plot_data_list + plot_data3
 
     # Graph 4 / 5
@@ -511,7 +640,10 @@ def run_gen_alg(vrp_params, alg_params):
         "crossover_probability": crossover_probability,
         "mutation_probability": mutation_probability
     }
-    plot_function4, plot_data4 = plot_manager.plot_best_individual_fitness(best_generation_individual_history, details4)
+    plot_function4, plot_data4 = plot_manager.plot_best_individual_fitness(
+        best_generation_individual_history,
+        details4
+    )
     plot_function_list, plot_data_list = plot_function_list + plot_function4, plot_data_list + plot_data4
 
     # Graph 5 / 5
@@ -519,6 +651,7 @@ def run_gen_alg(vrp_params, alg_params):
     # This is drawn only if node coordinates are available.
     if coordinates is not None:
         details5 = {
+            "max_plot_count": 10,
             "coordinates": coordinates,
             "open_routes": using_ovrp,
             "population_count": population_count,

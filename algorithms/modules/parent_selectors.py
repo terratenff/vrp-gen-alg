@@ -34,12 +34,12 @@ def best_fitness(population, **kwargs):
 
     if maximize:
         # Highest fitness value is relevant in VRPP instances.
-        parent1 = min(sample1, key=attrgetter("fitness"))
-        parent2 = min(sample2, key=attrgetter("fitness"))
-    else:
-        # Lowest fitness value is relevant in other instances.
         parent1 = max(sample1, key=attrgetter("fitness"))
         parent2 = max(sample2, key=attrgetter("fitness"))
+    else:
+        # Lowest fitness value is relevant in other instances.
+        parent1 = min(sample1, key=attrgetter("fitness"))
+        parent2 = min(sample2, key=attrgetter("fitness"))
 
     return parent1, parent2
 

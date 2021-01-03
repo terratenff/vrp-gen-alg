@@ -22,7 +22,7 @@ class Timer:
     various actions could be measured as milliseconds.
     """
 
-    def __init__(self, goal=5000):
+    def __init__(self, goal=None):
         """
         Timer constructor. It is stopped upon initialization.
         :params goal: Optional threshold time (as milliseconds) that is used
@@ -31,7 +31,11 @@ class Timer:
 
         self.time_start = _time()
         self.time_stop = _time()
-        self.time_goal = goal
+        if goal is None:
+            self.time_goal = float("inf")
+        else:
+            self.time_goal = goal
+
         self.running = False
 
     def start(self):

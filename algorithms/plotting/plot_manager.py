@@ -8,6 +8,7 @@ Uses plot data and plot window to create plots themselves.
 
 import numpy as np
 from copy import deepcopy
+from operator import attrgetter
 
 from algorithms.plotting import plot_data, plot_window
 
@@ -217,6 +218,8 @@ def plot_population_development(population_collection, details):
     the plotting.
     """
 
+    # TODO: Think of a better way of selecting generations for the plot.
+
     line_count = details["line_count"]
     generation_count = len(population_collection)
     population_count = details["population_count"]
@@ -244,7 +247,7 @@ def plot_population_development(population_collection, details):
     xy_data = np.array([population_tracker, fitness_lists[0]])
 
     if parent_selector == "Tournament Selection":
-        parent_selector_str = parent_selector + "($p_t = " + tournament_probability + "$)"
+        parent_selector_str = parent_selector + " ($p_t = " + str(tournament_probability) + "$)"
     else:
         parent_selector_str = parent_selector
     plot_dict = {
@@ -300,7 +303,7 @@ def plot_best_individual_fitness(best_individual_history, details):
     xy_data = np.array([generation_tracker, fitness_values])
 
     if parent_selector == "Tournament Selection":
-        parent_selector_str = parent_selector + "($p_t = " + str(tournament_probability) + "$)"
+        parent_selector_str = parent_selector + " ($p_t = " + str(tournament_probability) + "$)"
     else:
         parent_selector_str = parent_selector
     plot_dict = {
@@ -342,8 +345,8 @@ def plot_best_individual_initial_solution(best_initial_individual, details):
     fitness = best_initial_individual.fitness
     open_routes = details["open_routes"]
     node_count = best_initial_individual.node_count
-    optional_nodes = best_initial_individual.optional_nodes
-    depot_nodes = best_initial_individual.depot_nodes
+    optional_nodes = best_initial_individual.optional_node_list
+    depot_nodes = best_initial_individual.depot_node_list
     population_initializer = details["population_initializer"]
 
     plot_dict = {
@@ -398,11 +401,12 @@ def plot_best_individual_solution(best_unique_individual_history, generation_his
     the plotting.
     """
 
+    max_plot_count = details["max_plot_count"]
     xy_data = details["coordinates"]
     open_routes = details["open_routes"]
     node_count = best_unique_individual_history[0].node_count
-    optional_nodes = best_unique_individual_history[0].optional_nodes
-    depot_nodes = best_unique_individual_history[0].depot_nodes
+    optional_nodes = best_unique_individual_history[0].optional_node_list
+    depot_nodes = best_unique_individual_history[0].depot_node_list
 
     population_count = details["population_count"]
     parent_selector = details["parent_selector"]
@@ -412,7 +416,7 @@ def plot_best_individual_solution(best_unique_individual_history, generation_his
     mutation_probability = details["mutation_probability"]
 
     if parent_selector == "Tournament Selection":
-        parent_selector_str = parent_selector + "($p_t = " + str(tournament_probability) + "$)"
+        parent_selector_str = parent_selector + " ($p_t = " + str(tournament_probability) + "$)"
     else:
         parent_selector_str = parent_selector
     plot_dict = {
@@ -431,11 +435,34 @@ def plot_best_individual_solution(best_unique_individual_history, generation_his
         ]
     }
 
+    fitness_high = max(best_unique_individual_history, key=attrgetter("fitness")).fitness
+    fitness_low = min(best_unique_individual_history, key=attrgetter("fitness")).fitness
+    overall_fitness_difference = np.abs(fitness_high - fitness_low)
+    fitness_increment = overall_fitness_difference / max_plot_count
+
+    # An attempt is made here to select individuals fitness-wise as evenly as possible.
+    # If every individual here is plotted, not only will it take a long time, there is
+    # also the possibility of the application crashing while resizing figures.
+    selected_individuals = []
+    selected_generations = []
+    plot_counter = 0
+    fitness_previous = best_unique_individual_history[0].fitness
+    for i in range(1, len(best_unique_individual_history)):
+        subject_individual = best_unique_individual_history[i]
+        fitness_difference = np.abs(fitness_previous - subject_individual.fitness)
+        if fitness_difference > fitness_increment or i == len(best_unique_individual_history) - 1:
+            selected_individuals.append(best_unique_individual_history[i])
+            selected_generations.append(generation_history[i])
+            fitness_previous = best_unique_individual_history[i].fitness
+            plot_counter += 1
+        if plot_counter >= max_plot_count:
+            break
+
     plot_functions = []
     plot_list = []
-    for i in range(len(best_unique_individual_history)):
-        individual = best_unique_individual_history[i]
-        generation = generation_history[i]
+    for i in range(len(selected_individuals)):
+        individual = selected_individuals[i]
+        generation = selected_generations[i]
         route_list = individual.get_route_list()
         fitness = individual.fitness
         individual_dict = deepcopy(plot_dict)
