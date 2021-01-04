@@ -8,6 +8,8 @@ Runner of the genetic algorithm.
 
 from copy import deepcopy
 from operator import attrgetter
+from threading import Thread, current_thread
+from time import sleep
 import numpy as np
 
 from instances.vrp import VRP
@@ -414,10 +416,15 @@ def run_gen_alg(vrp_params, alg_params):
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
 
-    population_history = []                     # Used in drawing graph 3 / 5.
-    best_generation_individual_history = []     # Used in drawing graph 4 / 5.
-    best_overall_individual_history = []        # Used in drawing graph 5 / 5.
-    best_overall_generation_tracker = []        # Used in drawing graph 5 / 5.
+    # TODO: Collect fitness values instead of individuals where applicable.
+    # TODO: Determine appropriate parameters for plotting figures.
+
+    population_history = []                     # Used in drawing graph 3 / 7.
+    best_generation_individual_history = []     # Used in drawing graph 4 / 7.
+    best_time_individual_history = []           # Used in drawing graph 5 / 7.
+    best_individual_time_tracker = []           # Used in drawing graph 5 / 7.
+    best_overall_individual_history = []        # Used in drawing graph 6 / 7 and graph 7 / 7.
+    best_overall_generation_tracker = []        # Used in drawing graph 6 / 7 and graph 7 / 7.
 
     current_generation = 0
     current_generation_min = 0
@@ -433,9 +440,9 @@ def run_gen_alg(vrp_params, alg_params):
 
     population.sort(key=attrgetter("fitness"), reverse=maximize)
     population_history.append(deepcopy(population))
-    initial_population = deepcopy(population)                   # Used in drawing graph 1 / 5.
+    initial_population = deepcopy(population)                   # Used in drawing graph 1 / 6.
     best_individual = deepcopy(population[0])
-    best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 5.
+    best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 6.
     best_generation_individual_history.append(deepcopy(best_individual))
     best_overall_individual_history.append(deepcopy(best_individual))
     best_overall_generation_tracker.append(current_generation)
@@ -446,6 +453,19 @@ def run_gen_alg(vrp_params, alg_params):
 
     timeout = False
     global_timer.start()
+
+    # Start a thread that collects an instance of the best individual for each interval passed.
+    def timed_collection():
+        interval = 0.10  # Seconds.
+        thread = current_thread()
+        setattr(thread, "terminate", False)
+        while not getattr(thread, "terminate", False):
+            best_time_individual_history.append(deepcopy(best_individual))
+            best_individual_time_tracker.append(global_timer.elapsed())
+            sleep(interval)
+
+    timed_collector = Thread(target=timed_collection)
+    timed_collector.start()
 
     # ------------------------------------------------------------------------------------------------------------------
     # - The Beginning of the Main Loop of the Genetic Algorithm. -------------------------------------------------------
@@ -563,6 +583,7 @@ def run_gen_alg(vrp_params, alg_params):
             population = new_population
 
     global_timer.stop()
+    timed_collector.terminate = True
     if timeout:
         print("Algorithm has finished incomplete. (Time taken: {} ms)".format(global_timer.elapsed()))
     else:
@@ -580,7 +601,7 @@ def run_gen_alg(vrp_params, alg_params):
     plot_function_list = []
     plot_data_list = []
 
-    # Graph 1 / 5
+    # Graph 1 / 7
     # Bar Graph that illustrates diversity of population created using a population initializer.
     details1 = {
         "population_initializer": alg_params.str_population_initializer[alg_params.population_initializer],
@@ -594,12 +615,13 @@ def run_gen_alg(vrp_params, alg_params):
     )
     plot_function_list, plot_data_list = plot_function_list + plot_function1, plot_data_list + plot_data1
 
-    # Graph 2 / 5
+    # Graph 2 / 7
     # Scatter Graph that illustrates the solution of the best individual created by the population initializer.
     # This is drawn only if node coordinates are available.
     if coordinates is not None:
         details2 = {
             "population_initializer": alg_params.str_population_initializer[alg_params.population_initializer],
+            "population_count": population_count,
             "coordinates": coordinates,
             "open_routes": using_ovrp,
             "sa_iteration_count": sa_iteration_count,
@@ -612,11 +634,12 @@ def run_gen_alg(vrp_params, alg_params):
         )
         plot_function_list, plot_data_list = plot_function_list + plot_function2, plot_data_list + plot_data2
 
-    # Graph 3 / 5
+    # Graph 3 / 7
     # Line Graph that illustrates the development of the population. Fitness values of every individual over
     # multiple generations are presented.
     details3 = {
-        "line_count": 10 if current_generation > 10 else current_generation,
+        "line_count": 5 if current_generation > 5 else current_generation,
+        "line_increment": 3,
         "population_count": population_count,
         "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
         "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
@@ -630,7 +653,7 @@ def run_gen_alg(vrp_params, alg_params):
     )
     plot_function_list, plot_data_list = plot_function_list + plot_function3, plot_data_list + plot_data3
 
-    # Graph 4 / 5
+    # Graph 4 / 7
     # Line Graph that illustrates fitness development of the competing individuals of their generations.
     details4 = {
         "population_count": population_count,
@@ -646,11 +669,45 @@ def run_gen_alg(vrp_params, alg_params):
     )
     plot_function_list, plot_data_list = plot_function_list + plot_function4, plot_data_list + plot_data4
 
-    # Graph 5 / 5
+    # Graph 5 / 7
+    # Line Graph that illustrates fitness development of the competing individuals with respect to time.
+    details5 = {
+        "population_count": population_count,
+        "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
+        "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
+        "tournament_probability": tournament_probability,
+        "crossover_probability": crossover_probability,
+        "mutation_probability": mutation_probability
+    }
+    plot_function5, plot_data5 = plot_manager.plot_best_individual_fitness_time(
+        best_time_individual_history,
+        best_individual_time_tracker,
+        details5
+    )
+    plot_function_list, plot_data_list = plot_function_list + plot_function5, plot_data_list + plot_data5
+
+    # Graph 6 / 7
+    # Bar Graph that illustrates the development of the best individual in terms of its fitness.
+    details6 = {
+        "population_count": population_count,
+        "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
+        "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
+        "tournament_probability": tournament_probability,
+        "crossover_probability": crossover_probability,
+        "mutation_probability": mutation_probability
+    }
+    plot_function6, plot_data6 = plot_manager.plot_best_individual_collection(
+        best_overall_individual_history,
+        best_overall_generation_tracker,
+        details6
+    )
+    plot_function_list, plot_data_list = plot_function_list + plot_function6, plot_data_list + plot_data6
+
+    # Graph 7 / 7
     # Collection Scatter Graph that illustrate the development of the solution of the best individual.
     # This is drawn only if node coordinates are available.
     if coordinates is not None:
-        details5 = {
+        details7 = {
             "max_plot_count": 10,
             "coordinates": coordinates,
             "open_routes": using_ovrp,
@@ -661,12 +718,12 @@ def run_gen_alg(vrp_params, alg_params):
             "crossover_probability": crossover_probability,
             "mutation_probability": mutation_probability
         }
-        plot_function5, plot_data5 = plot_manager.plot_best_individual_solution(
+        plot_function7, plot_data7 = plot_manager.plot_best_individual_solution(
             best_overall_individual_history,
             best_overall_generation_tracker,
-            details5
+            details7
         )
-        plot_function_list, plot_data_list = plot_function_list + plot_function5, plot_data_list + plot_data5
+        plot_function_list, plot_data_list = plot_function_list + plot_function7, plot_data_list + plot_data7
 
     plot_manager.set_total_plot_count(plot_data_list)
 

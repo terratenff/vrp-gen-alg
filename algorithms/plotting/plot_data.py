@@ -167,6 +167,8 @@ def plot_graph(plot_data, save_plot_data=False):
     @return: Figure and Figure Axes that encompass the graph.
     """
 
+    # TODO: Fill area below line if there is only one line.
+
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
@@ -184,24 +186,27 @@ def plot_graph(plot_data, save_plot_data=False):
 
     # Add data to the figure. Multiple datasets are added
     # to the same subplot.
+    lowest_x, highest_x = float("inf"), -float("inf")
     for i in range(len(plot_data.labels)):
         xy_data, data_label = plot_data.get_data(i)
         x = xy_data[0]
         y = xy_data[1]
-        figure_axes.plot(x, y, label=data_label)
+        lowest_x, highest_x = min(lowest_x, min(x)), max(highest_x, max(x))
+        figure_axes.plot(x, y, label=data_label, linewidth=3)
 
+    figure_axes.set_xlim([lowest_x, highest_x])
     figure_axes.set_title(title)
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend(loc="lower left")  # Location is set to avoid collision with "misc" text box.
+        figure_axes.legend()
     if draw_textbox is True:
         props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
-        figure_axes.text(0.05, 0.95, textbox_details,
+        figure_axes.text(0.50, 0.95, textbox_details,
                          transform=figure_axes.transAxes,
                          fontsize=12,
                          verticalalignment="top",
-                         horizontalalignment="left",
+                         horizontalalignment="center",
                          bbox=props)
 
     if save_plot_data:
@@ -240,21 +245,23 @@ def plot_bar(plot_data, save_plot_data=False):
     # With a bar graph only 1 set of data is expected.
     xy_data, data_label = plot_data.get_data(0)
     low, high = min(xy_data[1, :]), max(xy_data[1, :])
-    figure_axes.bar(xy_data[0, :], xy_data[1, :], label=data_label)
+    figure_axes.bar([str(int(gen)) for gen in xy_data[0, :]], xy_data[1, :], label=data_label)
+    # figure_axes.set_xlim([min(xy_data[0, :]), max(xy_data[0, :])])
     figure_axes.set_ylim([np.ceil(low - 0.05*(high - low)), np.ceil(high + 0.05*(high - low))])
 
     figure_axes.set_title(title)
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
+    figure_axes.tick_params(axis="x", which="both", labelsize="8", rotation=90)
     if plot_data.legend is True:
-        figure_axes.legend(loc="lower left")  # Location is set to avoid collision with "misc" text box.
+        figure_axes.legend()
     if draw_textbox is True:
         props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
-        figure_axes.text(0.05, 0.95, textbox_details,
+        figure_axes.text(0.50, 0.95, textbox_details,
                          transform=figure_axes.transAxes,
                          fontsize=12,
                          verticalalignment="top",
-                         horizontalalignment="left",
+                         horizontalalignment="center",
                          bbox=props)
 
     if save_plot_data:
@@ -374,14 +381,14 @@ def plot_map(plot_data):
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
     if plot_data.legend is True:
-        figure_axes.legend(loc="lower left")  # Location is set to avoid collision with "misc" text box.
+        figure_axes.legend()
     if draw_textbox is True:
         props = dict(boxstyle="round", facecolor="lightcyan", alpha=0.50)
-        figure_axes.text(0.05, 0.95, textbox_details,
+        figure_axes.text(0.50, 0.95, textbox_details,
                          transform=figure_axes.transAxes,
                          fontsize=12,
                          verticalalignment="top",
-                         horizontalalignment="left",
+                         horizontalalignment="center",
                          bbox=props)
 
     return figure, figure_axes

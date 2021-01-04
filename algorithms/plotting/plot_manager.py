@@ -175,7 +175,7 @@ def plot_population_initializer(population, details):
 
     plot_dict = {
         "legend": False,
-        "title": "GA - Population Initialization ({} Individuals)".format(len(population)),
+        "title": "GA - Population Initialization",
         "xlabel": "Population Individuals (best to worst)",
         "ylabel": "Fitness",
         "expected_plot_count": 1,
@@ -187,17 +187,21 @@ def plot_population_initializer(population, details):
         initial_temperature = details["sa_initial_temperature"]
         annealing_coefficient = details["sa_p_coeff"]
         misc_list = [
+            "Population Size: {}".format(len(population)),
             "Simulated Annealing",
             "$n_{max} = " + str(iteration_count) + "$",
             "$T^{(1)} = " + str(initial_temperature) + "$",
             "$p = " + str(annealing_coefficient) + "$"
         ]
     else:
-        misc_list = [population_initializer]
+        misc_list = [
+            "Population Size: {}".format(len(population)),
+            population_initializer
+        ]
 
     plot_dict["misc"] = misc_list
 
-    plot_functions = [plot_data.plot_bar]
+    plot_functions = [plot_data.plot_graph]
     plot_list = [plot_data.PlotData(xy_data, [population_initializer], plot_dict)]
     return plot_functions, plot_list
 
@@ -218,10 +222,8 @@ def plot_population_development(population_collection, details):
     the plotting.
     """
 
-    # TODO: Think of a better way of selecting generations for the plot.
-
     line_count = details["line_count"]
-    generation_count = len(population_collection)
+    line_increment = details["line_increment"]
     population_count = details["population_count"]
     parent_selector = details["parent_selector"]
     crossover_operator = details["crossover_operator"]
@@ -231,12 +233,23 @@ def plot_population_development(population_collection, details):
 
     selected_populations = []
     generation_str = []
-    incrementer = generation_count // (line_count + 1)
-    index = incrementer
-    for i in range(1, line_count + 1):
-        selected_populations.append(population_collection[index])
-        generation_str.append("Generation {}".format(index))
-        index += incrementer
+
+    # - Selects initialized population, next early populations and the final population.
+    selected_populations.append(population_collection[0])
+    generation_str.append("Initialization")
+    for i in range(1, line_count - 1):
+        selected_populations.append(population_collection[i * line_increment])
+        generation_str.append("Generation {}".format(i * line_increment))
+    selected_populations.append(population_collection[len(population_collection) - 1])
+    generation_str.append("Generation {}".format(len(population_collection) - 1))
+
+    # - Selects populations evenly.
+    # incrementer = generation_count // (line_count + 1)
+    # index = incrementer
+    # for i in range(1, line_count + 1):
+    #     selected_populations.append(population_collection[index])
+    #     generation_str.append("Generation {}".format(index))
+    #     index += incrementer
 
     fitness_lists = []
     for population in selected_populations:
@@ -252,12 +265,13 @@ def plot_population_development(population_collection, details):
         parent_selector_str = parent_selector
     plot_dict = {
         "legend": True,
-        "title": "GA - Population Development ({} Individuals)".format(population_count),
+        "title": "GA - Population Development",
         "xlabel": "Population Individuals (best to worst)",
         "ylabel": "Fitness",
         "expected_plot_count": 1,
         "current_plot_count": 1,
         "misc": [
+            "Population Size: {}".format(population_count),
             parent_selector_str,
             crossover_operator,
             "$p_c = " + str(crossover_probability) + "$",
@@ -308,12 +322,66 @@ def plot_best_individual_fitness(best_individual_history, details):
         parent_selector_str = parent_selector
     plot_dict = {
         "legend": False,
-        "title": "GA - Optimal Individual ({} Individuals)".format(population_count),
+        "title": "GA - Optimal Individual, Generation-Wise",
         "xlabel": "Generation",
         "ylabel": "Fitness",
         "expected_plot_count": 1,
         "current_plot_count": 1,
         "misc": [
+            "Population Size: {}".format(population_count),
+            parent_selector_str,
+            crossover_operator,
+            "$p_c = " + str(crossover_probability) + "$",
+            "$p_m = " + str(mutation_probability) + "$"
+        ]
+    }
+
+    plot_functions = [plot_data.plot_graph]
+    plot_list = [plot_data.PlotData(xy_data, [""], plot_dict)]
+    return plot_functions, plot_list
+
+
+def plot_best_individual_fitness_time(best_time_individual_history, time_collection, details):
+    """
+    Compiles data from the population in such a manner that
+    the fitness values of the best individuals can be plotted
+    into a single line graph with respect to time.
+    @param best_time_individual_history: List of individuals
+    that were found to be the best find at the time of the search.
+    @param time_collection: List of instances of time when the
+    individuals were the best.
+    @param details: Dictionary that contains relevant
+    information about the development of the best individual, such as
+    parameters used in the genetic algorithm.
+    @return: List of plotting functions that are to be used,
+    and a list of plot data objects that are to be used in
+    the plotting.
+    """
+
+    fitness_list = [individual.fitness for individual in best_time_individual_history]
+
+    population_count = details["population_count"]
+    parent_selector = details["parent_selector"]
+    crossover_operator = details["crossover_operator"]
+    tournament_probability = details["tournament_probability"]
+    crossover_probability = details["crossover_probability"]
+    mutation_probability = details["mutation_probability"]
+
+    xy_data = np.array([time_collection, fitness_list])
+
+    if parent_selector == "Tournament Selection":
+        parent_selector_str = parent_selector + " ($p_t = " + str(tournament_probability) + "$)"
+    else:
+        parent_selector_str = parent_selector
+    plot_dict = {
+        "legend": False,
+        "title": "GA - Optimal Individual, Time-Wise",
+        "xlabel": "Time (ms)",
+        "ylabel": "Fitness",
+        "expected_plot_count": 1,
+        "current_plot_count": 1,
+        "misc": [
+            "Population Size: {}".format(population_count),
             parent_selector_str,
             crossover_operator,
             "$p_c = " + str(crossover_probability) + "$",
@@ -348,6 +416,7 @@ def plot_best_individual_initial_solution(best_initial_individual, details):
     optional_nodes = best_initial_individual.optional_node_list
     depot_nodes = best_initial_individual.depot_node_list
     population_initializer = details["population_initializer"]
+    population_count = details["population_count"]
 
     plot_dict = {
         "legend": True,
@@ -363,14 +432,19 @@ def plot_best_individual_initial_solution(best_initial_individual, details):
         initial_temperature = details["sa_initial_temperature"]
         annealing_coefficient = details["sa_p_coeff"]
         misc_list = [
+            "Population Size: {}".format(population_count),
             "Simulated Annealing",
-            "Fitness: {}".format(fitness),
+            "Fitness: {}".format(int(np.ceil(fitness))),
             "$n_{max} = " + str(iteration_count) + "$",
             "$T^{(1)} = " + str(initial_temperature) + "$",
             "$p = " + str(annealing_coefficient) + "$"
         ]
     else:
-        misc_list = [population_initializer, "Fitness: {}".format(fitness)]
+        misc_list = [
+            "Population Size: {}".format(population_count),
+            population_initializer,
+            "Fitness: {}".format(int(np.ceil(fitness)))
+        ]
 
     plot_dict["misc"] = misc_list
 
@@ -380,6 +454,59 @@ def plot_best_individual_initial_solution(best_initial_individual, details):
 
     plot_functions = [plot_data.plot_map]
     plot_list = [plot_data_object]
+    return plot_functions, plot_list
+
+
+def plot_best_individual_collection(best_unique_individual_history, generation_history, details):
+    """
+    Compiles data from the population in such a manner that
+    the fitness values of the best individuals can be plotted
+    into a single bar graph over the course of generations.
+    @param best_unique_individual_history: List of unique individuals
+    that were found to be the best find during the search.
+    @param generation_history: List of generation numbers during which
+    best individuals were discovered.
+    @param details: Dictionary that contains relevant
+    information about the development of the best individual, such as
+    parameters used in the genetic algorithm.
+    @return: List of plotting functions that are to be used,
+    and a list of plot data objects that are to be used in
+    the plotting.
+    """
+
+    fitness_list = [individual.fitness for individual in best_unique_individual_history]
+
+    population_count = details["population_count"]
+    parent_selector = details["parent_selector"]
+    crossover_operator = details["crossover_operator"]
+    tournament_probability = details["tournament_probability"]
+    crossover_probability = details["crossover_probability"]
+    mutation_probability = details["mutation_probability"]
+
+    xy_data = np.array([generation_history, fitness_list])
+
+    if parent_selector == "Tournament Selection":
+        parent_selector_str = parent_selector + " ($p_t = " + str(tournament_probability) + "$)"
+    else:
+        parent_selector_str = parent_selector
+    plot_dict = {
+        "legend": False,
+        "title": "GA - New Best Individuals",
+        "xlabel": "Generation of Discovery",
+        "ylabel": "Fitness",
+        "expected_plot_count": 1,
+        "current_plot_count": 1,
+        "misc": [
+            "Population Size: {}".format(population_count),
+            parent_selector_str,
+            crossover_operator,
+            "$p_c = " + str(crossover_probability) + "$",
+            "$p_m = " + str(mutation_probability) + "$"
+        ]
+    }
+
+    plot_functions = [plot_data.plot_bar]
+    plot_list = [plot_data.PlotData(xy_data, [""], plot_dict)]
     return plot_functions, plot_list
 
 
@@ -468,7 +595,7 @@ def plot_best_individual_solution(best_unique_individual_history, generation_his
         individual_dict = deepcopy(plot_dict)
         individual_title = "GA - Best Individual of Generation {} (Among {} Individuals)".format(generation,
                                                                                                  population_count)
-        fitness_text = "Individual Fitness: {}".format(fitness)
+        fitness_text = "Individual Fitness: {}".format(int(np.ceil(fitness)))
         individual_dict["title"] = individual_title
         individual_dict["misc"][0] = fitness_text
         plot_data_object = plot_data.PlotData(xy_data, ["Node Locations"], individual_dict)
