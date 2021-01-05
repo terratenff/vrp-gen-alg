@@ -124,6 +124,7 @@ def random_valid_individual(**kwargs):
         candidate_individual.assign_solution(candidate_solution)
         for validator in VRP.validator:
             valid_individual, validation_msg = validator(candidate_individual, **validation_args)
+            # print("(Random Valid Individual) {}".format(validation_msg))
             if valid_individual is False:
                 break
 
@@ -281,7 +282,7 @@ def allele_permutation(**kwargs):
 
             # Should solution-finding via mutations take too long, it is halted here.
             if check_goal(individual_timer):
-                return None, "(Allele Mutation) Individual initialization is taking too long."
+                return None, "(Allele Permutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
         candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
@@ -297,7 +298,7 @@ def allele_permutation(**kwargs):
     population_timer.stop()
     individual_timer.stop()
 
-    return population, "(Allele Mutation) Population initialization OK (Time taken: {} ms)" \
+    return population, "(Allele Permutation) Population initialization OK (Time taken: {} ms)" \
         .format(population_timer.elapsed())
 
 
@@ -416,7 +417,7 @@ def gene_permutation(**kwargs):
 
             # Should solution-finding via mutations take too long, it is halted here.
             if check_goal(individual_timer):
-                return None, "(Allele Mutation) Individual initialization is taking too long."
+                return None, "(Gene Permutation) Individual initialization is taking too long."
 
         # Once the solution is valid, evaluate it.
         candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
@@ -432,7 +433,7 @@ def gene_permutation(**kwargs):
     population_timer.stop()
     individual_timer.stop()
 
-    return population, "(Allele Mutation) Population initialization OK (Time taken: {} ms)" \
+    return population, "(Gene Permutation) Population initialization OK (Time taken: {} ms)" \
         .format(population_timer.elapsed())
 
 
@@ -550,24 +551,24 @@ def simulated_annealing(**kwargs):
         # With the fitness values of both guide and candidate, SA probability can be calculated.
         sa_probability = exp(max_factor * (candidate_individual.fitness - guide_individual.fitness) / temperature)
 
-        # Test Print - Delete later
-        print("{} | FITNESS: {:> 5} | TEMP: {:.5f} | SA VALUE: {:.5f} | PASS: {:.5f}".format(
-            candidate_individual.solution,
-            candidate_individual.fitness,
-            temperature,
-            sa_probability,
-            pass_requirement
-        ), end=" | ")
+        # Test Print
+        # print("{} | FITNESS: {:> 5} | TEMP: {:.5f} | SA VALUE: {:.5f} | PASS: {:.5f}".format(
+        #     candidate_individual.solution,
+        #     candidate_individual.fitness,
+        #     temperature,
+        #     sa_probability,
+        #     pass_requirement
+        # ), end=" | ")
 
         if sa_probability >= pass_requirement:
-            print("SELECTED")  # Test Print - Delete later
+            # print("Selected")  # Test Print
             # Mutation has been selected as the new guide.
             population.append(candidate_individual)
             guide_individual = deepcopy(candidate_individual)
             guide_individual.assign_id()
             candidate_individual = deepcopy(guide_individual)
         else:
-            print("DISCARDED")  # Test Print - Delete later
+            # print("Discarded")  # Test Print
             # Mutation has been rejected. Revert back to guide individual.
             candidate_individual = deepcopy(guide_individual)
 

@@ -151,21 +151,23 @@ def run_gen_alg(vrp_params, alg_params):
         1: mutation_operators.sequence_inversion,
         2: mutation_operators.sequence_shuffle,
         3: mutation_operators.sequence_relocation,
-        4: mutation_operators.add_optional_node,
-        5: mutation_operators.remove_optional_node,
-        6: mutation_operators.change_depot
+        4: mutation_operators.vehicle_diversification,
+        5: mutation_operators.add_optional_node,
+        6: mutation_operators.remove_optional_node,
+        7: mutation_operators.change_depot
     }
     mutation_functions = [
         mutation_collection[0],
         mutation_collection[1],
         mutation_collection[2],
-        mutation_collection[3]
+        mutation_collection[3],
+        mutation_collection[4]
     ]
     if using_vrpp:
-        mutation_functions.append(mutation_collection[4])
         mutation_functions.append(mutation_collection[5])
-    if using_mdvrp and not optimize_depot_nodes:
         mutation_functions.append(mutation_collection[6])
+    if using_mdvrp and not optimize_depot_nodes:
+        mutation_functions.append(mutation_collection[7])
     VRP.mutation_operator = mutation_functions
     mutation_function_count = len(mutation_functions)
 
@@ -416,9 +418,6 @@ def run_gen_alg(vrp_params, alg_params):
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
 
-    # TODO: Collect fitness values instead of individuals where applicable.
-    # TODO: Determine appropriate parameters for plotting figures.
-
     population_history = []                     # Used in drawing graph 3 / 7.
     best_generation_individual_history = []     # Used in drawing graph 4 / 7.
     best_time_individual_history = []           # Used in drawing graph 5 / 7.
@@ -476,13 +475,13 @@ def run_gen_alg(vrp_params, alg_params):
             and current_generation <= generation_count_max \
             and current_generation_min <= generation_count_min:
 
-        print("Generation {} / {} (Min: {} / {}) | Best Fitness: {}".format(
+        print("Generation {:> 5} / {:> 5} (Min: {:> 5} / {:> 5}) | Best Fitness: {}".format(
             current_generation,
             generation_count_max,
             current_generation_min,
             generation_count_min,
             best_individual.fitness
-        ))  # Test print. Delete later.
+        ))  # Test print.
 
         new_population = []
         while len(new_population) < population_count and not timeout:
@@ -503,10 +502,10 @@ def run_gen_alg(vrp_params, alg_params):
             # 3. Perform mutation operation.
             mutation_check1, mutation_check2 = np.random.random(), np.random.random()
             if mutation_probability >= mutation_check1:
-                mutation_selector = np.random.randint(0, mutation_function_count - 1)
+                mutation_selector = np.random.randint(0, mutation_function_count)
                 VRP.mutation_operator[mutation_selector](offspring1)
             if mutation_probability >= mutation_check2:
-                mutation_selector = np.random.randint(0, mutation_function_count - 1)
+                mutation_selector = np.random.randint(0, mutation_function_count)
                 VRP.mutation_operator[mutation_selector](offspring2)
 
             new_population.append(offspring1)
@@ -638,8 +637,8 @@ def run_gen_alg(vrp_params, alg_params):
     # Line Graph that illustrates the development of the population. Fitness values of every individual over
     # multiple generations are presented.
     details3 = {
-        "line_count": 5 if current_generation > 5 else current_generation,
-        "line_increment": 3,
+        "line_count": 7 if current_generation > 7 else current_generation,
+        "line_increment": 5,
         "population_count": population_count,
         "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
         "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
@@ -689,6 +688,7 @@ def run_gen_alg(vrp_params, alg_params):
     # Graph 6 / 7
     # Bar Graph that illustrates the development of the best individual in terms of its fitness.
     details6 = {
+        "bar_count": 50 if len(best_overall_individual_history) > 50 else len(best_overall_individual_history),
         "population_count": population_count,
         "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
         "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],

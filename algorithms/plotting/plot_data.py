@@ -167,8 +167,6 @@ def plot_graph(plot_data, save_plot_data=False):
     @return: Figure and Figure Axes that encompass the graph.
     """
 
-    # TODO: Fill area below line if there is only one line.
-
     title = plot_data.title
     xlabel = plot_data.xlabel
     ylabel = plot_data.ylabel
@@ -181,7 +179,7 @@ def plot_graph(plot_data, save_plot_data=False):
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
 
-    figure = Figure(figsize=(6.4, 4.8), dpi=100)
+    figure = Figure(figsize=(9.0, 6.8), dpi=100)
     figure_axes = figure.add_subplot(111)
 
     # Add data to the figure. Multiple datasets are added
@@ -239,7 +237,7 @@ def plot_bar(plot_data, save_plot_data=False):
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
 
-    figure = Figure(figsize=(6.4, 4.8), dpi=100)
+    figure = Figure(figsize=(9.0, 6.8), dpi=100)
     figure_axes = figure.add_subplot(111)
 
     # With a bar graph only 1 set of data is expected.
@@ -300,7 +298,7 @@ def plot_map(plot_data):
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
 
-    figure = Figure(figsize=(6.4, 4.8), dpi=100)
+    figure = Figure(figsize=(9.0, 6.8), dpi=100)
     figure_axes = figure.add_subplot(111)
 
     # One dataset - that being node coordinates - is expected.
@@ -315,15 +313,22 @@ def plot_map(plot_data):
         "yellowgreen", "darkseagreen", "darkslateblue",
         "lightgrey", "grey", "darkgrey"
     ]
-    if len(color_collection) < vehicle_count:  # In case named colors are not enough.
-        pass
+    if len(color_collection) < vehicle_count:
+        # In case named colors are not enough.
+        missing_count = vehicle_count - len(color_collection)
+        for i in range(missing_count):
+            color_collection.append(np.random.rand(3))
 
     # Lines connecting the dots represent routes.
     # They are added here.
+    i_color = -1
     for i in range(vehicle_count):
         route_vertices = []
         route_codes = []
         route = route_list[i]
+        if len(route) <= 1:
+            continue
+        i_color += 1
         route_codes.append(Path.MOVETO)
         depot_node = route[0]
         route_vertices.append(all_vertices[depot_node])
@@ -339,7 +344,7 @@ def plot_map(plot_data):
 
         # Inserting PathPatch to the figure.
         path = Path(route_vertices, route_codes)
-        patch = PathPatch(path, fill=False, lw=2, color=color_collection[i])
+        patch = PathPatch(path, fill=False, lw=2, color=color_collection[i_color])
         figure_axes.add_patch(patch)
 
     # Add text to appropriate places to signify node locations.
@@ -347,6 +352,7 @@ def plot_map(plot_data):
         vertex = all_vertices[i]
         x = vertex[0]
         y = vertex[1]
+        y = y + np.ones(y.shape) * 5
         figure_axes.text(x, y, "{}".format(i), fontsize=15, ha="center", va="bottom")
 
     # Provided dataset is split into three categories: required nodes, optional nodes and depot nodes.
@@ -355,7 +361,7 @@ def plot_map(plot_data):
             all_vertices[required_nodes, 0],
             all_vertices[required_nodes, 1],
             s=100,
-            c="C0",
+            c="red",
             label="Required Nodes"
         )
 
@@ -364,7 +370,7 @@ def plot_map(plot_data):
             all_vertices[optional_nodes, 0],
             all_vertices[optional_nodes, 1],
             s=100,
-            c="C1",
+            c="yellow",
             label="Optional Nodes"
         )
 
@@ -373,7 +379,7 @@ def plot_map(plot_data):
             all_vertices[depot_nodes, 0],
             all_vertices[depot_nodes, 1],
             s=100,
-            c="C2",
+            c="lightgreen",
             label="Depot Nodes"
         )
 

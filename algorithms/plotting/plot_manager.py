@@ -476,6 +476,7 @@ def plot_best_individual_collection(best_unique_individual_history, generation_h
 
     fitness_list = [individual.fitness for individual in best_unique_individual_history]
 
+    bar_count = details["bar_count"]
     population_count = details["population_count"]
     parent_selector = details["parent_selector"]
     crossover_operator = details["crossover_operator"]
@@ -483,7 +484,13 @@ def plot_best_individual_collection(best_unique_individual_history, generation_h
     crossover_probability = details["crossover_probability"]
     mutation_probability = details["mutation_probability"]
 
-    xy_data = np.array([generation_history, fitness_list])
+    if len(generation_history) > bar_count:
+        selected_indices = np.linspace(0, len(generation_history) - 1, bar_count, dtype=int)
+        selected_generations = [generation_history[i] for i in selected_indices]
+        selected_fitness_values = [fitness_list[i] for i in selected_indices]
+        xy_data = np.array([selected_generations, selected_fitness_values])
+    else:
+        xy_data = np.array([generation_history, fitness_list])
 
     if parent_selector == "Tournament Selection":
         parent_selector_str = parent_selector + " ($p_t = " + str(tournament_probability) + "$)"

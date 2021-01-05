@@ -87,6 +87,30 @@ def sequence_relocation(vrp):
     vrp.assign_solution(solution)
 
 
+def vehicle_diversification(vrp):
+    """
+    Mutates an individual by relocating depot nodes in such a manner
+    that every single vehicle has a route to follow. This function
+    assumes that there are more non-depot nodes than vehicles.
+
+    :param vrp: Subject individual.
+
+    Once the individual has been mutated, it has to be validated and evaluated
+    again.
+    """
+
+    solution = vrp.solution
+    used_depot_nodes = [node for node in solution if node in vrp.depot_node_list]
+    solution = [node for node in solution if node not in set(used_depot_nodes)]
+    increment = (len(solution) // len(used_depot_nodes)) + 1
+    i = 0
+    for node in used_depot_nodes:
+        solution.insert(i, node)
+        i += increment
+
+    vrp.assign_solution(solution)
+
+
 def add_optional_node(vrp):
     """
     Mutates an individual by adding an optional node to the solution. Applicable

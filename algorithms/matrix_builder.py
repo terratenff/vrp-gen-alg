@@ -7,6 +7,7 @@ Creates matrices for the VRPs to use.
 """
 
 import numpy as np
+from scipy.spatial import distance
 
 
 def data_selector(vrp_params, code, sub_code):
@@ -19,19 +20,19 @@ def data_selector(vrp_params, code, sub_code):
 
     if code == 1:  # Generate
         if sub_code == 1:    # Cost Matrix
-            generate_cost_matrix(vrp_params)
+            generate_cost_matrix()
         elif sub_code == 2:  # Coordinates
-            generate_coordinates_matrix(vrp_params)
+            generate_coordinates_matrix()
         elif sub_code == 3:  # Demands
-            generate_demands_matrix(vrp_params)
+            generate_demands_matrix()
         elif sub_code == 4:  # Penalties
-            generate_penalties_matrix(vrp_params)
+            generate_penalties_matrix()
         elif sub_code == 5:  # Profits
-            generate_profits_matrix(vrp_params)
+            generate_profits_matrix()
         elif sub_code == 6:  # Service Times
-            generate_service_times_matrix(vrp_params)
+            generate_service_times_matrix()
         elif sub_code == 7:  # Time Windows
-            generate_time_windows_matrix(vrp_params)
+            generate_time_windows_matrix()
     elif code == 2:  # Select
         if sub_code == 1:    # Cost Matrix
             select_cost_matrix(vrp_params)
@@ -116,15 +117,11 @@ def load_data(name, subdirectory, data_type: type = float):
         return None
 
 
-def generate_cost_matrix(vrp_params):
+def generate_cost_matrix():
     """
     Interactive function that guides the user into making a randomized
     path table. It is also named, and once created, stored in the
-    "cost_matrices" folder, found in "variables.
-    :param vrp_params: VRP parameters, to which the data is added.
-    :return: Path table of specified node count, randomized elements between
-    specified min/max elements. Matrix could be created symmetric or
-    asymmetric.
+    "cost_matrices" folder, found in "variables".
     """
 
     print("Cost Matrix elements will be generated randomly. If you want to manually edit them,\n"
@@ -141,16 +138,13 @@ def generate_cost_matrix(vrp_params):
         matrix = np.random.uniform(minimum, maximum, (nodes, nodes))
 
     np.savetxt("variables/cost_matrices/" + matrix_name + ".txt", matrix, fmt="%.8f")
-    matrix = load_data(matrix_name, "cost_matrices")
-    vrp_params.set_contents(matrix, name=matrix_name)
 
 
-def generate_coordinates_matrix(vrp_params):
+def generate_coordinates_matrix():
     """
     Interactive function that guides the user into making a randomized
     list of coordinates. It is also named, and once created, stored in the
     "coordinates" folder, found in "variables".
-    :param vrp_params: VRP parameters, to which the data is added.
     """
 
     print("Coordinates will be generated randomly. If you want to manually edit them,\n"
@@ -167,20 +161,19 @@ def generate_coordinates_matrix(vrp_params):
 
     # noinspection PyTypeChecker
     np.savetxt("variables/coordinates/" + matrix_name + ".txt", matrix, fmt="%.8f")
-    matrix = load_data(matrix_name, "coordinates")
-    vrp_params.set_contents(matrix, name=matrix_name)
     response = input("Create and save an overriding cost matrix? (y/n) > ")
     if response.upper() == "Y":
         new_name = input("Overriding Cost Matrix Name > ")
-        np.savetxt("variables/cost_matrices/" + new_name + ".txt", vrp_params.vrp_path_table, fmt="%.8f")
+        overriding_matrix = distance.cdist(matrix, matrix)
+        # noinspection PyTypeChecker
+        np.savetxt("variables/cost_matrices/" + new_name + ".txt", overriding_matrix, fmt="%.8f")
 
 
-def generate_demands_matrix(vrp_params):
+def generate_demands_matrix():
     """
     Interactive function that guides the user into making a randomized
     list of node demands. It is also named, and once created, stored in the
     "node_demands" folder, found in "variables".
-    :param vrp_params: VRP parameters, to which the data is added.
     """
 
     print("Demands will be generated randomly. If you want to manually edit them,\n"
@@ -197,16 +190,13 @@ def generate_demands_matrix(vrp_params):
     matrix[depot_node] = 0
 
     np.savetxt("variables/node_demands/" + matrix_name + ".txt", matrix, fmt="%.8f")
-    matrix = load_data(matrix_name, "node_demands")
-    vrp_params.cvrp_node_demand = matrix
 
 
-def generate_penalties_matrix(vrp_params):
+def generate_penalties_matrix():
     """
     Interactive function that guides the user into making a randomized
     list of node penalty coefficients. It is also named, and once created, stored in the
     "node_penalties" folder, found in "variables".
-    :param vrp_params: VRP parameters, to which the data is added.
     """
 
     print("Penalty Coefficients will be generated randomly. If you want to manually edit them,\n"
@@ -229,16 +219,13 @@ def generate_penalties_matrix(vrp_params):
         matrix[depot_node] = 0.00
 
     np.savetxt("variables/node_penalties/" + matrix_name + ".txt", matrix, fmt="%.8f")
-    matrix = load_data(matrix_name, "node_penalties")
-    vrp_params.vrptw_node_penalty = matrix
 
 
-def generate_profits_matrix(vrp_params):
+def generate_profits_matrix():
     """
     Interactive function that guides the user into making a randomized
     list of node profits. It is also named, and once created, stored in the
     "node_profits" folder, found in "variables".
-    :param vrp_params: VRP parameters, to which the data is added.
     """
 
     print("Profits will be generated randomly. If you want to manually edit them,\n"
@@ -255,16 +242,13 @@ def generate_profits_matrix(vrp_params):
     matrix[depot_node] = 0
 
     np.savetxt("variables/node_profits/" + matrix_name + ".txt", matrix, fmt="%.8f")
-    matrix = load_data(matrix_name, "node_profits")
-    vrp_params.vrpp_node_profit = matrix
 
 
-def generate_service_times_matrix(vrp_params):
+def generate_service_times_matrix():
     """
     Interactive function that guides the user into making a randomized
     list of node service times. It is also named, and once created, stored in the
     "node_service_times" folder, found in "variables".
-    :param vrp_params: VRP parameters, to which the data is added.
     """
 
     print("Service times will be generated randomly. If you want to manually edit them,\n"
@@ -281,16 +265,13 @@ def generate_service_times_matrix(vrp_params):
     matrix[depot_node] = 0
 
     np.savetxt("variables/node_service_times/" + matrix_name + ".txt", matrix, fmt="%.8f")
-    matrix = load_data(matrix_name, "node_service_times")
-    vrp_params.vrp_node_service_time = matrix
 
 
-def generate_time_windows_matrix(vrp_params):
+def generate_time_windows_matrix():
     """
     Interactive function that guides the user into making a randomized
     list of node time windows. It is also named, and once created, stored in the
     "node_time_windows" folder, found in "variables".
-    :param vrp_params: VRP parameters, to which the data is added.
     """
 
     print("Time windows will be generated randomly. If you want to manually edit them,\n"
@@ -320,8 +301,6 @@ def generate_time_windows_matrix(vrp_params):
 
     # noinspection PyTypeChecker
     np.savetxt("variables/node_time_windows/" + matrix_name + ".txt", matrix, fmt="%.8f")
-    matrix = load_data(matrix_name, "node_time_windows")
-    vrp_params.vrptw_node_time_window = matrix
 
 
 def select_cost_matrix(vrp_params, name=None):
