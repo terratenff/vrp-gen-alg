@@ -14,6 +14,7 @@ crossover_operator=0
 crossover_probability=0.90
 mutation_probability=0.10
 filtration_frequency=0
+replace_valid_individuals=0
 sa_iteration_count=300
 sa_initial_temperature=300
 sa_p_coeff=1.15

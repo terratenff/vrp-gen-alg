@@ -172,7 +172,7 @@ def run_gen_alg(vrp_params, alg_params):
     mutation_function_count = len(mutation_functions)
 
     # GA Initialization, Step 8: Create conversion functions between distance, time and cost.
-    # Also create a function that conducts the filtration strategy.
+    # Also create functions that conduct the filtration and replacement strategies.
     distance_time_var = max(0, vrp_params.vrp_distance_time_ratio)
     time_cost_var = max(0, vrp_params.vrp_time_cost_ratio)
     distance_cost_var = max(0, vrp_params.vrp_distance_cost_ratio)
@@ -236,13 +236,76 @@ def run_gen_alg(vrp_params, alg_params):
                 **fl_individual_args
             )
             if fl_candidate_individual is None:
+                # Filtration strategy has failed due to taking too long in making a valid individual.
+                # In such a case, the population is set to remain untouched.
                 return population_new, error_msg
             cut_population[replacement_indices[fl_i]] = fl_candidate_individual
             fl_individual_timer.reset()
-            
+
+        # Population has to be sorted again, since there could be random individuals
+        # between fitness-wise good individuals.
+        cut_population.sort(key=attrgetter("fitness"), reverse=fl_maximize)
+
         filtration_timer.stop()
         fl_msg = "Filtration operation OK (Time taken: {} ms)".format(filtration_timer.elapsed())
         return cut_population, fl_msg
+
+    # Similar individual replacement strategy.
+    if alg_params.replace_similar_individuals <= 0:
+        replacement_counter = float("inf")
+    else:
+        replacement_counter = alg_params.replace_similar_individuals
+
+    def similar_individual_replacement(target_population, **kwargs):
+        rp_node_count = kwargs["node_count"]
+        rp_depot_nodes = kwargs["depot_nodes"]
+        rp_optional_nodes = kwargs["optional_nodes"]
+        rp_vehicle_count = kwargs["vehicle_count"]
+        rp_minimum_cpu_time = kwargs["minimum_cpu_time"]
+
+        def rp_check_goal(timer): return timer.past_goal()
+
+        replacement_timer = Timer()
+        replacement_timer.start()
+
+        replaced_population = deepcopy(target_population)
+
+        replacement_indices = []
+        previous_fitness = replaced_population[0].fitness
+        for rp_i in range(1, len(replaced_population)):
+            if replaced_population[rp_i].fitness == previous_fitness:
+                replacement_indices.append(rp_i)
+            else:
+                previous_fitness = replaced_population[rp_i].fitness
+
+        # Create random individuals to replace duplicates.
+        rp_individual_timer = Timer(goal=rp_minimum_cpu_time)
+        rp_individual_args = {
+            "node_count": rp_node_count,
+            "depot_nodes": rp_depot_nodes,
+            "optional_nodes": rp_optional_nodes,
+            "vehicle_count": rp_vehicle_count,
+            "failure_msg": "(Similar Individual Replacement) Individual initialization is taking too long.",
+            "individual_timer": rp_individual_timer,
+            "check_goal": rp_check_goal,
+            "validation_args": validation_args,
+            "evaluation_args": evaluation_args
+        }
+        rp_individual_timer.start()
+        for rp_i in range(len(replacement_indices)):
+            rp_candidate_individual, error_msg = population_initializers.random_valid_individual(
+                **rp_individual_args
+            )
+            if rp_candidate_individual is None:
+                # Replacement operation has failed. Fall back to the original population.
+                return target_population, error_msg
+            replaced_population[replacement_indices[rp_i]] = rp_candidate_individual
+            rp_individual_timer.reset()
+
+        replacement_msg = "Similar Individual Replacement operation OK (Time taken: {} ms)" \
+            .format(replacement_timer.elapsed())
+
+        return replaced_population, replacement_msg
 
     # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
@@ -383,7 +446,13 @@ def run_gen_alg(vrp_params, alg_params):
         "maximize": maximize,
         "minimum_cpu_time": individual_cpu_limit
     }
-
+    replacement_args = {
+        "node_count": node_count,
+        "depot_nodes": depot_node_list,
+        "optional_nodes": optional_node_list,
+        "vehicle_count": vehicle_count,
+        "minimum_cpu_time": individual_cpu_limit
+    }
     # GA Initialization, Step 12: Miscellaneous collection of tests.
 
     # Capacity test: total capacity potential (vehicle_capacity * vehicle_capacity) is compared
@@ -550,8 +619,24 @@ def run_gen_alg(vrp_params, alg_params):
         new_population.sort(key=attrgetter("fitness"), reverse=maximize)
         candidate_individual = new_population[0]
 
+        # Filtration/Replacement Check.
+        if current_generation % filtration_counter == 0:
+            # Filtration Strategy: combine the two recent populations into one,
+            # and throw away the worst individuals and replace duplicates with
+            # random individuals, until population count matches.
+            population, filtration_msg = filtration(population, new_population, **filtration_args)
+        elif current_generation % replacement_counter == 0:
+            # Similar Individual Replacement Strategy: check most recent population for
+            # duplicates and replace them with completely random individuals.
+            # Filtration Strategy does this as well, which is why the conjunction
+            # of the two conditions is not separately checked.
+            population, replacement_msg = similar_individual_replacement(new_population, **replacement_args)
+        else:
+            # No Filtration/Replacement performed: new population becomes current population.
+            population = new_population
+
         # Data collection for plotting purposes.
-        population_history.append(deepcopy(new_population))
+        population_history.append(deepcopy(population))
         best_generation_individual_history.append(deepcopy(candidate_individual))
 
         # Check if next generation's best individual is the best overall.
@@ -571,15 +656,9 @@ def run_gen_alg(vrp_params, alg_params):
         current_generation += 1
         current_generation_min += 1
 
-        # Filtration Check.
-        if current_generation % filtration_counter == 0:
-            # Filtration Strategy: combine the two recent populations into one,
-            # and throw away the worst individuals and replace duplicates with
-            # random individuals, until population count matches.
-            population, filtration_msg = filtration(population, new_population, **filtration_args)
-        else:
-            # No Filtration performed: new population becomes current population.
-            population = new_population
+    # ------------------------------------------------------------------------------------------------------------------
+    # - The End of the Main Loop of the Genetic Algorithm. -------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
 
     global_timer.stop()
     timed_collector.terminate = True
@@ -636,9 +715,10 @@ def run_gen_alg(vrp_params, alg_params):
     # Graph 3 / 7
     # Line Graph that illustrates the development of the population. Fitness values of every individual over
     # multiple generations are presented.
+    line_count, line_increment = 7, 5
     details3 = {
-        "line_count": 7 if current_generation > 7 else current_generation,
-        "line_increment": 5,
+        "line_count": line_count if current_generation > line_count else current_generation,
+        "line_increment": line_increment if current_generation > line_count * line_increment else 1,
         "population_count": population_count,
         "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
         "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],

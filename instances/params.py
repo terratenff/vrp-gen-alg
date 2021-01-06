@@ -288,6 +288,7 @@ class ParamsGENALG:
                  crossover_probability=0.90,
                  mutation_probability=0.10,
                  filtration_frequency=0,
+                 replace_similar_individuals=0,
                  sa_iteration_count=300,
                  sa_initial_temperature=300,
                  sa_p_coeff=1.15):
@@ -342,6 +343,12 @@ class ParamsGENALG:
         descending order ana taking the first half of the result as the next generation. If set to 0 or less, the
         filtration procedure is ignored.
 
+        :param replace_similar_individuals: Determines how often, in terms of generation, similar individuals
+        are replaced with completely random ones. When a lot of individuals have the same fitness value, there is
+        a possibility of convergence, resulting in the algorithm being unable to find better individuals. With this
+        operation, attempts are made to maintain the diversity of the population. If set to 0 or less, this operation
+        is ignored.
+
         :param sa_iteration_count: Number of iterations to be done during population initialization, if
         simulated annealing was selected as the population initializer.
 
@@ -366,6 +373,7 @@ class ParamsGENALG:
         self.crossover_probability = crossover_probability
         self.mutation_probability = mutation_probability
         self.filtration_frequency = filtration_frequency
+        self.replace_similar_individuals = replace_similar_individuals
         self.sa_iteration_count = sa_iteration_count
         self.sa_initial_temperature = sa_initial_temperature
         self.sa_p_coeff = sa_p_coeff
@@ -404,23 +412,31 @@ class ParamsGENALG:
         else:
             filtration_fr_str = "Every {} Generations".format(self.filtration_frequency)
 
+        if self.replace_similar_individuals <= 0:
+            replace_str = "Never"
+        elif self.filtration_frequency == 1:
+            replace_str = "Every Generation"
+        else:
+            replace_str = "Every {} Generations".format(self.replace_similar_individuals)
+
         print("- Genetic Algorithm Parameters ---------------------------------------------------")
-        print("Population Count           | {}".format(self.population_count))
-        print("Population Initializer     | {}".format(pop_str))
-        print("Minimum Generation Count   | {}".format(self.generation_count_min))
-        print("Maximum Generation Count   | {}".format(self.generation_count_max))
-        print("Individual CPU Time Limit  | {} ms".format(self.cpu_individual_limit))
-        print("Total CPU Time Limit       | {} ms".format(self.cpu_total_limit))
-        print("Fitness Lower Bound        | {}".format(self.fitness_lower_bound))
-        print("Fitness Upper Bound        | {}".format(self.fitness_upper_bound))
-        print("Fitness Threshold          | {}".format(self.fitness_threshold))
-        print("Parent Candidate Count     | {}".format(self.parent_candidate_count))
-        print("Parent Selection Function  | {}".format(par_sel_str))
-        print("Tournament Probability     | {:0.2f}".format(self.tournament_probability))
-        print("Crossover Operator         | {}".format(cross_str))
-        print("Crossover Probability      | {:0.2f}".format(self.crossover_probability))
-        print("Mutation Probability       | {:0.2f}".format(self.mutation_probability))
-        print("Filtration Frequency       | {}".format(filtration_fr_str))
-        print("SA - Iteration Count       | {}".format(self.sa_iteration_count))
-        print("SA - Initial Temperature   | {}".format(self.sa_initial_temperature))
-        print("SA - Annealing Coefficient | {:0.2f}".format(self.sa_p_coeff))
+        print("Population Count            | {}".format(self.population_count))
+        print("Population Initializer      | {}".format(pop_str))
+        print("Minimum Generation Count    | {}".format(self.generation_count_min))
+        print("Maximum Generation Count    | {}".format(self.generation_count_max))
+        print("Individual CPU Time Limit   | {} ms".format(self.cpu_individual_limit))
+        print("Total CPU Time Limit        | {} ms".format(self.cpu_total_limit))
+        print("Fitness Lower Bound         | {}".format(self.fitness_lower_bound))
+        print("Fitness Upper Bound         | {}".format(self.fitness_upper_bound))
+        print("Fitness Threshold           | {}".format(self.fitness_threshold))
+        print("Parent Candidate Count      | {}".format(self.parent_candidate_count))
+        print("Parent Selection Function   | {}".format(par_sel_str))
+        print("Tournament Probability      | {:0.2f}".format(self.tournament_probability))
+        print("Crossover Operator          | {}".format(cross_str))
+        print("Crossover Probability       | {:0.2f}".format(self.crossover_probability))
+        print("Mutation Probability        | {:0.2f}".format(self.mutation_probability))
+        print("Filtration Frequency        | {}".format(filtration_fr_str))
+        print("Replace Similar Individuals | {}".format(replace_str))
+        print("SA - Iteration Count        | {}".format(self.sa_iteration_count))
+        print("SA - Initial Temperature    | {}".format(self.sa_initial_temperature))
+        print("SA - Annealing Coefficient  | {:0.2f}".format(self.sa_p_coeff))
