@@ -68,6 +68,11 @@ class VRP:
         # Validity is check by some other module, and it leaves its mark here.
         self.valid = False
 
+        # For route validity overseeing.
+        self.route_distances = []
+        self.route_times = []
+        self.route_capacities = []
+
     def __str__(self):
         return "(VRP ID = {}, Fitness = {}, Valid = {})".format(self.individual_id, self.fitness, self.valid)
 
@@ -87,6 +92,9 @@ class VRP:
         self.visited_optional_nodes = [i for i in self.optional_node_list if i not in self.solution]
         self.fitness = np.inf
         self.valid = False
+        self.route_distances = []
+        self.route_times = []
+        self.route_capacities = []
 
     def get_route_list(self):
         """
@@ -127,5 +135,11 @@ class VRP:
         print("- Solution: {}".format(self.solution))
         for i in range(1, len(route_set) + 1):
             print("  - Route {}: {}".format(i, route_set[i - 1]))
-        print("- Fitness: {}".format(self.fitness))
+            if len(self.route_times) == len(route_set):
+                print("    - Time Taken:     {:0.2f}".format(self.route_times[i - 1]))
+            if len(self.route_distances) == len(route_set):
+                print("    - Total Distance: {:0.2f}".format(self.route_distances[i - 1]))
+            if len(self.route_capacities) == len(route_set):
+                print("    - Route Capacity: {:0.2f}".format(self.route_capacities[i - 1]))
+        print("- Fitness: {:0.2f}".format(self.fitness))
         print("- Valid: {}".format(self.valid))

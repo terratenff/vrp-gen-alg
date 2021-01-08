@@ -8,8 +8,6 @@ Runner of the genetic algorithm.
 
 from copy import deepcopy
 from operator import attrgetter
-from threading import Thread, current_thread
-from time import sleep
 import numpy as np
 
 from instances.vrp import VRP
@@ -507,7 +505,7 @@ def run_gen_alg(vrp_params, alg_params):
     population.sort(key=attrgetter("fitness"), reverse=maximize)
     population_history.append(deepcopy(population))
     initial_population = deepcopy(population)                   # Used in drawing graph 1 / 6.
-    best_individual = deepcopy(population[0])
+    best_individual, candidate_individual = deepcopy(population[0]), deepcopy(population[0])
     best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 6.
     best_generation_individual_history.append(deepcopy(best_individual))
     best_overall_individual_history.append(deepcopy(best_individual))
@@ -520,19 +518,6 @@ def run_gen_alg(vrp_params, alg_params):
     timeout = False
     global_timer.start()
 
-    # Start a thread that collects an instance of the best individual for each interval passed.
-    def timed_collection():
-        interval = 0.10  # Seconds.
-        thread = current_thread()
-        setattr(thread, "terminate", False)
-        while not getattr(thread, "terminate", False):
-            best_time_individual_history.append(deepcopy(best_individual))
-            best_individual_time_tracker.append(global_timer.elapsed())
-            sleep(interval)
-
-    timed_collector = Thread(target=timed_collection)
-    timed_collector.start()
-
     # ------------------------------------------------------------------------------------------------------------------
     # - The Beginning of the Main Loop of the Genetic Algorithm. -------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
@@ -542,13 +527,15 @@ def run_gen_alg(vrp_params, alg_params):
             and current_generation <= generation_count_max \
             and current_generation_min <= generation_count_min:
 
-        print("Generation {:> 5} / {:> 5} (Min: {:> 5} / {:> 5}) | Best Fitness: {}".format(
-            current_generation,
-            generation_count_max,
-            current_generation_min,
-            generation_count_min,
-            best_individual.fitness
-        ))  # Test print.
+        print("Generation {:> 5} / {:> 5} (Min: {:> 5} / {:> 5}) | "
+              "Best Fitness (Generation / Overall): {:0.0f} / {:0.0f}"
+              .format(
+                current_generation,
+                generation_count_max,
+                current_generation_min,
+                generation_count_min,
+                candidate_individual.fitness,
+                best_individual.fitness))  # Test print.
 
         new_population = []
         while len(new_population) < population_count and not timeout:
@@ -633,10 +620,6 @@ def run_gen_alg(vrp_params, alg_params):
             # No Filtration/Replacement performed: new population becomes current population.
             population = new_population
 
-        # Data collection for plotting purposes.
-        population_history.append(deepcopy(population))
-        best_generation_individual_history.append(deepcopy(candidate_individual))
-
         # Check if next generation's best individual is the best overall.
         if compare(candidate_individual, best_individual):
             # New best individual takes over as the potential optimal solution.
@@ -651,6 +634,12 @@ def run_gen_alg(vrp_params, alg_params):
             # is now reset.
             current_generation_min = -1
 
+        # Data collection for plotting purposes.
+        population_history.append(deepcopy(population))
+        best_generation_individual_history.append(deepcopy(candidate_individual))
+        best_time_individual_history.append(deepcopy(best_individual))
+        best_individual_time_tracker.append(global_timer.elapsed())
+
         current_generation += 1
         current_generation_min += 1
 
@@ -659,7 +648,7 @@ def run_gen_alg(vrp_params, alg_params):
     # ------------------------------------------------------------------------------------------------------------------
 
     global_timer.stop()
-    timed_collector.terminate = True
+
     if timeout:
         print("Algorithm has finished incomplete. (Time taken: {} ms)".format(global_timer.elapsed()))
     else:
