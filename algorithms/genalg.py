@@ -505,7 +505,7 @@ def run_gen_alg(vrp_params, alg_params):
     population.sort(key=attrgetter("fitness"), reverse=maximize)
     population_history.append(deepcopy(population))
     initial_population = deepcopy(population)                   # Used in drawing graph 1 / 6.
-    best_individual, candidate_individual = deepcopy(population[0]), deepcopy(population[0])
+    best_individual = deepcopy(population[0])
     best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 6.
     best_generation_individual_history.append(deepcopy(best_individual))
     best_overall_individual_history.append(deepcopy(best_individual))
@@ -524,18 +524,8 @@ def run_gen_alg(vrp_params, alg_params):
 
     while not timeout \
             and lower_bound + threshold <= best_individual.fitness <= upper_bound - threshold \
-            and current_generation <= generation_count_max \
-            and current_generation_min <= generation_count_min:
-
-        print("Generation {:> 5} / {:> 5} (Min: {:> 5} / {:> 5}) | "
-              "Best Fitness (Generation / Overall): {:0.0f} / {:0.0f}"
-              .format(
-                current_generation,
-                generation_count_max,
-                current_generation_min,
-                generation_count_min,
-                candidate_individual.fitness,
-                best_individual.fitness))  # Test print.
+            and current_generation < generation_count_max \
+            and current_generation_min < generation_count_min:
 
         new_population = []
         while len(new_population) < population_count and not timeout:
@@ -642,6 +632,16 @@ def run_gen_alg(vrp_params, alg_params):
 
         current_generation += 1
         current_generation_min += 1
+
+        print("Generation {:> 5} / {:> 5} (Min: {:> 5} / {:> 5}) | "
+              "Best Fitness (Generation / Overall): {:0.0f} / {:0.0f}"
+              .format(
+                current_generation,
+                generation_count_max,
+                current_generation_min,
+                generation_count_min,
+                candidate_individual.fitness,
+                best_individual.fitness))  # Test print.
 
     # ------------------------------------------------------------------------------------------------------------------
     # - The End of the Main Loop of the Genetic Algorithm. -------------------------------------------------------------
