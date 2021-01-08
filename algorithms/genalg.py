@@ -261,6 +261,7 @@ def run_gen_alg(vrp_params, alg_params):
         rp_depot_nodes = kwargs["depot_nodes"]
         rp_optional_nodes = kwargs["optional_nodes"]
         rp_vehicle_count = kwargs["vehicle_count"]
+        rp_maximize = kwargs["maximize"]
         rp_minimum_cpu_time = kwargs["minimum_cpu_time"]
 
         def rp_check_goal(timer): return timer.past_goal()
@@ -302,10 +303,14 @@ def run_gen_alg(vrp_params, alg_params):
             replaced_population[replacement_indices[rp_i]] = rp_candidate_individual
             rp_individual_timer.reset()
 
-        replacement_msg = "Similar Individual Replacement operation OK (Time taken: {} ms)" \
+        # Since similar individuals have been replaced with completely random individuals,
+        # the population has to be sorted again.
+        replaced_population.sort(key=attrgetter("fitness"), reverse=rp_maximize)
+
+        rp_msg = "Similar Individual Replacement operation OK (Time taken: {} ms)" \
             .format(replacement_timer.elapsed())
 
-        return replaced_population, replacement_msg
+        return replaced_population, rp_msg
 
     # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
@@ -438,19 +443,12 @@ def run_gen_alg(vrp_params, alg_params):
         "maximize": maximize,
         "tournament_probability": tournament_probability
     }
-    filtration_args = {
+    filtration_replacement_args = {
         "node_count": node_count,
         "depot_nodes": depot_node_list,
         "optional_nodes": optional_node_list,
         "vehicle_count": vehicle_count,
         "maximize": maximize,
-        "minimum_cpu_time": individual_cpu_limit
-    }
-    replacement_args = {
-        "node_count": node_count,
-        "depot_nodes": depot_node_list,
-        "optional_nodes": optional_node_list,
-        "vehicle_count": vehicle_count,
         "minimum_cpu_time": individual_cpu_limit
     }
     # GA Initialization, Step 12: Miscellaneous collection of tests.
@@ -624,13 +622,13 @@ def run_gen_alg(vrp_params, alg_params):
             # Filtration Strategy: combine the two recent populations into one,
             # and throw away the worst individuals and replace duplicates with
             # random individuals, until population count matches.
-            population, filtration_msg = filtration(population, new_population, **filtration_args)
+            population, filtration_msg = filtration(population, new_population, **filtration_replacement_args)
         elif current_generation % replacement_counter == 0:
             # Similar Individual Replacement Strategy: check most recent population for
             # duplicates and replace them with completely random individuals.
             # Filtration Strategy does this as well, which is why the conjunction
             # of the two conditions is not separately checked.
-            population, replacement_msg = similar_individual_replacement(new_population, **replacement_args)
+            population, replacement_msg = similar_individual_replacement(new_population, **filtration_replacement_args)
         else:
             # No Filtration/Replacement performed: new population becomes current population.
             population = new_population

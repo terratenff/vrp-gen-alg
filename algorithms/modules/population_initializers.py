@@ -12,7 +12,7 @@ from math import factorial, exp, floor
 from copy import deepcopy
 from operator import attrgetter
 from algorithms.timer import Timer
-from algorithms.modules.mutation_operators import allele_swap
+from algorithms.modules.mutation_operators import allele_swap, vehicle_diversification
 from instances.vrp import VRP
 
 
@@ -122,6 +122,9 @@ def random_valid_individual(**kwargs):
         # Create an individual so that a solution can be assigned, validated and evaluated.
         candidate_individual = VRP(node_count, vehicle_count, depot_nodes, optional_nodes)
         candidate_individual.assign_solution(candidate_solution)
+
+        # Mutate the individual with "vehicle diversification" 10% of the time.
+        vehicle_diversification(candidate_individual)
         for validator in VRP.validator:
             valid_individual, validation_msg = validator(candidate_individual, **validation_args)
             # print("(Random Valid Individual) {}".format(validation_msg))

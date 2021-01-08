@@ -156,9 +156,9 @@ def validate_maximum_distance(vrp, **kwargs):
             route_distance += path_table[point_a][point_b]
 
             # Check if maximum distance constraint is violated.
-            if route_distance > maximum_distance:
-                return False, "Maximum distance constraint violation (Route Node {} / {}, situated at {}): {} / {}" \
-                    .format(i, len(active_route) + 1, point_b, route_distance, maximum_distance)
+            # if route_distance > maximum_distance:
+            #     return False, "Maximum distance constraint violation (Route Node {} / {}, situated at {}): {} / {}" \
+            #         .format(i, len(active_route) + 1, point_b, route_distance, maximum_distance)
 
             # Mark down most recent node for the return trip.
             recent_node = point_b

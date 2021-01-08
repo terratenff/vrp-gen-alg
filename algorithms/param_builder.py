@@ -499,7 +499,7 @@ def save_params(filename, vrp_params, alg_params):
         if overriding_content_name == "undefined":
             overriding_content_name = "None"
 
-    with open("variables/parameter_settings/vrp/" + filename + ".txt", "a") as file:
+    with open("variables/parameter_settings/vrp/" + filename + ".txt", "w") as file:
         file.write("vrp_contents={}={}\n".format(content_type, content_name))
         file.write("vrp_path_table_override={}\n".format(overriding_content_name))
         file.write("vrp_vehicle_count={}\n".format(str(vrp_params.vrp_vehicle_count)))
@@ -531,7 +531,7 @@ def save_params(filename, vrp_params, alg_params):
     # - GENALG - Parameters -----------------------------------------
     # ---------------------------------------------------------------
 
-    with open("variables/parameter_settings/genalg/" + filename + ".txt", "a") as file:
+    with open("variables/parameter_settings/genalg/" + filename + ".txt", "w") as file:
         file.write("population_count={}\n".format(alg_params.population_count))
         file.write("population_initializer={}\n".format(str(alg_params.population_initializer)))
         file.write("generation_count_min={}\n".format(str(alg_params.generation_count_min)))
@@ -591,9 +591,9 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrp_node_service_time":
             matrix_builder.select_service_times_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "vrp_maximum_route_time":
-            vrp_params.vrp_maximum_route_time = float(key_value[1])
+            vrp_params.vrp_maximum_route_time = None if key_value[1].upper() == "NONE" else float(key_value[1])
         elif key_value[0] == "vrp_maximum_route_distance":
-            vrp_params.vrp_maximum_route_distance = float(key_value[1])
+            vrp_params.vrp_maximum_route_distance = None if key_value[1].upper() == "NONE" else float(key_value[1])
         elif key_value[0] == "vrp_distance_time_ratio":
             vrp_params.vrp_distance_time_ratio = float(key_value[1])
         elif key_value[0] == "vrp_time_cost_ratio":
@@ -601,7 +601,7 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrp_distance_cost_ratio":
             vrp_params.vrp_distance_cost_ratio = float(key_value[1])
         elif key_value[0] == "cvrp_vehicle_capacity":
-            vrp_params.cvrp_vehicle_capacity = float(key_value[1])
+            vrp_params.cvrp_vehicle_capacity = None if key_value[1].upper() == "NONE" else float(key_value[1])
         elif key_value[0] == "cvrp_node_demand":
             matrix_builder.select_demands_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "ovrp_enabled":
@@ -611,7 +611,8 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrpp_exclude_travel_costs":
             vrp_params.vrpp_exclude_travel_costs = key_value[1].upper() == "TRUE"
         elif key_value[0] == "vrpp_optional_node":
-            vrp_params.vrpp_optional_node = [int(i) for i in key_value[1].split(" ")]
+            vrp_params.vrpp_optional_node = \
+                None if key_value[1].upper() == "NONE" else [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "mdvrp_depot_node":
             vrp_params.mdvrp_depot_node = [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "mdvrp_optimize_depot_nodes":
