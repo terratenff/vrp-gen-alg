@@ -26,29 +26,38 @@ def validate_capacity(vrp, **kwargs):
 
     route_list = vrp.get_route_list()
 
-    for active_route in route_list:
-        current_capacity = 0
-        if len(active_route) <= 1:
-            continue
+    for demand_type in range(node_demands.shape[1]):
+        capacity_type_list = []
+        for active_route in route_list:
+            if len(active_route) <= 1:
+                continue
 
-        recent_depot = active_route[0]
-        for i in range(1, len(active_route)):
-            destination_node = active_route[i]
-            current_capacity += node_demands[destination_node]
+            current_capacity = 0
+            recent_depot = active_route[0]
+            for i in range(1, len(active_route)):
+                destination_node = active_route[i]
+                current_capacity += node_demands[:, demand_type][destination_node]
 
-            # Check if capacity constraint is violated.
-            if current_capacity > vehicle_capacity:
-                return False, "Capacity constraint violation (Route Node {} / {}, situated at {}): {} / {}" \
-                    .format(i, len(active_route) + 1, destination_node, current_capacity, vehicle_capacity)
+                # Check if capacity constraint is violated.
+                if current_capacity > vehicle_capacity[demand_type]:
+                    return False, "Capacity constraint violation (Route Node {} / {}, situated at {}): {} / {}" \
+                        .format(
+                            i,
+                            len(active_route) + 1,
+                            destination_node,
+                            current_capacity,
+                            vehicle_capacity[demand_type]
+                        )
 
-        # Traveling back to the depot node.
-        current_capacity += node_demands[recent_depot]
-        if current_capacity > vehicle_capacity:
-            return False, "Capacity constraint violation (Return to Depot Node {}): {} / {}" \
-                .format(recent_depot, current_capacity, vehicle_capacity)
+            # Traveling back to the depot node.
+            current_capacity += node_demands[:, demand_type][recent_depot]
+            if current_capacity > vehicle_capacity[demand_type]:
+                return False, "Capacity constraint violation (Return to Depot Node {}): {} / {}" \
+                    .format(recent_depot, current_capacity, vehicle_capacity[demand_type])
 
-        # Save route capacity for later inspections.
-        vrp.route_capacities.append(current_capacity)
+            # Save route capacity for later inspections.
+            capacity_type_list.append(current_capacity)
+        vrp.route_capacities.append(capacity_type_list)
 
     return True, "Capacity constraint not violated"
 

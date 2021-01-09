@@ -184,10 +184,19 @@ def generate_demands_matrix():
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
+    demand_dimensions = int(input("Number of Capacity Types (Integer, 1 or greater) > "))
+    if demand_dimensions < 1:
+        print("Number of Capacity types has been set to 1.")
+        demand_dimensions = 1
     demand_min = float(input("Minimum Demand > "))
     demand_max = float(input("Maximum Demand (greater than {}) > ".format(demand_min)))
     matrix = np.random.uniform(demand_min, demand_max, [nodes, 1])
     matrix[depot_node] = 0
+
+    for i in range(1, demand_dimensions + 1):
+        appendix = np.random.uniform(demand_min, demand_max, [nodes, 1])
+        appendix[depot_node] = 0
+        matrix = np.concatenate((matrix, appendix), axis=1)
 
     np.savetxt("variables/node_demands/" + matrix_name + ".txt", matrix, fmt="%.8f")
 

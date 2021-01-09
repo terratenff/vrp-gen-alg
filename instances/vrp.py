@@ -131,7 +131,7 @@ class VRP:
                 route_set.append(route_j)
 
         print("-------------------------------------------------")
-        print("- Individual ID: {} ".format(self.individual_id if self.individual_id is not None else "None"))
+        print("Individual ID: {} ".format(self.individual_id if self.individual_id is not None else "None"))
         print("- Solution: {}".format(self.solution))
         for i in range(1, len(route_set) + 1):
             print("  - Route {}: {}".format(i, route_set[i - 1]))
@@ -139,7 +139,8 @@ class VRP:
                 print("    - Time Taken:     {:0.2f}".format(self.route_times[i - 1]))
             if len(self.route_distances) == len(route_set):
                 print("    - Total Distance: {:0.2f}".format(self.route_distances[i - 1]))
-            if len(self.route_capacities) == len(route_set):
-                print("    - Route Capacity: {:0.2f}".format(self.route_capacities[i - 1]))
+            if len(self.route_capacities[0]) == len(route_set):
+                appendix_str = " | ".join(["{:0.2f}".format(cap_list[i - 1]) for cap_list in self.route_capacities])
+                print("    - Route Capacity: {}".format(appendix_str))
         print("- Fitness: {:0.2f}".format(self.fitness))
         print("- Valid: {}".format(self.valid))

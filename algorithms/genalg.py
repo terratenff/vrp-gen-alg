@@ -336,7 +336,7 @@ def run_gen_alg(vrp_params, alg_params):
 
     node_demand_list = deepcopy(vrp_params.cvrp_node_demand)
     if node_demand_list is None:
-        node_demand_list = [0] * node_count
+        node_demand_list = np.array([[0] * node_count]).T
 
     # Depot nodes do not have supply demands associated with them.
     for depot_node in depot_node_list:
@@ -453,20 +453,25 @@ def run_gen_alg(vrp_params, alg_params):
 
     # Capacity test: total capacity potential (vehicle_capacity * vehicle_capacity) is compared
     # to total required capacity (sum of every required node capacity).
-    capacity_potential = vehicle_capacity * vehicle_count
-    required_capacity = 0
-    for i in range(len(node_demand_list)):
-        if i not in optional_node_list:
-            # Depot nodes do not have supply demands.
-            node_capacity = node_demand_list[i]
-            required_capacity += node_capacity
-    if required_capacity > capacity_potential:
-        print("Capacity requirements are too strict ({} required, {} available)".format(required_capacity,
-                                                                                        capacity_potential))
-        # This test assumes that every node is a delivery node, while the depot nodes
-        # are the pickup nodes, or every node is a pickup node, while the depot nodes
-        # are delivery nodes.
+    if len(vehicle_capacity) != node_demand_list.shape[1]:
+        print("Number of Vehicle Capacity Types does not match with that of Node Demands.")
         return
+
+    for demand_type in range(node_demand_list.shape[1]):
+        capacity_potential = vehicle_capacity[demand_type] * vehicle_count
+        required_capacity = 0
+        for i in range(len(node_demand_list[:, demand_type])):
+            if i not in optional_node_list:
+                # Depot nodes do not have supply demands.
+                node_capacity = node_demand_list[:, demand_type][i]
+                required_capacity += node_capacity
+        if required_capacity > capacity_potential:
+            print("Capacity requirements are too strict ({} required, {} available)".format(required_capacity,
+                                                                                            capacity_potential))
+            # This test assumes that every node is a delivery node, while the depot nodes
+            # are the pickup nodes, or every node is a pickup node, while the depot nodes
+            # are delivery nodes.
+            return
 
     # Valid depot test: optional nodes cannot be depot nodes. This will be checked here.
     offending_list = []

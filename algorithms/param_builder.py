@@ -109,12 +109,13 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("CVRP - Vehicle Capacity\n- Current: {}\n- Default: 0\n> "
+        user_input = input("CVRP - Vehicle Capacity\n- Current: {}\n- Default: 0\n"
+                           "Input one or more capacity values separated by whitespace (Example: '15.0 27.25 100.0')\n> "
                            .format(vrp_params.cvrp_vehicle_capacity))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.cvrp_vehicle_capacity = float(user_input)
+            vrp_params.cvrp_vehicle_capacity = [float(i) for i in user_input.split(" ")]
 
         # -----------------------------------------------------------------------
 
@@ -124,8 +125,7 @@ def set_vrp_parameters(vrp_params):
             return
         elif not _next(user_input):
             vrp_params.cvrp_node_demand = \
-                list(np.loadtxt("variables/node_demands/" + user_input + ".txt",
-                                dtype=float))
+                np.loadtxt("variables/node_demands/" + user_input + ".txt", dtype=float)
             vrp_params.node_demands_name = user_input
 
         # -----------------------------------------------------------------------
@@ -509,7 +509,10 @@ def save_params(filename, vrp_params, alg_params):
         file.write("vrp_distance_time_ratio={}\n".format(str(vrp_params.vrp_distance_time_ratio)))
         file.write("vrp_time_cost_ratio={}\n".format(str(vrp_params.vrp_time_cost_ratio)))
         file.write("vrp_distance_cost_ratio={}\n".format(str(vrp_params.vrp_distance_cost_ratio)))
-        file.write("cvrp_vehicle_capacity={}\n".format(str(vrp_params.cvrp_vehicle_capacity)))
+        file.write("cvrp_vehicle_capacity={}\n".format(str(vrp_params.cvrp_vehicle_capacity)
+                                                       .replace("[", "")
+                                                       .replace("]", "")
+                                                       .replace(",", "")))
         file.write("cvrp_node_demand={}\n".format(str(vrp_params.node_demands_name)))
         file.write("ovrp_enabled={}\n".format(str(vrp_params.ovrp_enabled)))
         file.write("vrpp_node_profit={}\n".format(str(vrp_params.node_profits_name)))
@@ -601,7 +604,8 @@ def load_params(filename, vrp_params, alg_params):
         elif key_value[0] == "vrp_distance_cost_ratio":
             vrp_params.vrp_distance_cost_ratio = float(key_value[1])
         elif key_value[0] == "cvrp_vehicle_capacity":
-            vrp_params.cvrp_vehicle_capacity = None if key_value[1].upper() == "NONE" else float(key_value[1])
+            vrp_params.cvrp_vehicle_capacity = \
+                None if key_value[1].upper() == "NONE" else [float(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "cvrp_node_demand":
             matrix_builder.select_demands_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "ovrp_enabled":
