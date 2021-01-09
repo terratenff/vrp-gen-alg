@@ -52,33 +52,46 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Node Service Times\n- Current: {}\n- Default: None\nInput File Name > "
+        user_input = input("VRP - Node Service Times\n- Current: {}\n- Default: None\n"
+                           "Input File Name (or 'None' for no service times)\n> "
                            .format(vrp_params.node_service_times_name))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.vrp_node_service_time = \
-                list(np.loadtxt("variables/node_service_times/" + user_input + ".txt",
-                                dtype=float))
-            vrp_params.node_service_times_name = user_input
+            if user_input.upper() == "NONE":
+                vrp_params.vrp_node_service_time = None
+                vrp_params.node_service_times_name = None
+            else:
+                vrp_params.vrp_node_service_time = \
+                    list(np.loadtxt("variables/node_service_times/" + user_input + ".txt",
+                                    dtype=float))
+                vrp_params.node_service_times_name = user_input
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Maximum Route Time\n- Current: {}\n- Default: None\n> "
+        user_input = input("VRP - Maximum Route Time\n- Current: {}\n- Default: None\n"
+                           "(Input 'None' for no maximum time)\n> "
                            .format(vrp_params.vrp_maximum_route_time))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.vrp_maximum_route_time = float(user_input)
+            if user_input.upper() == "NONE":
+                vrp_params.vrp_maximum_route_time = None
+            else:
+                vrp_params.vrp_maximum_route_time = float(user_input)
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRP - Maximum Route Distance\n- Current: {}\n- Default: None\n> "
+        user_input = input("VRP - Maximum Route Distance\n- Current: {}\n- Default: None\n"
+                           "(Input 'None' for no maximum distance)\n> "
                            .format(vrp_params.vrp_maximum_route_distance))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.vrp_maximum_route_distance = float(user_input)
+            if user_input.upper() == "NONE":
+                vrp_params.vrp_maximum_route_distance = None
+            else:
+                vrp_params.vrp_maximum_route_distance = float(user_input)
 
         # -----------------------------------------------------------------------
 
@@ -110,23 +123,32 @@ def set_vrp_parameters(vrp_params):
         # -----------------------------------------------------------------------
 
         user_input = input("CVRP - Vehicle Capacity\n- Current: {}\n- Default: 0\n"
-                           "Input one or more capacity values separated by whitespace (Example: '15.0 27.25 100.0')\n> "
+                           "Input one or more capacity values separated by whitespace (Example: '15.0 27.25 100.0')\n"
+                           "Input 'None' for no vehicle capacities\n> "
                            .format(vrp_params.cvrp_vehicle_capacity))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.cvrp_vehicle_capacity = [float(i) for i in user_input.split(" ")]
+            if user_input.upper() == "NONE":
+                vrp_params.cvrp_vehicle_capacity = None
+            else:
+                vrp_params.cvrp_vehicle_capacity = [float(i) for i in user_input.split(" ")]
 
         # -----------------------------------------------------------------------
 
-        user_input = input("CVRP - Node Demands\n- Current: {}\n- Default: None\nInput File Name > "
+        user_input = input("CVRP - Node Demands\n- Current: {}\n- Default: None\n"
+                           "Input File Name (or 'None' for no node demands)\n> "
                            .format(vrp_params.node_demands_name))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.cvrp_node_demand = \
-                np.loadtxt("variables/node_demands/" + user_input + ".txt", dtype=float)
-            vrp_params.node_demands_name = user_input
+            if user_input.upper() == "NONE":
+                vrp_params.cvrp_node_demand = None
+                vrp_params.node_demands_name = None
+            else:
+                vrp_params.cvrp_node_demand = \
+                    np.loadtxt("variables/node_demands/" + user_input + ".txt", dtype=float)
+                vrp_params.node_demands_name = user_input
 
         # -----------------------------------------------------------------------
 
@@ -139,15 +161,20 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("VRPP - Node Profits\n- Current: {}\n- Default: None\nInput File Name > "
+        user_input = input("VRPP - Node Profits\n- Current: {}\n- Default: None\n"
+                           "Input File Name (or 'None' for no node profits)\n> "
                            .format(vrp_params.node_profits_name))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.vrpp_node_profit = \
-                list(np.loadtxt("variables/node_profits/" + user_input + ".txt",
-                                dtype=float))
-            vrp_params.node_profits_name = user_input
+            if user_input.upper() == "NONE":
+                vrp_params.vrpp_node_profit = None
+                vrp_params.node_profits_name = None
+            else:
+                vrp_params.vrpp_node_profit = \
+                    list(np.loadtxt("variables/node_profits/" + user_input + ".txt",
+                                    dtype=float))
+                vrp_params.node_profits_name = user_input
 
         # -----------------------------------------------------------------------
 
@@ -190,7 +217,7 @@ def set_vrp_parameters(vrp_params):
         # -----------------------------------------------------------------------
 
         user_input = input("VRPTW - Node Time Windows\n- Current: {}\n- Default: None\n"
-                           "Input File Name (or 'None') > "
+                           "Input File Name (or 'None' for no node time windows)\n> "
                            .format(vrp_params.node_time_windows_name))
         if _quit(user_input):
             return
@@ -206,7 +233,7 @@ def set_vrp_parameters(vrp_params):
         # -----------------------------------------------------------------------
 
         user_input = input("VRPTW - Node Penalty Coefficients\n- Current: {}\n- Default: None\n"
-                           "Input File Name (or 'None') > "
+                           "Input File Name (or 'None' for no node penalty coefficients)\n> "
                            .format(vrp_params.node_penalties_name))
         if _quit(user_input):
             return
