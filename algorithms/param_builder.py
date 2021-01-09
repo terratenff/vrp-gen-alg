@@ -565,12 +565,28 @@ def load_params(filename, vrp_params, alg_params):
     :param alg_params: Algorithmic parameters.
     """
 
+    files_exist = True
+
+    try:
+        with open("variables/parameter_settings/vrp/" + filename + ".txt") as file:
+            contents = file.readlines()
+    except FileNotFoundError:
+        print("VRP-Parameter Settings '{}' could not be found.".format(filename))
+        files_exist = False
+
+    try:
+        with open("variables/parameter_settings/genalg/" + filename + ".txt") as file:
+            contents2 = file.readlines()
+    except FileNotFoundError:
+        print("GENALG-Parameter Settings '{}' could not be found.".format(filename))
+        files_exist = False
+
+    if not files_exist:
+        return
+
     # ---------------------------------------------------------------
     # - VRP - Parameters --------------------------------------------
     # ---------------------------------------------------------------
-
-    with open("variables/parameter_settings/vrp/" + filename + ".txt") as file:
-        contents = file.readlines()
 
     coordinates = None
     overriding_matrix = None
@@ -641,11 +657,8 @@ def load_params(filename, vrp_params, alg_params):
     # - GENALG - Parameters -----------------------------------------
     # ---------------------------------------------------------------
 
-    with open("variables/parameter_settings/genalg/" + filename + ".txt") as file:
-        contents = file.readlines()
-
-    contents = [x.strip() for x in contents]
-    for line in contents:
+    contents2 = [x.strip() for x in contents2]
+    for line in contents2:
         key_value = line.split("=")
         if key_value[0] == "population_count":
             alg_params.population_count = int(key_value[1])
