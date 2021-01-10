@@ -88,8 +88,8 @@ class VRP:
         """
 
         self.solution = solution
-        self.unvisited_optional_nodes = [i for i in self.optional_node_list if i in self.solution]
-        self.visited_optional_nodes = [i for i in self.optional_node_list if i not in self.solution]
+        self.unvisited_optional_nodes = [i for i in self.optional_node_list if i not in self.solution]
+        self.visited_optional_nodes = [i for i in self.optional_node_list if i in self.solution]
         self.fitness = np.inf
         self.valid = False
         self.route_distances = []

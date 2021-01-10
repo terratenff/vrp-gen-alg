@@ -165,14 +165,17 @@ def one_point(vrp1, vrp2):
     # there are now duplicates of optional nodes, since None nodes
     # are treated as such. To combat this, any duplicates are removed.
     duplicate_list1, duplicate_list2 = [], []
+
     for i in range(len(parent1)):
         x1 = parent1[i]
-        x2 = parent2[i]
         if x1 is not None:
             if x1 in depot_list:
                 pass
             elif parent1.count(x1) > 1 and x1 not in duplicate_list1:
                 duplicate_list1.append(x1)
+
+    for i in range(len(parent2)):
+        x2 = parent2[i]
         if x2 is not None:
             if x2 in depot_list:
                 pass
@@ -358,14 +361,17 @@ def two_point(vrp1, vrp2):
     # there are now duplicates of optional nodes, since None nodes
     # are treated as such. To combat this, any duplicates are removed.
     duplicate_list1, duplicate_list2 = [], []
+
     for i in range(len(parent1)):
         x1 = parent1[i]
-        x2 = parent2[i]
         if x1 is not None:
             if x1 in depot_list:
                 pass
             elif parent1.count(x1) > 1 and x1 not in duplicate_list1:
                 duplicate_list1.append(x1)
+
+    for i in range(len(parent2)):
+        x2 = parent2[i]
         if x2 is not None:
             if x2 in depot_list:
                 pass

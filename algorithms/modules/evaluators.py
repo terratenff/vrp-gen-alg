@@ -276,10 +276,9 @@ def evaluate_profits(vrp, **kwargs):
 
     node_profit_list = kwargs["node_profit"]
     solution = vrp.solution
-    node_count = vrp.node_count
     unvisited_optional_nodes = vrp.unvisited_optional_nodes
     profit = 0
-    for i in range(node_count):
+    for i in range(len(solution)):
         node = solution[i]
         if node not in unvisited_optional_nodes:
             profit += node_profit_list[node]

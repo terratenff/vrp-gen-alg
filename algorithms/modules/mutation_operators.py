@@ -123,6 +123,10 @@ def add_optional_node(vrp):
 
     solution = vrp.solution
     unused_nodes = vrp.unvisited_optional_nodes
+    if len(unused_nodes) == 0:
+        # All of the optional nodes are being used.
+        return
+
     subject_node = unused_nodes[randint(0, len(unused_nodes) - 1)]
     destination = randint(1, len(solution))
     solution.insert(destination, subject_node)
@@ -133,6 +137,7 @@ def add_optional_node(vrp):
 def remove_optional_node(vrp):
     """
     Mutates an individual by removing an optional node from the solution.
+    If none of the optional nodes are being used, add one to the solution instead.
     Applicable for VRPP instances only.
     :param vrp: Subject individual.
 
@@ -142,6 +147,11 @@ def remove_optional_node(vrp):
 
     solution = vrp.solution
     used_nodes = vrp.visited_optional_nodes
+    if len(used_nodes) == 0:
+        # None of the optional nodes are being used. Proceed to add one instead.
+        add_optional_node(vrp)
+        return
+
     subject_node = used_nodes[randint(0, len(used_nodes) - 1)]
     solution.remove(subject_node)
 

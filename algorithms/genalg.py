@@ -463,10 +463,14 @@ def run_gen_alg(vrp_params, alg_params):
         print("Number of Vehicle Capacity Types does not match with that of Node Demands.")
         return
 
+    required_nodes = [i for i in range(node_count) if i not in optional_node_list and i not in depot_node_list]
     for demand_type in range(node_demand_list.shape[1]):
 
+        # If there are no required nodes, this can be skipped.
+        if len(required_nodes) == 0:
+            break
+
         # Start by checking if individual demands are too high by themselves.
-        required_nodes = [i for i in range(node_count) if i not in optional_node_list and i not in depot_node_list]
         highest_capacity_demand = max(node_demand_list[:, demand_type][required_nodes])
         if highest_capacity_demand > vehicle_capacity[demand_type]:
             print("Capacity requirements are too strict (Individual demand {} exceeds vehicle capacity {})"

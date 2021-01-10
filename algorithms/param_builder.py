@@ -157,7 +157,7 @@ def set_vrp_parameters(vrp_params):
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.ovrp_enabled = bool(user_input) or user_input.upper() == "TRUE"
+            vrp_params.ovrp_enabled = user_input.upper() == "TRUE"
 
         # -----------------------------------------------------------------------
 
@@ -183,17 +183,21 @@ def set_vrp_parameters(vrp_params):
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.vrpp_exclude_travel_costs = bool(user_input) or user_input.upper() == "TRUE"
+            vrp_params.vrpp_exclude_travel_costs = user_input.upper() == "TRUE"
 
         # -----------------------------------------------------------------------
 
         user_input = input("VRPP - Optional Nodes\n- Current: {}\n- Default: None\n"
-                           "Input Nodes separated by whitespace (Example: '0 1 2')\n> "
+                           "Input Nodes separated by whitespace (Example: '0 1 2')\n"
+                           "Input 'None' for no optional nodes\n> "
                            .format(vrp_params.vrpp_optional_node))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.vrpp_optional_node = [int(i) for i in user_input.split(" ")]
+            if user_input.upper() == "NONE":
+                vrp_params.vrpp_optional_node = None
+            else:
+                vrp_params.vrpp_optional_node = [int(i) for i in user_input.split(" ")]
 
         # -----------------------------------------------------------------------
 
@@ -212,7 +216,7 @@ def set_vrp_parameters(vrp_params):
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.mdvrp_optimize_depot_nodes = bool(user_input) or user_input.upper() == "TRUE"
+            vrp_params.mdvrp_optimize_depot_nodes = user_input.upper() == "TRUE"
 
         # -----------------------------------------------------------------------
 
@@ -253,7 +257,7 @@ def set_vrp_parameters(vrp_params):
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.vrptw_hard_windows = bool(user_input) or user_input.upper() == "TRUE"
+            vrp_params.vrptw_hard_windows = user_input.upper() == "TRUE"
 
     except ValueError:
         print("Invalid value. Aborting...")
