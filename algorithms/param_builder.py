@@ -122,7 +122,7 @@ def set_vrp_parameters(vrp_params):
 
         # -----------------------------------------------------------------------
 
-        user_input = input("CVRP - Vehicle Capacity\n- Current: {}\n- Default: 0\n"
+        user_input = input("CVRP - Vehicle Capacity\n- Current: {}\n- Default: None\n"
                            "Input one or more capacity values separated by whitespace (Example: '15.0 27.25 100.0')\n"
                            "Input 'None' for no vehicle capacities\n> "
                            .format(vrp_params.cvrp_vehicle_capacity))

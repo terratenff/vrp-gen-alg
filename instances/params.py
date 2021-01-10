@@ -24,7 +24,7 @@ class ParamsVRP:
                  vrp_distance_time_ratio=1,
                  vrp_time_cost_ratio=0,
                  vrp_distance_cost_ratio=1,
-                 cvrp_vehicle_capacity=[0],
+                 cvrp_vehicle_capacity=None,
                  cvrp_node_demand=None,
                  ovrp_enabled=False,
                  vrpp_node_profit=None,

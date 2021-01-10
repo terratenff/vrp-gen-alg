@@ -193,7 +193,7 @@ def generate_demands_matrix():
     matrix = np.random.uniform(demand_min, demand_max, [nodes, 1])
     matrix[depot_node] = 0
 
-    for i in range(1, demand_dimensions + 1):
+    for i in range(1, demand_dimensions):
         appendix = np.random.uniform(demand_min, demand_max, [nodes, 1])
         appendix[depot_node] = 0
         matrix = np.concatenate((matrix, appendix), axis=1)

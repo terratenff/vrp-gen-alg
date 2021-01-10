@@ -337,6 +337,12 @@ def run_gen_alg(vrp_params, alg_params):
     node_demand_list = deepcopy(vrp_params.cvrp_node_demand)
     if node_demand_list is None:
         node_demand_list = np.array([[0] * node_count]).T
+    if len(node_demand_list.shape) == 1:
+        node_demand_list = np.array([node_demand_list]).T
+
+    # If vehicle capacity was not specified, default capacities are given.
+    if vehicle_capacity is None:
+        vehicle_capacity = [0] * node_demand_list.shape[1]
 
     # Depot nodes do not have supply demands associated with them.
     for depot_node in depot_node_list:
@@ -458,6 +464,16 @@ def run_gen_alg(vrp_params, alg_params):
         return
 
     for demand_type in range(node_demand_list.shape[1]):
+
+        # Start by checking if individual demands are too high by themselves.
+        required_nodes = [i for i in range(node_count) if i not in optional_node_list and i not in depot_node_list]
+        highest_capacity_demand = max(node_demand_list[:, demand_type][required_nodes])
+        if highest_capacity_demand > vehicle_capacity[demand_type]:
+            print("Capacity requirements are too strict (Individual demand {} exceeds vehicle capacity {})"
+                  .format(highest_capacity_demand, vehicle_capacity[demand_type]))
+            return
+
+        # Check if total demand is too high.
         capacity_potential = vehicle_capacity[demand_type] * vehicle_count
         required_capacity = 0
         for i in range(len(node_demand_list[:, demand_type])):
