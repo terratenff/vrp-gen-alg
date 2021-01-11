@@ -68,7 +68,7 @@ def run_gen_alg(vrp_params, alg_params):
     print("Using MDVRP: {}".format(using_mdvrp))
     print("Using VRPTW: {}".format(using_vrptw))
     print("Maximize Objective:   {}".format(maximize))
-    print("Travel Costs:         {}".format(exclude_travel_costs))
+    print("Exclude Travel Costs: {}".format(exclude_travel_costs))
     print("Optimize Depot Nodes: {}".format(exclude_travel_costs))
     print("Hard Windows:         {}".format(using_hard_time_windows))
 

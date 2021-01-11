@@ -76,6 +76,12 @@ class VRP:
         # Specifically for tracking times at which vehicles depart.
         self.route_start_times = []
 
+        # Waiting times caused by lower-bound time windows are kept here.
+        self.route_waiting_times = []
+
+        # Whenever soft time windows are used, incurred penalties are saved here.
+        self.route_penalties = []
+
     def __str__(self):
         return "(VRP ID = {}, Fitness = {}, Valid = {})".format(self.individual_id, self.fitness, self.valid)
 
@@ -99,6 +105,8 @@ class VRP:
         self.route_times = []
         self.route_capacities = []
         self.route_start_times = []
+        self.route_waiting_times = []
+        self.route_penalties = []
 
     def get_route_list(self):
         """
@@ -148,6 +156,31 @@ class VRP:
                     appendix_str = " | ".join(["{:0.2f}".format(cap_list[i - 1]) for cap_list in self.route_capacities])
                     print("    - Route Capacity:   {}".format(appendix_str))
             if len(self.route_start_times) == len(route_set):
-                print("    - Route Start Time: {:0.2f}".format(self.route_start_times[i - 1]))
+                if max(self.route_start_times) > 0:
+                    print("    - Route Start Time: {:0.2f}".format(self.route_start_times[i - 1]))
+            if len(self.route_waiting_times) == len(route_set):
+                waiting_str = "    - Waiting Time:"
+                waiting_dict = self.route_waiting_times[i - 1]
+                print_waiting_times = False
+                for key in waiting_dict:
+                    if key == route_set[i - 1][1]:
+                        # The first node subject to visit involved waiting.
+                        # This waiting time was ignored in the final fitness value, so it will be skipped.
+                        continue
+                    print_waiting_times = True
+                    key_value = waiting_dict[key]
+                    waiting_str += "\n      - [{}: {:0.2f}]".format(key, key_value)
+                if print_waiting_times:
+                    print(waiting_str)
+            if len(self.route_penalties) == len(route_set):
+                penalty_str = "    - Penalties:"
+                penalty_dict = self.route_penalties[i - 1]
+                print_penalties = False
+                for key in penalty_dict:
+                    print_penalties = True
+                    key_value = penalty_dict[key]
+                    penalty_str += "\n      - [{}: {:0.2f}]".format(key, key_value)
+                if print_penalties:
+                    print(penalty_str)
         print("- Fitness: {:0.2f}".format(self.fitness))
         print("- Valid: {}".format(self.valid))

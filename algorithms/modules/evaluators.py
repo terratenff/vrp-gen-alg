@@ -235,6 +235,12 @@ def evaluate_travel_cost(vrp, **kwargs):
         )
         vrp.route_start_times.append(route_start_time)
 
+        # Keeps track of total waiting time for later inspections. (Key: Destination. Value: Waiting Time until service)
+        waiting_dict = {}
+
+        # Keeps track of total penalties for later inspections. (Key: Destination. Value: Penalty on arrival)
+        penalty_dict = {}
+
         for i in range(1, len(active_route)):
             point_a = active_route[i - 1]
             point_b = active_route[i]
@@ -246,13 +252,17 @@ def evaluate_travel_cost(vrp, **kwargs):
             end_window = time_windows[point_b][1]
             if route_time > end_window:
                 # Vehicle has arrived too late. A penalty is calculated.
-                cost += penalty[point_b] * (route_time - end_window)
+                lateness_penalty = penalty[point_b] * (route_time - end_window)
+                penalty_dict[point_b] = lateness_penalty
+                cost += lateness_penalty
 
             # Check if arrival time is too early.
             start_window = time_windows[point_b][0]
             if route_time < start_window:
                 # Vehicle has to wait until the beginning of the time window.
-                route_time += start_window - route_time
+                waiting_time = start_window - route_time
+                waiting_dict[point_b] = waiting_time
+                route_time += waiting_time
 
             # Upon arrival the servicing begins. This takes time to complete.
             route_time += service_time[point_b]
@@ -266,16 +276,26 @@ def evaluate_travel_cost(vrp, **kwargs):
         cost += distance_cost(distance_segment)
         end_window = time_windows[recent_depot][1]
         if route_time > end_window:
-            cost += penalty[recent_depot] * (route_time - end_window)
+            lateness_penalty = penalty[recent_depot] * (route_time - end_window)
+            penalty_dict[recent_depot] = lateness_penalty
+            cost += lateness_penalty
         start_window = time_windows[recent_depot][0]
         if route_time < start_window:
-            route_time += start_window - time
+            waiting_time = start_window - time
+            waiting_dict[recent_depot] = waiting_time
+            route_time += waiting_time
 
         # Take route start time into account.
         route_time -= route_start_time
 
         # Add route time to total time taken.
         time += route_time
+
+        # Mark down incurred waiting times.
+        vrp.route_waiting_times.append(waiting_dict)
+
+        # Mark down collected penalties.
+        vrp.route_penalties.append(penalty_dict)
 
     # Convert total time taken into costs.
     cost += time_cost(time)
