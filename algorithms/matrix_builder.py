@@ -301,11 +301,11 @@ def generate_time_windows_matrix():
                                   "(greater than {}) > ".format(upper_bound_min)))
     depot_time_window = float(input("Depot Node Maximum Upper Bound Time Window\n"
                                     "(greater than {}) > ".format(upper_bound_max)))
-    matrix1 = np.random.randint(lower_bound_min, lower_bound_max, [nodes, 1])
-    matrix2 = np.random.randint(upper_bound_min, upper_bound_max, [nodes, 1])
+    matrix1 = np.random.uniform(lower_bound_min, lower_bound_max, [nodes, 1])
+    matrix2 = np.random.uniform(upper_bound_min, upper_bound_max, [nodes, 1])
     matrix = np.concatenate((matrix1, matrix2), axis=1)
     for depot in depot_node:
-        depot_upper_bound = np.random.uniform(depot_time_window)
+        depot_upper_bound = np.random.uniform(upper_bound_max, depot_time_window)
         matrix[depot, :] = np.array([0, depot_upper_bound], dtype=float)
 
     # noinspection PyTypeChecker
