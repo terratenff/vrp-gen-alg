@@ -138,6 +138,14 @@ def evaluate_travel_time(vrp, **kwargs):
         recent_node = active_route[0]
         recent_depot = active_route[0]
 
+        # In case the first destination of the route involves waiting. That waiting time is instead
+        # converted into a time at which the vehicle starts its route.
+        route_start_time = max(
+            0,
+            time_windows[active_route[1]][0] - distance_time(path_table[active_route[0]][active_route[1]])
+        )
+        vrp.route_start_times.append(route_start_time)
+
         for i in range(1, len(active_route)):
             point_a = active_route[i - 1]
             point_b = active_route[i]
@@ -163,6 +171,9 @@ def evaluate_travel_time(vrp, **kwargs):
         if route_time < start_window:
             route_time += start_window - route_time
         route_time += service_time[recent_depot]
+
+        # Take route start time into account.
+        route_time -= route_start_time
 
         # Add route time to a list of vehicle times.
         route_times.append(route_time)
@@ -216,6 +227,14 @@ def evaluate_travel_cost(vrp, **kwargs):
         recent_node = active_route[0]
         recent_depot = active_route[0]
 
+        # In case the first destination of the route involves waiting. That waiting time is instead
+        # converted into a time at which the vehicle starts its route.
+        route_start_time = max(
+            0,
+            time_windows[active_route[1]][0] - distance_time(path_table[active_route[0]][active_route[1]])
+        )
+        vrp.route_start_times.append(route_start_time)
+
         for i in range(1, len(active_route)):
             point_a = active_route[i - 1]
             point_b = active_route[i]
@@ -251,6 +270,9 @@ def evaluate_travel_cost(vrp, **kwargs):
         start_window = time_windows[recent_depot][0]
         if route_time < start_window:
             route_time += start_window - time
+
+        # Take route start time into account.
+        route_time -= route_start_time
 
         # Add route time to total time taken.
         time += route_time
