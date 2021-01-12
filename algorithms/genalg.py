@@ -383,10 +383,10 @@ def run_gen_alg(vrp_params, alg_params):
     global_cpu_limit = alg_params.cpu_total_limit
     individual_cpu_limit = alg_params.cpu_individual_limit
     upper_bound = alg_params.fitness_upper_bound
-    if upper_bound is None:
+    if upper_bound is None or not using_vrpp:
         upper_bound = float("inf")
     lower_bound = alg_params.fitness_lower_bound
-    if lower_bound is None:
+    if lower_bound is None or using_vrpp:
         lower_bound = -float("inf")
     threshold = alg_params.fitness_threshold
     generation_count_min = alg_params.generation_count_min
