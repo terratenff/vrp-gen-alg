@@ -43,6 +43,20 @@ def set_vrp_parameters(vrp_params):
     print("(Input Q to abort and save any changes)")
 
     try:
+        user_input = input("VRP - Path Table Mapping\n- Current: {}\n- Default: None\n"
+                           "Input Nodes separated by whitespace (Example: '0 1 2')\n"
+                           "Input 'None' for one-to-one mapping (default)\n> "
+                           .format(vrp_params.vrp_path_table_mapping))
+        if _quit(user_input):
+            return
+        elif not _next(user_input):
+            if user_input.upper() == "NONE":
+                vrp_params.vrp_path_table_mapping = None
+            else:
+                vrp_params.vrp_path_table_mapping = [int(i) for i in user_input.split(" ")]
+
+        # -----------------------------------------------------------------------
+
         user_input = input("VRP - Vehicle Count\n- Current: {}\n- Default: 3\n> "
                            .format(vrp_params.vrp_vehicle_count))
         if _quit(user_input):
@@ -533,6 +547,10 @@ def save_params(filename, vrp_params, alg_params):
     with open("variables/parameter_settings/vrp/" + filename + ".txt", "w") as file:
         file.write("vrp_contents={}={}\n".format(content_type, content_name))
         file.write("vrp_path_table_override={}\n".format(overriding_content_name))
+        file.write("vrp_path_table_mapping={}\n".format(str(vrp_params.vrp_path_table_mapping)
+                                                        .replace("[", "")
+                                                        .replace("]", "")
+                                                        .replace(",", "")))
         file.write("vrp_vehicle_count={}\n".format(str(vrp_params.vrp_vehicle_count)))
         file.write("vrp_node_service_time={}\n".format(str(vrp_params.node_service_times_name)))
         file.write("vrp_maximum_route_time={}\n".format(str(vrp_params.vrp_maximum_route_time)))
@@ -635,7 +653,9 @@ def load_params(filename, vrp_params, alg_params):
                 coordinates = file_name
         elif key_value[0] == "vrp_path_table_override":
             overriding_matrix = key_value[1]
-
+        elif key_value[0] == "vrp_path_table_mapping":
+            vrp_params.vrp_path_table_mapping = \
+                None if key_value[1].upper() == "NONE" else [int(i) for i in key_value[1].split(" ")]
         elif key_value[0] == "vrp_vehicle_count":
             vrp_params.vrp_vehicle_count = int(key_value[1])
         elif key_value[0] == "vrp_node_service_time":
