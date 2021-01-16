@@ -189,10 +189,14 @@ def plot_graph(plot_data, save_plot_data=False):
         xy_data, data_label = plot_data.get_data(i)
         x = xy_data[0]
         y = xy_data[1]
+        if x.size == 0 or y.size == 0:
+            continue
         lowest_x, highest_x = min(lowest_x, min(x)), max(highest_x, max(x))
         figure_axes.plot(x, y, label=data_label, linewidth=3)
 
-    figure_axes.set_xlim([lowest_x, highest_x])
+    if lowest_x != float("inf") and highest_x != float("inf"):
+        figure_axes.set_xlim([lowest_x, highest_x])
+    
     figure_axes.set_title(title)
     figure_axes.set_xlabel(xlabel)
     figure_axes.set_ylabel(ylabel)
@@ -242,10 +246,11 @@ def plot_bar(plot_data, save_plot_data=False):
 
     # With a bar graph only 1 set of data is expected.
     xy_data, data_label = plot_data.get_data(0)
-    low, high = min(xy_data[1, :]), max(xy_data[1, :])
-    figure_axes.bar([str(int(gen)) for gen in xy_data[0, :]], xy_data[1, :], label=data_label)
-    # figure_axes.set_xlim([min(xy_data[0, :]), max(xy_data[0, :])])
-    figure_axes.set_ylim([np.ceil(low - 0.05*(high - low)), np.ceil(high + 0.05*(high - low))])
+    if xy_data.size != 0:
+        low, high = min(xy_data[1, :]), max(xy_data[1, :])
+        figure_axes.bar([str(int(gen)) for gen in xy_data[0, :]], xy_data[1, :], label=data_label)
+        # figure_axes.set_xlim([min(xy_data[0, :]), max(xy_data[0, :])])
+        figure_axes.set_ylim([np.ceil(low - 0.05*(high - low)), np.ceil(high + 0.05*(high - low))])
 
     figure_axes.set_title(title)
     figure_axes.set_xlabel(xlabel)

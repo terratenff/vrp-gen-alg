@@ -17,6 +17,7 @@ class ParamsVRP:
     def __init__(self,
                  vrp_contents,
                  vrp_path_table_override=None,
+                 vrp_path_table_mapping=None,
                  vrp_vehicle_count=3,
                  vrp_node_service_time=None,
                  vrp_maximum_route_time=None,
@@ -45,6 +46,11 @@ class ParamsVRP:
 
         :param vrp_path_table_override: Contents that are to be used in the VRP - ONLY IF
         node coordinates are provided as well.
+
+        :param vrp_path_table_mapping: List of integers that indicate locations on the path table.
+        This allows nodes (list indices) to reuse identical locations based on the path table.
+        If path table mapping is used, node count is taken from this instead of path table; therefore,
+        some variables that have data for each node have to be adjusted to reflect this.
 
         :param vrp_vehicle_count: Number of vehicles that are to be used for the problem.
 
@@ -129,6 +135,7 @@ class ParamsVRP:
         self.vrp_path_table = None
         self.vrp_coordinates = None
         self.set_contents(vrp_contents, path_table_override=vrp_path_table_override)
+        self.vrp_path_table_mapping = vrp_path_table_mapping
 
         self.vrp_vehicle_count = vrp_vehicle_count
         self.vrp_node_service_time = vrp_node_service_time
@@ -201,6 +208,11 @@ class ParamsVRP:
         Convenience function for printing VRP parameters.
         """
 
+        if self.vrp_path_table_mapping is not None:
+            node_count_str = str(len(self.vrp_path_table_mapping))
+        else:
+            node_count_str = str(len(self.vrp_path_table))
+
         if self.vrp_node_service_time is None:
             nst_str = None
         else:
@@ -244,8 +256,9 @@ class ParamsVRP:
             conversion3_str = "Does not convert to cost"
 
         print("- Problem Parameters ----------------------------------------------------")
-        print("VRP   - Node Count                | {}".format(len(self.vrp_path_table)))
+        print("VRP   - Node Count                | {}".format(node_count_str))
         print("VRP   - Using XY-Coordinates      | {}".format(self.vrp_coordinates is not None))
+        print("VRP   - Path Table Mapping        | {}".format(self.vrp_path_table_mapping))
         print("VRP   - Vehicle Count             | {}".format(self.vrp_vehicle_count))
         print("VRP   - Node Service Time         | {}".format(nst_str))
         print("VRP   - Maximum Route Time        | {}".format(self.vrp_maximum_route_time))

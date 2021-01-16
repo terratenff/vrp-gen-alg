@@ -313,6 +313,7 @@ def run_gen_alg(vrp_params, alg_params):
     # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
     path_table = deepcopy(vrp_params.vrp_path_table)
+    path_table_mapping = deepcopy(vrp_params.vrp_path_table_mapping)
     coordinates = deepcopy(vrp_params.vrp_coordinates)
     node_count = len(path_table)
     vehicle_count = vrp_params.vrp_vehicle_count
@@ -324,6 +325,18 @@ def run_gen_alg(vrp_params, alg_params):
     # This is simulated by reducing all travels distances, where the destination is a depot, to zero.
     if using_ovrp:
         path_table[:, depot_node_list] = 0
+
+    # If path table mapping is provided, the path table will be expanded and the node count
+    # will be modified to account for the mapping.
+    if path_table_mapping is not None:
+        node_count = len(path_table_mapping)
+        new_path_table = []
+        for i in range(path_table_mapping):
+            new_path_table_row = []
+            for j in range(path_table_mapping):
+                new_path_table_row.append(path_table[i, j])
+            new_path_table.append(new_path_table_row)
+        path_table = np.array(new_path_table)
 
     maximum_time = vrp_params.vrp_maximum_route_time \
         if vrp_params.vrp_maximum_route_time is not None else -1
@@ -383,10 +396,10 @@ def run_gen_alg(vrp_params, alg_params):
     global_cpu_limit = alg_params.cpu_total_limit
     individual_cpu_limit = alg_params.cpu_individual_limit
     upper_bound = alg_params.fitness_upper_bound
-    if upper_bound is None:
+    if upper_bound is None or not using_vrpp:
         upper_bound = float("inf")
     lower_bound = alg_params.fitness_lower_bound
-    if lower_bound is None:
+    if lower_bound is None or using_vrpp:
         lower_bound = -float("inf")
     threshold = alg_params.fitness_threshold
     generation_count_min = alg_params.generation_count_min
