@@ -352,8 +352,8 @@ def plot_map(plot_data):
         vertex = all_vertices[i]
         x = vertex[0]
         y = vertex[1]
-        y = y + np.ones(y.shape) * 5
-        figure_axes.text(x, y, "{}".format(i), fontsize=15, ha="center", va="bottom")
+        # y = y + np.ones(y.shape) * 5
+        figure_axes.text(x, y, "{}".format(i), fontsize=18, ha="center", va="bottom")
 
     # Provided dataset is split into three categories: required nodes, optional nodes and depot nodes.
     if len(required_nodes) != 0:
