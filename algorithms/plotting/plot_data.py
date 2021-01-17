@@ -16,6 +16,26 @@ from matplotlib.patches import PathPatch
 
 
 class PlotData:
+
+    folder_tracker = "ResultSet1"
+    base_destination = "variables/plot_data/"
+
+    @staticmethod
+    def select_unused_folder_name():
+        """
+        Creates a folder to which data of a collection of plot data is saved.
+        """
+
+        i = 1
+        file_str = "ResultSet{}".format(i)
+        file_list = listdir(PlotData.base_destination)
+        existing_name = file_str in file_list
+        while existing_name is True:
+            i += 1
+            file_str = "ResultSet{}".format(i)
+            existing_name = file_str in file_list
+        PlotData.folder_tracker = file_str
+
     def __init__(self, xy_datasets, data_labels, plot_details):
         """
         Represents the data aspect of the plot figure.
@@ -116,54 +136,55 @@ class PlotData:
         self.route_list = route_list
         self.open_routes = open_routes
 
-    def save_data(self, destination="variables/plot_data/", base_name=None):
+    def save_data(self):
         """
         Saves stored data into text files. Node and route data are excluded.
-        @param destination: Directory, relative to the project, where the text
-        files are placed.
-        @param base_name: Primary name of the collection of data. If set to None,
-        name convention "R-<n>" is used, where <n> is replaced with an integer.
-        If a name is provided, the suffix '.txt' must be excluded.
         """
+
+        destination = PlotData.base_destination + PlotData.folder_tracker + "/"
 
         if exists(destination) is False:
             mkdir(destination)
 
-        if base_name is None:
-            i = 0
-            file_str = "R{}".format(i)
-            file_list = listdir(destination)
+        i = 1
+        file_str = "R-{}".format(i)
+        file_list = listdir(destination)
+        existing_name = file_str in file_list
+        while existing_name is True:
+            i += 1
+            file_str = "R-{}".format(i)
             existing_name = file_str in file_list
-            while existing_name is True:
-                i += 1
-                file_str = "R{}".format(i)
-                existing_name = file_str in file_list
-            folder_name = file_str
-        else:
-            folder_name = base_name
+        folder_name = file_str
 
         new_destination = destination + folder_name + "/"
         mkdir(new_destination)
 
+        with open(new_destination + "details.txt", "w") as detail_file:
+            detail_file.write("Plot Title: {}\n".format(self.title))
+            detail_file.write("X-axis:     {}\n".format(self.xlabel))
+            detail_file.write("Y-axis:     {}\n".format(self.ylabel))
+            if len(self.labels) > 1:
+                detail_file.write("Legend:\n")
+                for i in range(len(self.labels)):
+                    label = self.labels[i]
+                    detail_file.write("- results_{}.txt: {}\n".format(i + 1, label))
+
         if len(self.data.shape) == 2:
-            np.savetxt(new_destination + "results.txt", self.data, fmt="%.8f")
+            np.savetxt(new_destination + "results.txt", self.data.T, fmt="%.8f")
         elif self.data.shape[0] == 1:
-            np.savetxt(new_destination + "results.txt", self.data[0], fmt="%.8f")
+            np.savetxt(new_destination + "results.txt", self.data[0].T, fmt="%.8f")
         else:
             for i in range(self.data.shape[0]):
-                temp_name = "results_{}.txt".format(i)
-                np.savetxt(new_destination + temp_name, self.data[i], fmt="%.8f")
+                temp_name = "results_{}.txt".format(i + 1)
+                np.savetxt(new_destination + temp_name, self.data[i].T, fmt="%.8f")
 
 
-def plot_graph(plot_data, save_plot_data=False):
+def plot_graph(plot_data):
     """
     Plots a regular graph based on provided data. Resulting figure
     has to be separately viewed. Supports multiple datasets.
     @param plot_data: Plot Data Object that contains everything
     necessary for the graph.
-    @param save_plot_data: Flag that determines whether the data
-    in the Plot Data Object should be saved into a folder of
-    text files.
     @return: Figure and Figure Axes that encompass the graph.
     """
 
@@ -211,21 +232,17 @@ def plot_graph(plot_data, save_plot_data=False):
                          horizontalalignment="center",
                          bbox=props)
 
-    if save_plot_data:
-        plot_data.save_data()
+    plot_data.save_data()
 
     return figure, figure_axes
 
 
-def plot_bar(plot_data, save_plot_data=False):
+def plot_bar(plot_data):
     """
     Plots a bar graph based on provided data. Resulting figure
     has to be separately viewed. Supports only one dataset.
     @param plot_data: Plot Data Object that contains everything
     necessary for the graph.
-    @param save_plot_data: Flag that determines whether the data
-    in the Plot Data Object should be saved into a folder of
-    text files.
     @return: Figure and Figure Axes that encompass the graph.
     """
 
@@ -267,8 +284,7 @@ def plot_bar(plot_data, save_plot_data=False):
                          horizontalalignment="center",
                          bbox=props)
 
-    if save_plot_data:
-        plot_data.save_data()
+    plot_data.save_data()
 
     return figure, figure_axes
 

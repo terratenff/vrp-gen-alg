@@ -14,6 +14,7 @@ from instances.vrp import VRP
 from algorithms.timer import Timer
 
 import algorithms.plotting.plot_manager as plot_manager
+from algorithms.plotting.plot_data import PlotData
 import algorithms.modules.population_initializers as population_initializers
 import algorithms.modules.validators as validators
 import algorithms.modules.evaluators as evaluators
@@ -700,6 +701,8 @@ def run_gen_alg(vrp_params, alg_params):
     # ------------------------------------------------------------------------------------------------------------------
     # - Plot Drawing starts here. --------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
+
+    PlotData.select_unused_folder_name()
 
     plot_function_list = []
     plot_data_list = []
