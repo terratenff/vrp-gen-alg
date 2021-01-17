@@ -331,9 +331,9 @@ def run_gen_alg(vrp_params, alg_params):
     if path_table_mapping is not None:
         node_count = len(path_table_mapping)
         new_path_table = []
-        for i in range(path_table_mapping):
+        for i in path_table_mapping:
             new_path_table_row = []
-            for j in range(path_table_mapping):
+            for j in path_table_mapping:
                 new_path_table_row.append(path_table[i, j])
             new_path_table.append(new_path_table_row)
         path_table = np.array(new_path_table)
@@ -542,9 +542,9 @@ def run_gen_alg(vrp_params, alg_params):
 
     population.sort(key=attrgetter("fitness"), reverse=maximize)
     population_history.append(deepcopy(population))
-    initial_population = deepcopy(population)                   # Used in drawing graph 1 / 6.
+    initial_population = deepcopy(population)                   # Used in drawing graph 1 / 7.
     best_individual = deepcopy(population[0])
-    best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 6.
+    best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 7.
     best_generation_individual_history.append(deepcopy(best_individual))
     best_overall_individual_history.append(deepcopy(best_individual))
     best_overall_generation_tracker.append(current_generation)
@@ -720,8 +720,8 @@ def run_gen_alg(vrp_params, alg_params):
 
     # Graph 2 / 7
     # Scatter Graph that illustrates the solution of the best individual created by the population initializer.
-    # This is drawn only if node coordinates are available.
-    if coordinates is not None:
+    # This is drawn only if node coordinates are available, and if path table mapping is not used.
+    if coordinates is not None and path_table_mapping is None:
         details2 = {
             "population_initializer": alg_params.str_population_initializer[alg_params.population_initializer],
             "population_count": population_count,
@@ -810,8 +810,8 @@ def run_gen_alg(vrp_params, alg_params):
 
     # Graph 7 / 7
     # Collection Scatter Graph that illustrate the development of the solution of the best individual.
-    # This is drawn only if node coordinates are available.
-    if coordinates is not None:
+    # This is drawn only if node coordinates are available, and if path table mapping is not used.
+    if coordinates is not None and path_table_mapping is None:
         details7 = {
             "max_plot_count": 10,
             "coordinates": coordinates,
