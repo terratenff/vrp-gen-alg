@@ -1,0 +1,3 @@
+Plot Title: GA - Population Initialization
+X-axis:     Population Individuals (best to worst)
+Y-axis:     Fitness

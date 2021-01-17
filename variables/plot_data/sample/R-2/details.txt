@@ -1,0 +1,11 @@
+Plot Title: GA - Population Development
+X-axis:     Population Individuals (best to worst)
+Y-axis:     Fitness
+Legend:
+- results_1.txt: Initialization
+- results_2.txt: Generation 5
+- results_3.txt: Generation 10
+- results_4.txt: Generation 15
+- results_5.txt: Generation 20
+- results_6.txt: Generation 25
+- results_7.txt: Generation 292

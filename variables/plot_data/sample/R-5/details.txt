@@ -1,0 +1,3 @@
+Plot Title: GA - New Best Individuals
+X-axis:     Generation of Discovery
+Y-axis:     Fitness

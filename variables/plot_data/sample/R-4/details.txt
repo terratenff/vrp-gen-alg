@@ -1,0 +1,3 @@
+Plot Title: GA - Optimal Individual, Time-Wise
+X-axis:     Time (ms)
+Y-axis:     Fitness

@@ -1,0 +1,3 @@
+Plot Title: GA - Optimal Individual, Generation-Wise
+X-axis:     Generation
+Y-axis:     Fitness

@@ -53,7 +53,7 @@ def set_vrp_parameters(vrp_params):
             if user_input.upper() == "NONE":
                 vrp_params.vrp_path_table_mapping = None
             else:
-                vrp_params.vrp_path_table_mapping = [int(i) for i in user_input.split(" ")]
+                vrp_params.vrp_path_table_mapping = [int(i) for i in user_input.split()]
 
         # -----------------------------------------------------------------------
 
@@ -146,7 +146,7 @@ def set_vrp_parameters(vrp_params):
             if user_input.upper() == "NONE":
                 vrp_params.cvrp_vehicle_capacity = None
             else:
-                vrp_params.cvrp_vehicle_capacity = [float(i) for i in user_input.split(" ")]
+                vrp_params.cvrp_vehicle_capacity = [float(i) for i in user_input.split()]
 
         # -----------------------------------------------------------------------
 
@@ -211,7 +211,7 @@ def set_vrp_parameters(vrp_params):
             if user_input.upper() == "NONE":
                 vrp_params.vrpp_optional_node = None
             else:
-                vrp_params.vrpp_optional_node = [int(i) for i in user_input.split(" ")]
+                vrp_params.vrpp_optional_node = [int(i) for i in user_input.split()]
 
         # -----------------------------------------------------------------------
 
@@ -221,7 +221,7 @@ def set_vrp_parameters(vrp_params):
         if _quit(user_input):
             return
         elif not _next(user_input):
-            vrp_params.mdvrp_depot_node = [int(i) for i in user_input.split(" ")]
+            vrp_params.mdvrp_depot_node = [int(i) for i in user_input.split()]
 
         # -----------------------------------------------------------------------
 
@@ -655,7 +655,7 @@ def load_params(filename, vrp_params, alg_params):
             overriding_matrix = key_value[1]
         elif key_value[0] == "vrp_path_table_mapping":
             vrp_params.vrp_path_table_mapping = \
-                None if key_value[1].upper() == "NONE" else [int(i) for i in key_value[1].split(" ")]
+                None if key_value[1].upper() == "NONE" else [int(i) for i in key_value[1].split()]
         elif key_value[0] == "vrp_vehicle_count":
             vrp_params.vrp_vehicle_count = int(key_value[1])
         elif key_value[0] == "vrp_node_service_time":
@@ -672,7 +672,7 @@ def load_params(filename, vrp_params, alg_params):
             vrp_params.vrp_distance_cost_ratio = float(key_value[1])
         elif key_value[0] == "cvrp_vehicle_capacity":
             vrp_params.cvrp_vehicle_capacity = \
-                None if key_value[1].upper() == "NONE" else [float(i) for i in key_value[1].split(" ")]
+                None if key_value[1].upper() == "NONE" else [float(i) for i in key_value[1].split()]
         elif key_value[0] == "cvrp_node_demand":
             matrix_builder.select_demands_matrix(vrp_params, name=key_value[1])
         elif key_value[0] == "ovrp_enabled":
@@ -683,9 +683,9 @@ def load_params(filename, vrp_params, alg_params):
             vrp_params.vrpp_exclude_travel_costs = key_value[1].upper() == "TRUE"
         elif key_value[0] == "vrpp_optional_node":
             vrp_params.vrpp_optional_node = \
-                None if key_value[1].upper() == "NONE" else [int(i) for i in key_value[1].split(" ")]
+                None if key_value[1].upper() == "NONE" else [int(i) for i in key_value[1].split()]
         elif key_value[0] == "mdvrp_depot_node":
-            vrp_params.mdvrp_depot_node = [int(i) for i in key_value[1].split(" ")]
+            vrp_params.mdvrp_depot_node = [int(i) for i in key_value[1].split()]
         elif key_value[0] == "mdvrp_optimize_depot_nodes":
             vrp_params.mdvrp_optimize_depot_nodes = key_value[1].upper() == "TRUE"
         elif key_value[0] == "vrptw_node_time_window":

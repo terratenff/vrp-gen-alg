@@ -149,4 +149,4 @@ variables/plot_data/*
 !variables/node_time_windows/sample.txt
 !variables/parameter_settings/vrp/sample.txt
 !variables/parameter_settings/genalg/sample.txt
-!variables/plot_data/sample/results.txt
+!variables/plot_data/sample/
