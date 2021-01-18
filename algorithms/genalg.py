@@ -630,6 +630,11 @@ def run_gen_alg(vrp_params, alg_params):
                 mutation_selector = np.random.randint(0, mutation_function_count)
                 VRP.mutation_operator[mutation_selector](offspring2)
 
+            # Optimize Depot Nodes if it has been requested.
+            if using_mdvrp and optimize_depot_nodes:
+                evaluation_collection[5](offspring1, path_table=path_table)
+                evaluation_collection[5](offspring2, path_table=path_table)
+
             new_population.append(offspring1)
             new_population.append(offspring2)
             timeout = global_timer.past_goal()
