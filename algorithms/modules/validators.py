@@ -98,6 +98,13 @@ def validate_maximum_time(vrp, **kwargs):
         recent_node = active_route[0]
         recent_depot = active_route[0]
 
+        # In case the first destination of the route involves waiting. That waiting time is instead
+        # converted into a time at which the vehicle starts its route.
+        route_start_time = max(
+            0,
+            time_windows[active_route[1]][0] - distance_time(path_table[active_route[0]][active_route[1]])
+        )
+
         for i in range(1, len(active_route)):
             point_a = active_route[i - 1]
             point_b = active_route[i]
@@ -114,7 +121,7 @@ def validate_maximum_time(vrp, **kwargs):
             route_time += service_time[point_b]
 
             # Check if maximum time constraint is violated.
-            if route_time > maximum_time:
+            if route_time - route_start_time > maximum_time:
                 return False, "Maximum time constraint violation (Route Node {} / {}, situated at {}): {} / {}" \
                     .format(i, len(active_route) + 1, point_b, route_time, maximum_time)
 
@@ -128,7 +135,7 @@ def validate_maximum_time(vrp, **kwargs):
         if route_time < start_window:
             route_time += start_window - route_time
         route_time += service_time[recent_depot]
-        if route_time > maximum_time:
+        if route_time - route_start_time > maximum_time:
             return False, "Maximum time constraint violation (Return to Depot Node {}): {} / {}" \
                 .format(recent_depot, route_time, maximum_time)
 
