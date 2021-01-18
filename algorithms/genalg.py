@@ -319,8 +319,13 @@ def run_gen_alg(vrp_params, alg_params):
     node_count = len(path_table)
     vehicle_count = vrp_params.vrp_vehicle_count
     vehicle_capacity = vrp_params.cvrp_vehicle_capacity
-    depot_node_list = vrp_params.mdvrp_depot_node
-    optional_node_list = vrp_params.vrpp_optional_node if vrp_params.vrpp_optional_node is not None else []
+    depot_node_list = list(set(vrp_params.mdvrp_depot_node))
+    optional_node_list = list(set(vrp_params.vrpp_optional_node)) if vrp_params.vrpp_optional_node is not None else []
+
+    # At least 1 vehicle is required.
+    if vehicle_count < 1:
+        print("Vehicle count must be at least 1.")
+        return
 
     # In OVRP, vehicles do not return to the depots.
     # This is simulated by reducing all travels distances, where the destination is a depot, to zero.
@@ -330,6 +335,18 @@ def run_gen_alg(vrp_params, alg_params):
     # If path table mapping is provided, the path table will be expanded and the node count
     # will be modified to account for the mapping.
     if path_table_mapping is not None:
+
+        # Path table mapping values cannot exceed the size of the path table.
+        if max(path_table_mapping) >= len(path_table):
+            print("Path table mapping cannot contain integers greater than path table size ({} vs. {})."
+                  .format(len(path_table), max(path_table_mapping)))
+            return
+
+        # Path table mapping values also cannot be negative.
+        if min(path_table_mapping) < 0:
+            print("Path table mapping cannot contain negative integers.")
+            return
+
         node_count = len(path_table_mapping)
         new_path_table = []
         for i in path_table_mapping:
@@ -338,6 +355,28 @@ def run_gen_alg(vrp_params, alg_params):
                 new_path_table_row.append(path_table[i, j])
             new_path_table.append(new_path_table_row)
         path_table = np.array(new_path_table)
+
+    # Depot node list cannot contain nodes that go above node count.
+    if max(depot_node_list) >= node_count:
+        print("Depot node list cannot contain nodes that do not exist ({} vs. {})."
+              .format(node_count, max(depot_node_list)))
+        return
+
+    # Depot node list also cannot contain negative integers.
+    if min(depot_node_list) < 0:
+        print("Depot node list cannot contain negative integers.")
+        return
+
+    # Optional node list cannot contain nodes that go above node count.
+    if len(optional_node_list) > 0:
+        if max(optional_node_list) >= node_count:
+            print("Optional node list cannot contain nodes that do not exist ({} vs. {})."
+                  .format(node_count, max(optional_node_list)))
+            return
+        # Optional node list also cannot contain negative integers.
+        if min(optional_node_list) < 0:
+            print("Optional node list cannot contain negative integers.")
+            return
 
     maximum_time = vrp_params.vrp_maximum_route_time \
         if vrp_params.vrp_maximum_route_time is not None else -1
