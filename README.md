@@ -28,8 +28,8 @@ In addition to VRP and CVRP, vrp-gen-alg supports the following extensions (and 
   - (Capacitated) Profitable Tour Problem ((C)PTP): This is similar to (C)TOP, with the exception being the objective that is to maximize the difference between profits and travel costs.
 - Multi-Depot Vehicle Routing Problem (MDVRP): Usually there is only one depot where vehicles start their routes. In this extension, there are more than one of them. In vrp-gen-alg it is assumed that a vehicle starts and ends its route at the same depot.
 - Vehicle Routing Problem with Time Windows (VRPTW): Each customer is given a time window during which the customer can be serviced. If a vehicle arrives too early, it has to wait until the lower bound of the time window has passed. If a vehicle arrives too late, two different things can happen, depending on which types of time windows are being used - both of which are supported by vrp-gen-alg:
- - Soft time windows: Each customer is assigned a penalty function that calculates a cost based on how late a vehicle is. The longer a vehicle was late, the higher penalty, and the higher the penalty in general, the more important the customer is.
- - Hard time windows: Being late is not allowed at all; therefore, if a vehicle is late, the solution is no longer valid. Hard time windows can be simulated with soft time windows by using extremely high penalties.
+  - Soft time windows: Each customer is assigned a penalty function that calculates a cost based on how late a vehicle is. The longer a vehicle was late, the higher penalty, and the higher the penalty in general, the more important the customer is.
+  - Hard time windows: Being late is not allowed at all; therefore, if a vehicle is late, the solution is no longer valid. Hard time windows can be simulated with soft time windows by using extremely high penalties.
 
 ### Genetic Algorithm
 

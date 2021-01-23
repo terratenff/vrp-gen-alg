@@ -20,28 +20,28 @@ There are three plotting functions: one makes a line graph, another a bar graph 
 
 The plot manager is the interface that the application uses to create various figures of the results it gets from running the GA. The following figures are created:
 - Generation 0 Population, sorted in ascending/descending order
- - X: Population individual
- - Y: Fitness
+  - X: Population individual
+  - Y: Fitness
 - Population Development (populations of multiple generations), sorted in ascending/descending order
- - One line represents one generation
- - X: Population individual
- - Y: Fitness
+  - One line represents one generation
+  - X: Population individual
+  - Y: Fitness
 - Best individual by generation
- - X: Generation
- - Y: Fitness of generation's best individual
+  - X: Generation
+  - Y: Fitness of generation's best individual
 - Best overall individual by time
- - Best overall individual is tracked separately. Once a new best individual is found, the previous one is replaced.
- - X: Time (milliseconds)
- - Y: Fitness of the best overall individual
+  - Best overall individual is tracked separately. Once a new best individual is found, the previous one is replaced.
+  - X: Time (milliseconds)
+  - Y: Fitness of the best overall individual
 - Map of the best individual of generation 0
- - Dots represent node locations
- - Lines represent vehicle routes. Different colors indicate different vehicles.
+  - Dots represent node locations
+  - Lines represent vehicle routes. Different colors indicate different vehicles.
 - New best overall individuals with respect to generations of discovery
- - X: Generation
- - Y: Fitness of best overall individual
+  - X: Generation
+  - Y: Fitness of best overall individual
 - Collection of maps demonstrating development of the best overall individual
- - Dots represent node locations
- - Lines represent vehicle routes. Different colors indicate different vehicles.
+  - Dots represent node locations
+  - Lines represent vehicle routes. Different colors indicate different vehicles.
 
 ### Plot Window
 

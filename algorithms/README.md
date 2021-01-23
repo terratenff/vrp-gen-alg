@@ -15,17 +15,17 @@ Here are described the primary algorithms that the application uses.
 1. GA initialization (preparing instance variables, determining used extensions etc. See the code itself for specifics.)
 2. Population initialization
 3. Primary loop begins. One loop results in completion of one generation. Within the loop, the following is done:
-  1. Perform the following subloop until new population is full (each subloop creates two offspring):
-    1. Select two parents using the parent selection function.
-    2. Perform crossover using selected crossover function..
-    3. Perform mutation for the offspring.
-    4. Add offspring to the new population.
-  2. Validate individuals in the new population using selected evaluators.
-  3. Replace invalid individuals with completely random individuals.
-  4. Evaluate individuals using selected evaluator function.
-  5. Sort new population in ascending/descending fitness order.
-  6. Conduct the filtration strategy (or removal of duplicates) if it is time for it.
-  7. Determine best overall individual.
+   1. Perform the following subloop until new population is full (each subloop creates two offspring):
+      1. Select two parents using the parent selection function.
+      2. Perform crossover using selected crossover function..
+      3. Perform mutation for the offspring.
+      4. Add offspring to the new population.
+   2. Validate individuals in the new population using selected evaluators.
+   3. Replace invalid individuals with completely random individuals.
+   4. Evaluate individuals using selected evaluator function.
+   5. Sort new population in ascending/descending fitness order.
+   6. Conduct the filtration strategy (or removal of duplicates) if it is time for it.
+   7. Determine best overall individual.
 4. Display best overall individual that has been discovered.
 5. Plot figures from collected data.
 6. Save collected data.
