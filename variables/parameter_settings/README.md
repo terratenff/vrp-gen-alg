@@ -6,48 +6,48 @@ This folder contains a collection of parameter settings that the application use
 
 - [Parameter settings structure](#parameter-settings-structure)
 - [VRP-settings](#vrp-settings)
- - [vrp_contents](#vrp_contents)
- - [vrp_path_table_override](#vrp_path_table_override)
- - [vrp_path_table_mapping](#vrp_path_table_mapping)
- - [vrp_vehicle_count](#vrp_vehicle_count)
- - [vrp_node_service_time](#vrp_node_service_time)
- - [vrp_maximum_route_time](#vrp_maximum_route_time)
- - [vrp_maximum_route_distance](#vrp_maximum_route_distance)
- - [vrp_distance_time_ratio](#vrp_distance_time_ratio)
- - [vrp_time_cost_ratio](#vrp_time_cost_ratio)
- - [vrp_distance_cost_ratio](#vrp_distance_cost_ratio)
- - [cvrp_vehicle_capacity](#cvrp_vehicle_capacity)
- - [cvrp_node_demand](#cvrp_node_demand)
- - [ovrp_enabled](#ovrp_enabled)
- - [vrpp_node_profit](#vrpp_node_profit)
- - [vrpp_exclude_travel_costs](#vrpp_exclude_travel_costs)
- - [vrpp_optional_node](#vrpp_optional_node)
- - [mdvrp_depot_node](#mdvrp_depot_node)
- - [mdvrp_optimize_depot_nodes](#mdvrp_optimize_depot_nodes)
- - [vrptw_node_time_window](#vrptw_node_time_window)
- - [vrptw_node_penalty](#vrptw_node_penalty)
- - [vrptw_hard_windows](#vrptw_hard_windows)
+  - [vrp_contents](#vrp_contents)
+  - [vrp_path_table_override](#vrp_path_table_override)
+  - [vrp_path_table_mapping](#vrp_path_table_mapping)
+  - [vrp_vehicle_count](#vrp_vehicle_count)
+  - [vrp_node_service_time](#vrp_node_service_time)
+  - [vrp_maximum_route_time](#vrp_maximum_route_time)
+  - [vrp_maximum_route_distance](#vrp_maximum_route_distance)
+  - [vrp_distance_time_ratio](#vrp_distance_time_ratio)
+  - [vrp_time_cost_ratio](#vrp_time_cost_ratio)
+  - [vrp_distance_cost_ratio](#vrp_distance_cost_ratio)
+  - [cvrp_vehicle_capacity](#cvrp_vehicle_capacity)
+  - [cvrp_node_demand](#cvrp_node_demand)
+  - [ovrp_enabled](#ovrp_enabled)
+  - [vrpp_node_profit](#vrpp_node_profit)
+  - [vrpp_exclude_travel_costs](#vrpp_exclude_travel_costs)
+  - [vrpp_optional_node](#vrpp_optional_node)
+  - [mdvrp_depot_node](#mdvrp_depot_node)
+  - [mdvrp_optimize_depot_nodes](#mdvrp_optimize_depot_nodes)
+  - [vrptw_node_time_window](#vrptw_node_time_window)
+  - [vrptw_node_penalty](#vrptw_node_penalty)
+  - [vrptw_hard_windows](#vrptw_hard_windows)
 - [GA-settings](#ga-settings)
- - [population_count](#population_count)
- - [population_initializer](#population_initializer)
- - [generation_count_min](#generation_count_min)
- - [generation_count_max](#generation_count_max)
- - [cpu_individual_limit](#cpu_individual_limit)
- - [cpu_total_limit](#cpu_total_limit)
- - [fitness_lower_bound](#fitness_lower_bound)
- - [fitness_upper_bound](#fitness_upper_bound)
- - [fitness_threshold](#fitness_threshold)
- - [parent_candidate_count](#parent_candidate_count)
- - [parent_selection_function](#parent_selection_function)
- - [tournament_probability](#tournament_probability)
- - [crossover_operator](#crossover_operator)
- - [crossover_probability](#crossover_probability)
- - [mutation_probability](#mutation_probability)
- - [filtration_frequency](#filtration_frequency)
- - [replace_valid_individuals](#replace_valid_individuals)
- - [sa_iteration_count](#sa_iteration_count)
- - [sa_initial_temperature](#sa_initial_temperature)
- - [sa_p_coeff](#sa_p_coeff)
+  - [population_count](#population_count)
+  - [population_initializer](#population_initializer)
+  - [generation_count_min](#generation_count_min)
+  - [generation_count_max](#generation_count_max)
+  - [cpu_individual_limit](#cpu_individual_limit)
+  - [cpu_total_limit](#cpu_total_limit)
+  - [fitness_lower_bound](#fitness_lower_bound)
+  - [fitness_upper_bound](#fitness_upper_bound)
+  - [fitness_threshold](#fitness_threshold)
+  - [parent_candidate_count](#parent_candidate_count)
+  - [parent_selection_function](#parent_selection_function)
+  - [tournament_probability](#tournament_probability)
+  - [crossover_operator](#crossover_operator)
+  - [crossover_probability](#crossover_probability)
+  - [mutation_probability](#mutation_probability)
+  - [filtration_frequency](#filtration_frequency)
+  - [replace_valid_individuals](#replace_valid_individuals)
+  - [sa_iteration_count](#sa_iteration_count)
+  - [sa_initial_temperature](#sa_initial_temperature)
+  - [sa_p_coeff](#sa_p_coeff)
 
 ### Parameter settings structure
 
@@ -165,13 +165,13 @@ As a population-based algorithm, GA maintains a population of individuals that r
 
 Population initializer is a function that determines how a generation 0 population is created. An integer code that represents a function is provided here. The following population initializers are available:
 - 0: Random
- - Every individual is created randomly.
+  - Every individual is created randomly.
 - 1: Allele Permutation
- - A random individual is created. Then it is mutated and copied to the population every time.
+  - A random individual is created. Then it is mutated and copied to the population every time.
 - 2: Gene Permutation
- - A random individual is created. Then its chromosome is split into random genes. Using them, permutations of them are created and added to the population. If permutations run out, another random individual is created and the process is repeated until the population is completed.
+  - A random individual is created. Then its chromosome is split into random genes. Using them, permutations of them are created and added to the population. If permutations run out, another random individual is created and the process is repeated until the population is completed.
 - 3: Simulated Annealing (SA)
- - A heuristic algorithm that can also be used to solve VRP instances. Individuals that are accepted by SA are added to the population. If resulting population is greater than population count, it is sorted in ascending (or descending if maximizing) order and the first subset of individuals are taken. If resulting population is less than population count, the rest of the individuals are created randomly.
+  - A heuristic algorithm that can also be used to solve VRP instances. Individuals that are accepted by SA are added to the population. If resulting population is greater than population count, it is sorted in ascending (or descending if maximizing) order and the first subset of individuals are taken. If resulting population is less than population count, the rest of the individuals are created randomly.
 
 
  If SA is used as the population initializer, additional parameters are to be configured.
@@ -232,13 +232,13 @@ This is the probability that a candidate individual is chosen from a group of ca
 
 Crossover operator is a function that conducts the crossover procedure of the GA. Two parents are specified to create two offspring. An integer code that represents a function is provided here. The following crossover operators are available:
 - 0: 1-Point
- - A cutoff point is selected for both chromosomes. Contents of one side of the point are flipped, and the rest are rearranged and fixed so that there are no duplicates.
+  - A cutoff point is selected for both chromosomes. Contents of one side of the point are flipped, and the rest are rearranged and fixed so that there are no duplicates.
 - 1: 2-Point
- - This is similar to 1-Point, except that two cutoff points are selected, and the contents between them are flipped.
+  - This is similar to 1-Point, except that two cutoff points are selected, and the contents between them are flipped.
 - 2: Order Crossover (OX)
  For each chromosome a random, unique gene is selected for preservation. Offspring A has the preserved gene of parent A, and the rest of the chromosome comes from parent B. Vice versa for offspring B.
 - 3: Vehicle Crossover (VX)
- - This is the same as OX, except genes subject to preservation are full routes.
+  - This is the same as OX, except genes subject to preservation are full routes.
 
 #### crossover_probability
 
