@@ -17,6 +17,10 @@ def allele_swap(vrp):
     Once the individual has been mutated, it has to be validated and evaluated
     again.
     """
+    
+    # Solution length must be greater than 2.
+    if len(vrp.solution) <= 2:
+        return
 
     solution = vrp.solution
     swap_indices = sample(range(1, len(solution)), 2)
@@ -35,6 +39,10 @@ def sequence_inversion(vrp):
     Once the individual has been mutated, it has to be validated and evaluated
     again.
     """
+    
+    # Solution length must be greater than 2.
+    if len(vrp.solution) <= 2:
+        return
 
     solution = vrp.solution
     gene_border = sample(range(1, len(solution) + 1), 2)
@@ -53,6 +61,10 @@ def sequence_shuffle(vrp):
     Once the individual has been mutated, it has to be validated and evaluated
     again.
     """
+    
+    # Solution length must be greater than 2.
+    if len(vrp.solution) <= 2:
+        return
 
     solution = vrp.solution
     gene_border = sample(range(1, len(solution) + 1), 2)
@@ -73,6 +85,10 @@ def sequence_relocation(vrp):
     Once the individual has been mutated, it has to be validated and evaluated
     again.
     """
+    
+    # Solution length must be greater than 2.
+    if len(vrp.solution) <= 2:
+        return
 
     solution = vrp.solution
     gene_border = sample(range(1, len(solution) + 1), 2)
