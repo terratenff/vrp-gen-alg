@@ -510,7 +510,7 @@ def set_algorithm_parameters(alg_params):
         # -----------------------------------------------------------------------
 
         user_input = input("SA - Annealing Coefficient\n- Current: {:0.2f}\n- Default: 1.15\n"
-                           "Recommended Input Range: (1.00, 2.00]\n"
+                           "Recommended Input Range: 1.00 or higher \n"
                            "This parameter applies only if Simulated Annealing is used.\n> "
                            .format(alg_params.sa_p_coeff))
         if _quit(user_input):

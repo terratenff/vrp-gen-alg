@@ -124,7 +124,9 @@ def random_valid_individual(**kwargs):
         candidate_individual.assign_solution(candidate_solution)
 
         # Mutate the individual with "vehicle diversification" 10% of the time.
-        vehicle_diversification(candidate_individual)
+        if random_float() <= 0.10:
+            vehicle_diversification(candidate_individual)
+        
         for validator in VRP.validator:
             valid_individual, validation_msg = validator(candidate_individual, **validation_args)
             # print("(Random Valid Individual) {}".format(validation_msg))
