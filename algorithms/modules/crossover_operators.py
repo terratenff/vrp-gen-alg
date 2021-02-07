@@ -32,6 +32,11 @@ def one_point(vrp1, vrp2):
     :return: Two individuals created via crossover from selected individuals.
     Generated offspring have to be validated and evaluated separately.
     """
+    
+    # Solutions lengths must be greater than 5 in order to have this
+    # crossover operator work properly.
+    if len(vrp1.solution) <= 5 or len(vrp2.solution) <= 5:
+        return vrp1, vrp2
 
     depot_list = vrp1.depot_node_list
     optional_list = vrp1.optional_node_list

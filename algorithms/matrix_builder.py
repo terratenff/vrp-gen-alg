@@ -387,6 +387,7 @@ def select_demands_matrix(vrp_params, name=None):
         matrix_name = input("Target Node Demands Matrix Name > ")
     elif name == "None":
         vrp_params.cvrp_node_demand = None
+        vrp_params.node_demands_name = name
         return
     else:
         matrix_name = name
@@ -409,6 +410,7 @@ def select_penalties_matrix(vrp_params, name=None):
         matrix_name = input("Target Node Penalty Coefficients Matrix Name > ")
     elif name == "None":
         vrp_params.vrptw_node_penalty = None
+        vrp_params.node_penalties_name = name
         return
     else:
         matrix_name = name
@@ -431,6 +433,7 @@ def select_profits_matrix(vrp_params, name=None):
         matrix_name = input("Target Node Profits Matrix Name > ")
     elif name == "None":
         vrp_params.vrpp_node_profit = None
+        vrp_params.node_profits_name = name
         return
     else:
         matrix_name = name
@@ -453,6 +456,7 @@ def select_service_times_matrix(vrp_params, name=None):
         matrix_name = input("Target Node Service Times Matrix Name > ")
     elif name == "None":
         vrp_params.vrp_node_service_time = None
+        vrp_params.node_service_times_name = name
         return
     else:
         matrix_name = name
@@ -475,6 +479,7 @@ def select_time_windows_matrix(vrp_params, name=None):
         matrix_name = input("Target Node Time Windows Matrix Name > ")
     elif name == "None":
         vrp_params.vrptw_node_time_window = None
+        vrp_params.node_time_windows_name = name
         return
     else:
         matrix_name = name
