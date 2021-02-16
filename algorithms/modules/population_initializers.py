@@ -554,7 +554,10 @@ def simulated_annealing(**kwargs):
         pass_requirement = random_float()
 
         # With the fitness values of both guide and candidate, SA probability can be calculated.
-        sa_probability = exp(max_factor * (candidate_individual.fitness - guide_individual.fitness) / temperature)
+        try:
+            sa_probability = exp(max_factor * (candidate_individual.fitness - guide_individual.fitness) / temperature)
+        except OverflowError:
+            sa_probability = float("inf")
 
         # Test Print
         # print("{} | FITNESS: {:> 5} | TEMP: {:.5f} | SA VALUE: {:.5f} | PASS: {:.5f}".format(
