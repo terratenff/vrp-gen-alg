@@ -224,7 +224,7 @@ def generate_penalties_matrix():
                               "- Very high penalty simulates hard time window\n > "))
     penalty_max = float(input("Maximum Penalty Coefficient (greater than {}) > ".format(penalty_min)))
     matrix = np.random.uniform(penalty_min, penalty_max, [nodes, 1])
-    if affect_depot_nodes is True:
+    if affect_depot_nodes is False:
         matrix[depot_node] = 0.00
 
     np.savetxt("variables/node_penalties/" + matrix_name + ".txt", matrix, fmt="%.8f")
@@ -299,13 +299,15 @@ def generate_time_windows_matrix():
                                   "(greater than {}) > ".format(lower_bound_max)))
     upper_bound_max = float(input("Maximum Upper Bound Time Window\n"
                                   "(greater than {}) > ".format(upper_bound_min)))
-    depot_time_window = float(input("Depot Node Maximum Upper Bound Time Window\n"
-                                    "(greater than {}) > ".format(upper_bound_max)))
+    depot_time_window_min = float(input("Depot Node Maximum Lower Bound Time Window\n"
+                                        "(greater than {}) > ".format(upper_bound_max)))
+    depot_time_window_max = float(input("Depot Node Maximum Upper Bound Time Window\n"
+                                        "(greater than {}) > ".format(depot_time_window_min)))
     matrix1 = np.random.uniform(lower_bound_min, lower_bound_max, [nodes, 1])
     matrix2 = np.random.uniform(upper_bound_min, upper_bound_max, [nodes, 1])
     matrix = np.concatenate((matrix1, matrix2), axis=1)
     for depot in depot_node:
-        depot_upper_bound = np.random.uniform(upper_bound_max, depot_time_window)
+        depot_upper_bound = np.random.uniform(depot_time_window_min, depot_time_window_max)
         matrix[depot, :] = np.array([0, depot_upper_bound], dtype=float)
 
     # noinspection PyTypeChecker
