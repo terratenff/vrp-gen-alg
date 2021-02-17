@@ -43,6 +43,7 @@ This folder contains a collection of parameter settings that the application use
   - [crossover_operator](#crossover_operator)
   - [crossover_probability](#crossover_probability)
   - [mutation_probability](#mutation_probability)
+  - [invalidity_correction](#invalidity_correction)
   - [filtration_frequency](#filtration_frequency)
   - [replace_valid_individuals](#replace_valid_individuals)
   - [sa_iteration_count](#sa_iteration_count)
@@ -236,7 +237,7 @@ Crossover operator is a function that conducts the crossover procedure of the GA
 - 1: 2-Point
   - This is similar to 1-Point, except that two cutoff points are selected, and the contents between them are flipped.
 - 2: Order Crossover (OX)
- For each chromosome a random, unique gene is selected for preservation. Offspring A has the preserved gene of parent A, and the rest of the chromosome comes from parent B. Vice versa for offspring B.
+  - For each chromosome a random, unique gene is selected for preservation. Offspring A has the preserved gene of parent A, and the rest of the chromosome comes from parent B. Vice versa for offspring B.
 - 3: Vehicle Crossover (VX)
   - This is the same as OX, except genes subject to preservation are full routes.
 
@@ -247,6 +248,20 @@ The probability of the crossover operation taking place. If crossover does not t
 #### mutation_probability
 
 The probability of the mutation operation taking place.
+
+#### invalidity_correction
+
+Invalidity correction function takes an individual that has been deemed invalid and makes it valid again. An integer code represents a function that is used to repair invalid individuals. The following invalidity correction functions are available:
+- 0: Random Valid Individual
+  - A completely random individual is created from scratch. It is then validated. This process is repeated until a valid individual is created.
+- 1: Best Individual
+  - Invalid individual is replaced with the best individual that has been discovered during the current execution of the genetic algorithm.
+- 2: Neighbor of the Best Individual
+  - The best individual is taken and then mutated. If resulting individual is invalid, the process is repeated.
+- 3: Indefinite Mutation
+  - Invalid individual is mutated and validated. Whenever the individual is invalid it is mutated again. Once the individual is valid, the mutation stops.
+- 4: Best Individual + Mutation
+  - Invalidity correction functions 1 and 3 combined. The best individual is taken and then continuously mutated until it is valid.
 
 #### filtration_frequency
 

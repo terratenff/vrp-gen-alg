@@ -300,6 +300,7 @@ class ParamsGENALG:
                  crossover_operator=0,
                  crossover_probability=0.90,
                  mutation_probability=0.10,
+                 invalidity_correction=0,
                  filtration_frequency=0,
                  replace_similar_individuals=0,
                  sa_iteration_count=300,
@@ -350,6 +351,9 @@ class ParamsGENALG:
         :param mutation_probability: Probability of mutating an individual offspring upon its creation.
         The probability is for one node. If mutation does not occur, the node is skipped.
         Otherwise a followup check is performed.
+        
+        :param invalidity_correction: Function that determines how an invalid individual is replaced with
+        a valid individual.
 
         :param filtration_frequency: Determines how often, in terms of generations, the filtration procedure is
         performed. Filtration is the act of combining two most recent generations together, sorting them in
@@ -385,6 +389,7 @@ class ParamsGENALG:
         self.crossover_operator = crossover_operator
         self.crossover_probability = crossover_probability
         self.mutation_probability = mutation_probability
+        self.invalidity_correction = invalidity_correction
         self.filtration_frequency = filtration_frequency
         self.replace_similar_individuals = replace_similar_individuals
         self.sa_iteration_count = sa_iteration_count
@@ -408,6 +413,13 @@ class ParamsGENALG:
             "Order Crossover",
             "Vehicle Crossover"
         ]
+        self.str_invalidity_correction = [
+            "Random Valid Individual",
+            "Best Individual",
+            "Neighbor of Best Individual",
+            "Indefinite Mutation",
+            "Best Individual + Mutation"
+        ]
 
     def print(self):
         """
@@ -417,6 +429,7 @@ class ParamsGENALG:
         pop_str = self.str_population_initializer[self.population_initializer]
         par_sel_str = self.str_parent_selection_function[self.parent_selection_function]
         cross_str = self.str_crossover_operator[self.crossover_operator]
+        invalidity_str = self.str_invalidity_correction[self.invalidity_correction]
 
         if self.filtration_frequency <= 0:
             filtration_fr_str = "Never"
@@ -448,6 +461,7 @@ class ParamsGENALG:
         print("Crossover Operator          | {}".format(cross_str))
         print("Crossover Probability       | {:0.2f}".format(self.crossover_probability))
         print("Mutation Probability        | {:0.2f}".format(self.mutation_probability))
+        print("Invalidity Correction       | {}".format(invalidity_str))
         print("Filtration Frequency        | {}".format(filtration_fr_str))
         print("Replace Similar Individuals | {}".format(replace_str))
         print("SA - Iteration Count        | {}".format(self.sa_iteration_count))

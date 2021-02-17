@@ -452,6 +452,25 @@ def set_algorithm_parameters(alg_params):
             alg_params.mutation_probability = float(user_input)
 
         # -----------------------------------------------------------------------
+        
+        user_input = input("Invalidity Correction\n"
+                           "- 0 = Random Valid Individual\n"
+                           "- 1 = Best Individual\n"
+                           "- 2 = Neighbor of Best Individual\n"
+                           "- 3 = Indefinite Mutation\n"
+                           "- 4 = Best Individual + Mutation\n"
+                           "- Current: {}\n- Default: 0\n> "
+                           .format(alg_params.invalidity_correction))
+        if _quit(user_input):
+            return
+        elif not _next(user_input):
+            if int(user_input) < 0 or int(user_input) > 4:
+                while int(user_input) < 0 or int(user_input) > 4:
+                    print("Input value is outside expected range.")
+                    user_input = input("> ")
+            alg_params.invalidity_correction = int(user_input)
+
+        # -----------------------------------------------------------------------
 
         if alg_params.filtration_frequency <= 0:
             filtration_fr_str = "Never"
@@ -599,6 +618,7 @@ def save_params(filename, vrp_params, alg_params):
         file.write("crossover_operator={}\n".format(str(alg_params.crossover_operator)))
         file.write("crossover_probability={}\n".format(str(alg_params.crossover_probability)))
         file.write("mutation_probability={}\n".format(str(alg_params.mutation_probability)))
+        file.write("invalidity_correction={}\n".format(str(alg_params.invalidity_correction)))
         file.write("filtration_frequency={}\n".format(str(alg_params.filtration_frequency)))
         file.write("replace_similar_individuals={}\n".format(str(alg_params.replace_similar_individuals)))
         file.write("sa_iteration_count={}\n".format(str(alg_params.sa_iteration_count)))
@@ -743,6 +763,8 @@ def load_params(filename, vrp_params, alg_params):
             alg_params.crossover_probability = float(key_value[1])
         elif key_value[0] == "mutation_probability":
             alg_params.mutation_probability = float(key_value[1])
+        elif key_value[0] == "invalidity_correction":
+            alg_params.invalidity_correction = int(key_value[1])
         elif key_value[0] == "filtration_frequency":
             alg_params.filtration_frequency = int(key_value[1])
         elif key_value[0] == "replace_similar_individuals":

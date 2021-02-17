@@ -21,6 +21,7 @@ import algorithms.modules.evaluators as evaluators
 import algorithms.modules.parent_selectors as parent_selectors
 import algorithms.modules.crossover_operators as crossover_operators
 import algorithms.modules.mutation_operators as mutation_operators
+import algorithms.modules.invalidity_correction_functions as invalidity_correction
 
 
 def run_gen_alg(vrp_params, alg_params):
@@ -150,27 +151,35 @@ def run_gen_alg(vrp_params, alg_params):
         1: mutation_operators.sequence_inversion,
         2: mutation_operators.sequence_shuffle,
         3: mutation_operators.sequence_relocation,
-        4: mutation_operators.vehicle_diversification,
-        5: mutation_operators.add_optional_node,
-        6: mutation_operators.remove_optional_node,
-        7: mutation_operators.change_depot
+        4: mutation_operators.add_optional_node,
+        5: mutation_operators.remove_optional_node,
+        6: mutation_operators.change_depot
     }
     mutation_functions = [
         mutation_collection[0],
         mutation_collection[1],
         mutation_collection[2],
-        mutation_collection[3],
-        mutation_collection[4]
+        mutation_collection[3]
     ]
     if using_vrpp:
+        mutation_functions.append(mutation_collection[4])
         mutation_functions.append(mutation_collection[5])
-        mutation_functions.append(mutation_collection[6])
     if using_mdvrp and not optimize_depot_nodes:
-        mutation_functions.append(mutation_collection[7])
+        mutation_functions.append(mutation_collection[6])
     VRP.mutation_operator = mutation_functions
     mutation_function_count = len(mutation_functions)
+    
+    # GA Initialization, Step 8: Selecting suitable invalidity correction function.
+    invalidity_correction_collection = {
+        0: invalidity_correction.random_valid_individual,
+        1: invalidity_correction.best_individual,
+        2: invalidity_correction.neighbor_of_best_individual,
+        3: invalidity_correction.indefinite_mutation,
+        4: invalidity_correction.best_individual_and_mutation
+    }
+    VRP.invalidity_corrector = invalidity_correction_collection[alg_params.invalidity_correction]
 
-    # GA Initialization, Step 8: Create conversion functions between distance, time and cost.
+    # GA Initialization, Step 9: Create conversion functions between distance, time and cost.
     # Also create functions that conduct the filtration and replacement strategies.
     distance_time_var = max(0, vrp_params.vrp_distance_time_ratio)
     time_cost_var = max(0, vrp_params.vrp_time_cost_ratio)
@@ -311,7 +320,7 @@ def run_gen_alg(vrp_params, alg_params):
 
         return replaced_population, rp_msg
 
-    # GA Initialization, Step 9: Create (and modify) variables that GA actively uses.
+    # GA Initialization, Step 10: Create (and modify) variables that GA actively uses.
     # - Deep-copied variables are potentially subject to modifications.
     path_table = deepcopy(vrp_params.vrp_path_table)
     path_table_mapping = deepcopy(vrp_params.vrp_path_table_mapping)
@@ -432,7 +441,7 @@ def run_gen_alg(vrp_params, alg_params):
     sa_initial_temperature = alg_params.sa_initial_temperature
     sa_p_coeff = alg_params.sa_p_coeff
 
-    # GA Initialization, Step 10: Create variables relating to termination criteria.
+    # GA Initialization, Step 11: Create variables relating to termination criteria.
     global_cpu_limit = alg_params.cpu_total_limit
     individual_cpu_limit = alg_params.cpu_individual_limit
     upper_bound = alg_params.fitness_upper_bound
@@ -449,7 +458,7 @@ def run_gen_alg(vrp_params, alg_params):
     individual_timer = Timer(individual_cpu_limit)
     def check_goal(timer): return timer.past_goal()
 
-    # GA Initialization, Step 11: Prepare keyword arguments for module functions.
+    # GA Initialization, Step 12: Prepare keyword arguments for module functions.
     evaluation_args = {
         "path_table": path_table,
         "distance_time_converter": distance_to_time,
@@ -508,7 +517,7 @@ def run_gen_alg(vrp_params, alg_params):
         "maximize": maximize,
         "minimum_cpu_time": individual_cpu_limit
     }
-    # GA Initialization, Step 12: Miscellaneous collection of tests.
+    # GA Initialization, Step 13: Miscellaneous collection of tests.
 
     # Capacity test: total capacity potential (vehicle_capacity * vehicle_capacity) is compared
     # to total required capacity (sum of every required node capacity).
@@ -589,6 +598,11 @@ def run_gen_alg(vrp_params, alg_params):
     best_overall_individual_history.append(deepcopy(best_individual))
     best_overall_generation_tracker.append(current_generation)
     print(msg)
+    
+    invalidity_correction_args = {
+        "best_individual": best_individual,
+        "individual_args": individual_args
+    }
 
     # for individual in population:
     #     print("{:> 4} | {:> 5} | {}".format(individual.individual_id, individual.fitness, individual.solution))
@@ -650,10 +664,9 @@ def run_gen_alg(vrp_params, alg_params):
             for validator in VRP.validator:
                 new_population[i].valid, validation_msg = validator(new_population[i], **validation_args)
                 if new_population[i].valid is False:
-                    # New individual is deemed invalid. It is now subject to a replacement
-                    # with a completely random, but valid, individual.
+                    # New individual is deemed invalid. It is now subject to a correction operation.
                     individual_timer.start()
-                    replacement, msg = population_initializers.random_valid_individual(**individual_args)
+                    replacement, msg = VRP.invalidity_corrector(new_population[i], **invalidity_correction_args)
                     individual_timer.stop()
                     if replacement is None:
                         # Minimum CPU Time Termination Criterion has been violated.

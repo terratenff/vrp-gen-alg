@@ -21,7 +21,7 @@ Here are described the primary algorithms that the application uses.
       3. Perform mutation for the offspring.
       4. Add offspring to the new population.
    2. Validate individuals in the new population using selected evaluators.
-   3. Replace invalid individuals with completely random individuals.
+   3. Replace invalid individuals with valid individuals using invalidity correction functions.
    4. Evaluate individuals using selected evaluator function.
    5. Sort new population in ascending/descending fitness order.
    6. Conduct the filtration strategy (or removal of duplicates) if it is time for it.

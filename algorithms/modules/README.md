@@ -28,6 +28,12 @@ Here are described a collection of modules that have been implemented specifical
   - [Remove Optional Node](#remove-optional-node)
   - [Change Depot](#change-depot)
 - [Validators](#validators)
+- [Invalidity Correction Functions](#invalidity-correction-functions)
+  - [Random Valid Individual](#random-valid-individual)
+  - [Best Individual](#best-individual)
+  - [Neighbor of the Best Individual](#neighbor-of-the-best-individual)
+  - [Indefinite Mutation](#indefinite-mutation)
+  - [Best Individual and Mutation](#best-individual-and-mutation)
 - [Evaluators](#evaluators)
 
 ### Population Initializers
@@ -130,7 +136,31 @@ Validators ensure that solutions proposed by individuals do not violate any cons
 - Maximum capacity
 - Time windows
 
-If a solution of an individual violates one or more of these constraints, the individual is deemed invalid. In such a case, it is given a completely random solution.
+If a solution of an individual violates one or more of these constraints, the individual is deemed invalid. In such a case, it is repaired using an invalidity correction function.
+
+### Invalidity Correction Functions
+
+Invalidity Correction functions are used to convert invalid individuals to valid ones.
+
+#### Random Valid Individual
+
+A completely random individual is created from scratch. It is then validated. This process is repeated until a valid individual is created.
+
+#### Best Individual
+
+Invalid individual is replaced with the best individual that has been discovered during the current execution of the genetic algorithm.
+
+#### Neighbor of the Best Individual
+
+The best individual is taken and then mutated. If resulting individual is invalid, the process is repeated.
+
+#### Indefinite Mutation
+
+Invalid individual is mutated and validated. Whenever the individual is invalid it is mutated again. Once the individual is valid, the mutation stops.
+
+#### Best Individual and Mutation
+
+Invalidity correction functions 1 and 3 combined. The best individual is taken and then continuously mutated until it is valid.
 
 ### Evaluators
 

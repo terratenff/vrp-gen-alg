@@ -210,8 +210,10 @@ Multiple maps (10 or less) are generated purely for illustration purposes. They 
 
 If GA has trouble creating individuals for the population, there are some measures that could be considered. For example:
 - Are the constraints too strict? If so, see if you could loosen them.
+- If constraints cannot be loosened, try using a different invalidity correction function.
 - Are there any issues with parameters/matrices that are being used?
 - Setting the number of available vehicles low could result in GA being unable to find valid solutions. Check if it is possible to find a solution with more of them.
 - How are the conversion factors set? Should both time and distance translate to cost?
+- It is known (as of 17.2.2021) that the application does not solve large cases efficiently - especially if they have strict constraints.
 
 Be careful while handling the GUI. It is known to crash the application if it is very actively interacted with (notable example of this is resizing - especially with many figures contained within it).

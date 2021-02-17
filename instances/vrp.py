@@ -23,6 +23,7 @@ class VRP:
     parent_selector = None
     crossover_operator = None
     mutation_operator = None
+    invalidity_corrector = None
 
     id_counter = 0
 
