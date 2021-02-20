@@ -49,7 +49,7 @@ def best_individual(violator, **kwargs):
     violator_id = violator.individual_id
     best_individual_instance = deepcopy(kwargs["best_individual"])
     best_individual_instance.individual_id = violator_id
-    return "Best Individual Used", best_individual_instance
+    return best_individual_instance, "Best Individual Used"
 
 
 def neighbor_of_best_individual(violator, **kwargs):

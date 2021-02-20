@@ -710,6 +710,7 @@ def run_gen_alg(vrp_params, alg_params):
         if compare(candidate_individual, best_individual):
             # New best individual takes over as the potential optimal solution.
             best_individual = deepcopy(candidate_individual)
+            invalidity_correction_args["best_individual"] = best_individual
 
             # Add said individual into a separate list so that it could be plotted
             # later.
