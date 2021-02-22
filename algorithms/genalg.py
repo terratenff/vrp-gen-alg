@@ -580,6 +580,7 @@ def run_gen_alg(vrp_params, alg_params):
     current_generation = 0
     current_generation_min = 0
 
+    print("Initializing generation 0 population...")
     population, msg = VRP.population_initializer(**population_args)
 
     # Population initialization can fail due to taking too long in creating a valid individual.

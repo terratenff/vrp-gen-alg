@@ -559,15 +559,6 @@ def simulated_annealing(**kwargs):
         except OverflowError:
             sa_probability = float("inf")
 
-        # Test Print
-        # print("{} | FITNESS: {:> 5} | TEMP: {:.5f} | SA VALUE: {:.5f} | PASS: {:.5f}".format(
-        #     candidate_individual.solution,
-        #     candidate_individual.fitness,
-        #     temperature,
-        #     sa_probability,
-        #     pass_requirement
-        # ), end=" | ")
-
         if sa_probability >= pass_requirement:
             # print("Selected")  # Test Print
             # Mutation has been selected as the new guide.
@@ -575,11 +566,26 @@ def simulated_annealing(**kwargs):
             guide_individual = deepcopy(candidate_individual)
             guide_individual.assign_id()
             candidate_individual = deepcopy(guide_individual)
+            outcome_str = "Selected"
         else:
             # print("Discarded")  # Test Print
             # Mutation has been rejected. Revert back to guide individual.
             candidate_individual = deepcopy(guide_individual)
-
+            outcome_str = "Discarded"
+        
+        print("Iteration: {} |"
+              " Fitness: {:> .5f} |"
+              " Temperature: {:> .5f} |"
+              " Selection Probability: {:> .5f} |"
+              " Outcome: {}"
+              .format(
+            n,
+            candidate_individual.fitness,
+            temperature,
+            sa_probability,
+            outcome_str
+        ))
+        
         # Reset individual timer upon completing an iteration.
         individual_timer.reset()
 
