@@ -129,8 +129,9 @@ def vehicle_diversification(vrp):
 
 def add_optional_node(vrp):
     """
-    Mutates an individual by adding an optional node to the solution. Applicable
-    for VRPP instances only.
+    Mutates an individual by adding 1-5 optional nodes to the solution.
+    If all of the optional nodes are being used, remove some from the solution instead.
+    Applicable for VRPP instances only.
     :param vrp: Subject individual.
 
     Once the individual has been mutated, it has to be validated and evaluated
@@ -140,20 +141,26 @@ def add_optional_node(vrp):
     solution = vrp.solution
     unused_nodes = vrp.unvisited_optional_nodes
     if len(unused_nodes) == 0:
-        # All of the optional nodes are being used.
+        # All of the optional nodes are being used. Proceed to remove some instead.
+        remove_optional_node(vrp)
         return
+    
+    node_count = min(randint(1, 5), len(unused_nodes))
 
-    subject_node = unused_nodes[randint(0, len(unused_nodes) - 1)]
-    destination = randint(1, len(solution))
-    solution.insert(destination, subject_node)
+    for _ in range(node_count):
+        node_selector = randint(0, len(unused_nodes) - 1)
+        subject_node = unused_nodes[node_selector]
+        del unused_nodes[node_selector]
+        destination = randint(1, len(solution))
+        solution.insert(destination, subject_node)
 
     vrp.assign_solution(solution)
 
 
 def remove_optional_node(vrp):
     """
-    Mutates an individual by removing an optional node from the solution.
-    If none of the optional nodes are being used, add one to the solution instead.
+    Mutates an individual by removing 1-5 optional nodes from the solution.
+    If none of the optional nodes are being used, add some to the solution instead.
     Applicable for VRPP instances only.
     :param vrp: Subject individual.
 
@@ -164,12 +171,17 @@ def remove_optional_node(vrp):
     solution = vrp.solution
     used_nodes = vrp.visited_optional_nodes
     if len(used_nodes) == 0:
-        # None of the optional nodes are being used. Proceed to add one instead.
+        # None of the optional nodes are being used. Proceed to add some instead.
         add_optional_node(vrp)
         return
+    
+    node_count = min(randint(1, 5), len(used_nodes))
 
-    subject_node = used_nodes[randint(0, len(used_nodes) - 1)]
-    solution.remove(subject_node)
+    for _ in range(node_count):
+        node_selector = randint(0, len(used_nodes) - 1)
+        subject_node = used_nodes[node_selector]
+        del used_nodes[node_selector]
+        solution.remove(subject_node)
 
     vrp.assign_solution(solution)
 
