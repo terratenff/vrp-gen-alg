@@ -250,6 +250,10 @@ def allele_permutation(**kwargs):
     minimum_cpu_time = kwargs["minimum_cpu_time"]
     validation_args = kwargs["validation_args"]
     evaluation_args = kwargs["evaluation_args"]
+    
+    if len(optional_nodes) > node_count - len(optional_nodes):
+        print("(Allele Permutation) Note that this population initializer may not "\
+              "work well with VRPP instances.")
 
     # Set up two timers: one for measuring population initialization,
     # and another for measuring individual initializations.
@@ -338,6 +342,13 @@ def gene_permutation(**kwargs):
     minimum_cpu_time = kwargs["minimum_cpu_time"]
     validation_args = kwargs["validation_args"]
     evaluation_args = kwargs["evaluation_args"]
+    
+    if node_count - len(depot_nodes) < 10:
+        return None, "(Gene Permutation) Population Initialization halted: "\
+        "arbitralily set requirement (10 customers or more) is not met."
+    if len(optional_nodes) > node_count - len(optional_nodes):
+        print("(Gene Permutation) Note that this population initializer may not "\
+              "work well with VRPP instances.")
 
     # Set up two timers: one for measuring population initialization,
     # and another for measuring individual initializations.
@@ -370,12 +381,18 @@ def gene_permutation(**kwargs):
                 # All of the permutations in the list have been used. More is to be made.
                 # Generate a random solution along with indexes representing gene beginnings.
                 permutation_tracker = 0
-                candidate_solution = random_solution(
-                    node_count=node_count,
-                    depot_nodes=depot_nodes,
-                    optional_nodes=optional_nodes,
-                    vehicle_count=vehicle_count
-                )
+                
+                # Select a random solution such that its length, excluding depot nodes,
+                # is greater than or equal to 10.
+                solution_size = 0
+                while solution_size < 10:
+                    candidate_solution = random_solution(
+                        node_count=node_count,
+                        depot_nodes=depot_nodes,
+                        optional_nodes=optional_nodes,
+                        vehicle_count=vehicle_count
+                    )
+                    solution_size = len(candidate_solution) - len(depot_nodes)
 
                 # Collection of indices that indicate the beginnings of the genes subject to permutations.
                 gene_indices = [0,
