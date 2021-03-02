@@ -92,7 +92,9 @@ Node service time is the time that is needed to service a customer. Once a vehic
 
 #### vrp_maximum_route_time
 
-Maximum route time is a constraints that enforces how long a vehicle can be on its assigned route. If a vehicle spends too long a time on its route, the solution that it's a part of becomes invalid. Setting this parameter to None sets maximum route time to infinity, effectively removing maximum route time constraint.
+Maximum route time is a constraint that enforces how long a vehicle can be on its assigned route. If a vehicle spends too long a time on its route, the solution that it's a part of becomes invalid. Setting this parameter to None sets maximum route time to infinity, effectively removing maximum route time constraint.
+
+This parameter effectively creates hard time windows for depot nodes: if they are broken, the individual in question becomes invalid. This can hinder the application's ability to find a solution that respects these time windows. A way to combat this is to replace them with soft time windows, aimed at depot nodes, and then give depots extremely high penalty coefficients to simulate hard time windows.
 
 #### vrp_maximum_route_distance
 

@@ -88,6 +88,7 @@ def validate_maximum_time(vrp, **kwargs):
     distance_time = kwargs["distance_time_converter"]
     time_windows = kwargs["time_window"]
     service_time = kwargs["service_time"]
+    is_open = kwargs["ovrp"]
 
     route_list = vrp.get_route_list()
 
@@ -129,15 +130,16 @@ def validate_maximum_time(vrp, **kwargs):
             recent_node = point_b
 
         # Traveling back to the depot node.
-        distance_segment = path_table[recent_node][recent_depot]
-        route_time += distance_time(distance_segment)
-        start_window = time_windows[recent_depot][0]
-        if route_time < start_window:
-            route_time += start_window - route_time
-        route_time += service_time[recent_depot]
-        if route_time - route_start_time > maximum_time:
-            return False, "Maximum time constraint violation (Return to Depot Node {}): {} / {}" \
-                .format(recent_depot, route_time, maximum_time)
+        if not is_open:
+            distance_segment = path_table[recent_node][recent_depot]
+            route_time += distance_time(distance_segment)
+            start_window = time_windows[recent_depot][0]
+            if route_time < start_window:
+                route_time += start_window - route_time
+            route_time += service_time[recent_depot]
+            if route_time - route_start_time > maximum_time:
+                return False, "Maximum time constraint violation (Return to Depot Node {}): {} / {}" \
+                    .format(recent_depot, route_time, maximum_time)
 
         # Save route time for later inspections.
         vrp.route_times.append(route_time)
@@ -221,6 +223,7 @@ def validate_time_windows(vrp, **kwargs):
     distance_time = kwargs["distance_time_converter"]
     time_windows = kwargs["time_window"]
     service_time = kwargs["service_time"]
+    is_open = kwargs["ovrp"]
 
     route_list = vrp.get_route_list()
 
@@ -257,15 +260,16 @@ def validate_time_windows(vrp, **kwargs):
             recent_node = point_b
 
         # Traveling back to the depot node.
-        distance_segment = path_table[recent_node][recent_depot]
-        route_time += distance_time(distance_segment)
-        start_window = time_windows[recent_depot][0]
-        end_window = time_windows[recent_depot][1]
-        if route_time > end_window:
-            return False, "Hard time window constraint violation (Return to Depot Node {}): {} / {}" \
-                .format(recent_depot, route_time, end_window)
-        if route_time < start_window:
-            route_time += start_window - route_time
-        route_time += service_time[recent_depot]
+        if not is_open:
+            distance_segment = path_table[recent_node][recent_depot]
+            route_time += distance_time(distance_segment)
+            start_window = time_windows[recent_depot][0]
+            end_window = time_windows[recent_depot][1]
+            if route_time > end_window:
+                return False, "Hard time window constraint violation (Return to Depot Node {}): {} / {}" \
+                    .format(recent_depot, route_time, end_window)
+            if route_time < start_window:
+                route_time += start_window - route_time
+            route_time += service_time[recent_depot]
 
     return True, "Hard time window constraint not violated"

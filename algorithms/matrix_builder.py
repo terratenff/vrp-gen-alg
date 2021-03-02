@@ -216,16 +216,17 @@ def generate_penalties_matrix():
                                  "Multiple Depot Nodes can be defined by separating them with whitespace\n"
                                  " > ".format(nodes)))
     depot_node = list(set([int(i) for i in depot_node_input.split(" ")]))
-    affect_depot_nodes = input("Should Depot Nodes have penalty coefficients? (y/n)\n > ").upper() == "Y"
     penalty_min = float(input("Minimum Penalty Coefficient\n"
                               "- 1.00 is equivalent to time late.\n"
                               "- Low penalty implies low priority\n"
                               "- High penalty implies high priority\n"
                               "- Very high penalty simulates hard time window\n > "))
     penalty_max = float(input("Maximum Penalty Coefficient (greater than {}) > ".format(penalty_min)))
+    penalty_depot_min = float(input("Depot Minimum Penalty Coefficient > "))
+    penalty_depot_max = float(input("Depot Maximum Penalty Coefficient (greater than {}) > ".format(penalty_depot_min)))
     matrix = np.random.uniform(penalty_min, penalty_max, [nodes, 1])
-    if affect_depot_nodes is False:
-        matrix[depot_node] = 0.00
+    matrix_depot = np.random.uniform(penalty_depot_min, penalty_depot_max, [nodes, 1])
+    matrix[depot_node] = matrix_depot[depot_node]
 
     np.savetxt("variables/node_penalties/" + matrix_name + ".txt", matrix, fmt="%.8f")
 
@@ -296,11 +297,11 @@ def generate_time_windows_matrix():
     lower_bound_max = float(input("Maximum Lower Bound Time Window\n"
                                   "(greater than {}) > ".format(lower_bound_min)))
     upper_bound_min = float(input("Minimum Upper Bound Time Window\n"
-                                  "(greater than {}) > ".format(lower_bound_max)))
+                                  "> "))
     upper_bound_max = float(input("Maximum Upper Bound Time Window\n"
                                   "(greater than {}) > ".format(upper_bound_min)))
     depot_time_window_min = float(input("Depot Node Maximum Lower Bound Time Window\n"
-                                        "(greater than {}) > ".format(upper_bound_max)))
+                                        "> "))
     depot_time_window_max = float(input("Depot Node Maximum Upper Bound Time Window\n"
                                         "(greater than {}) > ".format(depot_time_window_min)))
     matrix1 = np.random.uniform(lower_bound_min, lower_bound_max, [nodes, 1])

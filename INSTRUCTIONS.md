@@ -210,10 +210,11 @@ Multiple maps (10 or less) are generated purely for illustration purposes. They 
 
 If GA has trouble creating individuals for the population, there are some measures that could be considered. For example:
 - Are the constraints too strict? If so, see if you could loosen them.
-- If constraints cannot be loosened, try using a different invalidity correction function.
+- If constraints cannot be loosened, try using different combinations of parameters. High vehicle count might help.
 - Are there any issues with parameters/matrices that are being used?
 - Setting the number of available vehicles low could result in GA being unable to find valid solutions. Check if it is possible to find a solution with more of them.
 - How are the conversion factors set? Should both time and distance translate to cost?
 - It is known (as of 17.2.2021) that the application does not solve large cases efficiently - especially if they have strict constraints.
+- Parameters that indicate the maximum time and distance for vehicles are effectively hard time windows: if they are broken, the solution in question is replaced. This can hinder the application's ability to find a solution that respects these constraints. A way to combat this is to replace them with soft time windows, aimed at depot nodes, and then give depots extremely high penalty coefficients to simulate hard time windows.
 
 Be careful while handling the GUI. It is known to crash the application if it is very actively interacted with (notable example of this is resizing - especially with many figures contained within it).

@@ -477,7 +477,8 @@ def run_gen_alg(vrp_params, alg_params):
         "maximum_distance": maximum_distance,
         "time_window": time_windows,
         "service_time": node_service_time,
-        "distance_time_converter": distance_to_time
+        "distance_time_converter": distance_to_time,
+        "ovrp": using_ovrp
     }
     population_args = {
         "node_count": node_count,
