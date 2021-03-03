@@ -222,8 +222,6 @@ def plot_population_development(population_collection, details):
     the plotting.
     """
 
-    line_count = details["line_count"]
-    line_increment = details["line_increment"]
     population_count = details["population_count"]
     parent_selector = details["parent_selector"]
     crossover_operator = details["crossover_operator"]
@@ -236,20 +234,23 @@ def plot_population_development(population_collection, details):
 
     # - Selects initialized population, next early populations and the final population.
     selected_populations.append(population_collection[0])
+    
     generation_str.append("Initialization")
-    for i in range(1, line_count - 1):
-        selected_populations.append(population_collection[i * line_increment])
-        generation_str.append("Generation {}".format(i * line_increment))
-    selected_populations.append(population_collection[len(population_collection) - 1])
-    generation_str.append("Generation {}".format(len(population_collection) - 1))
-
-    # - Selects populations evenly.
-    # incrementer = generation_count // (line_count + 1)
-    # index = incrementer
-    # for i in range(1, line_count + 1):
-    #     selected_populations.append(population_collection[index])
-    #     generation_str.append("Generation {}".format(index))
-    #     index += incrementer
+    line_count = min(5, len(population_collection) - 2)
+    if line_count == 5:
+        if 25 in population_collection.keys():
+            line_list = [5, 10, 15, 20, 25]
+        else:
+            line_list = [1, 2, 3, 4, 5]
+    else:
+        line_list = list(range(1, line_count))
+    
+    for i in line_list:
+        selected_populations.append(population_collection[i])
+        generation_str.append("Generation {}".format(i))
+    
+    selected_populations.append(population_collection[max(population_collection.keys())])
+    generation_str.append("Generation {}".format(max(population_collection.keys())))
 
     fitness_lists = []
     for population in selected_populations:

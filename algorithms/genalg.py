@@ -571,7 +571,8 @@ def run_gen_alg(vrp_params, alg_params):
     # -----------------------------------------------------------------------------------------------------------------
     # -----------------------------------------------------------------------------------------------------------------
 
-    population_history = []                     # Used in drawing graph 3 / 7.
+    population_history = {}                     # Used in drawing graph 3 / 7.
+    population_history_tracker = [0, 1, 2, 3, 4, 5, 10, 15, 20, 25]
     best_generation_individual_history = []     # Used in drawing graph 4 / 7.
     best_time_individual_history = []           # Used in drawing graph 5 / 7.
     best_individual_time_tracker = []           # Used in drawing graph 5 / 7.
@@ -592,7 +593,7 @@ def run_gen_alg(vrp_params, alg_params):
         return
 
     population.sort(key=attrgetter("fitness"), reverse=maximize)
-    population_history.append(deepcopy(population))
+    population_history[0] = deepcopy(population)
     initial_population = deepcopy(population)                   # Used in drawing graph 1 / 7.
     best_individual = deepcopy(population[0])
     best_initialized_individual = deepcopy(best_individual)     # Used in drawing graph 2 / 7.
@@ -724,7 +725,8 @@ def run_gen_alg(vrp_params, alg_params):
             current_generation_min = -1
 
         # Data collection for plotting purposes.
-        population_history.append(deepcopy(population))
+        if current_generation + 1 in population_history_tracker:
+            population_history[current_generation + 1] = deepcopy(population)
         best_generation_individual_history.append(deepcopy(candidate_individual))
         best_time_individual_history.append(deepcopy(best_individual))
         best_individual_time_tracker.append(global_timer.elapsed())
@@ -747,12 +749,9 @@ def run_gen_alg(vrp_params, alg_params):
     # ------------------------------------------------------------------------------------------------------------------
 
     global_timer.stop()
+    population_history[current_generation] = deepcopy(population)
 
-    if timeout:
-        print("Algorithm has finished incomplete. (Time taken: {} ms)".format(global_timer.elapsed()))
-    else:
-        print("Algorithm has finished. (Time taken: {} ms)".format(global_timer.elapsed()))
-
+    print("Algorithm has finished. (Time taken: {} ms)".format(global_timer.elapsed()))
     print("Discovered an individual with the following details:")
     best_individual.print()
 
@@ -803,10 +802,7 @@ def run_gen_alg(vrp_params, alg_params):
     # Graph 3 / 7
     # Line Graph that illustrates the development of the population. Fitness values of every individual over
     # multiple generations are presented.
-    line_count, line_increment = 7, 5
     details3 = {
-        "line_count": line_count if current_generation > line_count else current_generation,
-        "line_increment": line_increment if current_generation > line_count * line_increment else 1,
         "population_count": population_count,
         "parent_selector": alg_params.str_parent_selection_function[alg_params.parent_selection_function],
         "crossover_operator": alg_params.str_crossover_operator[alg_params.crossover_operator],
