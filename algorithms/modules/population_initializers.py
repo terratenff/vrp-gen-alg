@@ -577,15 +577,18 @@ def simulated_annealing(**kwargs):
             sa_probability = float("inf")
 
         if sa_probability >= pass_requirement:
-            # print("Selected")  # Test Print
             # Mutation has been selected as the new guide.
             population.append(candidate_individual)
+            
+            # Delete old individuals if current population is too large.
+            if len(population) > population_count:
+                del population[0]
+                
             guide_individual = deepcopy(candidate_individual)
             guide_individual.assign_id()
             candidate_individual = deepcopy(guide_individual)
             outcome_str = "Selected"
         else:
-            # print("Discarded")  # Test Print
             # Mutation has been rejected. Revert back to guide individual.
             candidate_individual = deepcopy(guide_individual)
             outcome_str = "Discarded"
@@ -613,15 +616,10 @@ def simulated_annealing(**kwargs):
           "- Result Population Size: {}" \
         .format(population_timer.elapsed(), len(population))
 
-    # Check the state of the population.
-    # - If it is too large, sort by fitness in descending order and take an appropriate sublist.
-    # - If it is too small, add missing individuals by generating random individuals.
-    current_population_count = len(population)
-    if current_population_count > population_count:
-        population.sort(key=attrgetter("fitness"), reverse=reverse_sort)
-        return population[:population_count], msg
-    elif current_population_count < population_count:
-        missing_population_count = population_count - current_population_count
+    # If resulting population is too small, add missing individuals by
+    # generating random individuals.
+    if len(population) < population_count:
+        missing_population_count = population_count - len(population)
         missing_population, msg0 = random(
             node_count=node_count,
             depot_nodes=depot_nodes,
@@ -632,6 +630,7 @@ def simulated_annealing(**kwargs):
             validation_args=validation_args,
             evaluation_args=evaluation_args
         )
-        return population + missing_population, msg
+        population = population + missing_population
 
+    population.sort(key=attrgetter("fitness"), reverse=reverse_sort)
     return population, msg

@@ -54,7 +54,7 @@ Population initializers create generation 0 population, since there are no indiv
 
 #### Simulated Annealing
 
-(Integer code 3) Heuristic algorithm that can also be used to solve VRP instances. This is based on the annealing technique in metallurgy where imperfections of metal are fixed, starting at high temperatures, and concluding at low temperatures. As a population initializer, individuals that are accepted by SA are added to the population. If resulting population is too large, it is sorted in ascending/descending order and the first necessary individuals are selected into the population. If resulting population is too small, the rest of the individuals are created randomly.
+(Integer code 3) Heuristic algorithm that can also be used to solve VRP instances. This is based on the annealing technique in metallurgy where imperfections of metal are fixed, starting at high temperatures, and concluding at low temperatures. As a population initializer, individuals that are accepted by SA are added to the population. If resulting population is too large, the most recent individuals are selected for the population. If resulting population is too small, the rest of the individuals are created randomly.
 
 ### Parent Selectors
 
