@@ -90,7 +90,7 @@ In the crossover operation, two parents create two offspring by sharing their ge
 
 #### Vehicle Crossover
 
-(Integer code 3) (VX) This is similar to OX. The difference is in the selection of the random, unique gene: this is limited to any, complete vehicle route.
+(Integer code 3) (VX) This is similar to OX. The difference is in the selection of the random, unique gene: this is limited to full vehicle routes.
 
 ### Mutation Operators
 

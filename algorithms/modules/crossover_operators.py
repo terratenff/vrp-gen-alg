@@ -523,13 +523,13 @@ def vehicle_crossover(vrp1, vrp2):
     """
     For both parent individuals, a random vehicle route is selected
     from their chromosomes. Upon crossover, these routes remain intact on
-    their offspring: route from parent 1 remains on offspring 1, and route
-    from parent 2 remains on offspring 2.
+    their offspring: routes from parent 1 remain on offspring 1, and routes
+    from parent 2 remain on offspring 2.
 
     Vehicle Crossover is similar to Order Crossover. The difference between
     them is that in Order Crossover, a random gene is selected for
-    preservation, while in Vehicle Crossover, a random vehicle route is
-    selected instead.
+    preservation, while in Vehicle Crossover, a random collection of
+    vehicle routes are selected instead.
 
     :param vrp1: Individual 1 selected from the population to be a parent
     for the crossover.
@@ -550,25 +550,34 @@ def vehicle_crossover(vrp1, vrp2):
     offspring1.assign_id()
     offspring2.assign_id()
 
-    # Step 1: Determine a vehicle gene for both parents, subject to preservation.
+    # Step 1: Determine vehicle genes for both parents, subject to preservation.
+    route_count = randint(0, vrp1.vehicle_count)
     depot_indices1 = [i for i, x in enumerate(parent1) if x in depot_list]
     depot_indices2 = [i for i, x in enumerate(parent2) if x in depot_list]
-    target_selector1 = randint(0, len(depot_indices1) - 1)
-    target_selector2 = randint(0, len(depot_indices2) - 1)
-    target_depot1 = depot_indices1[target_selector1]
-    target_depot2 = depot_indices2[target_selector2]
-    if target_selector1 == len(depot_indices1) - 1:
-        gene1 = parent1[target_depot1:]
-    else:
-        checkpoint = depot_indices1[target_selector1 + 1]
-        gene1 = parent1[target_depot1:checkpoint]
-    if target_selector2 == len(depot_indices2) - 1:
-        gene2 = parent2[target_depot2:]
-    else:
-        checkpoint = depot_indices2[target_selector2 + 1]
-        gene2 = parent2[target_depot2:checkpoint]
+    route_selector1 = sample(list(range(len(depot_indices1))), route_count)
+    route_selector2 = sample(list(range(len(depot_indices2))), route_count)
+    
+    gene1 = []
+    for selector in route_selector1:
+        route_depot = depot_indices1[selector]
+        if selector == len(depot_indices1) - 1:
+            gene1_segment = parent1[route_depot:]
+        else:
+            checkpoint = depot_indices1[selector + 1]
+            gene1_segment = parent1[route_depot:checkpoint]
+        gene1 = gene1 + gene1_segment
+    
+    gene2 = []
+    for selector in route_selector2:
+        route_depot = depot_indices2[selector]
+        if selector == len(depot_indices2) - 1:
+            gene2_segment = parent2[route_depot:]
+        else:
+            checkpoint = depot_indices2[selector + 1]
+            gene2_segment = parent2[route_depot:checkpoint]
+        gene2 = gene2 + gene2_segment
 
-    # Since a vehicle route is subject to preservation, it is best placed
+    # Since vehicle routes are subject to preservation, they are best placed
     # at the beginning of the chromosome, since chromosome always begins
     # with a depot node.
     gene1_start = 0
