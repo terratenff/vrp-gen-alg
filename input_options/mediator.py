@@ -39,12 +39,12 @@ def inspect(code, vrp_params, alg_params):
         param_builder.set_algorithm_parameters(alg_params)
     elif code == 7:
         param_name = input("Save current parameter settings as?\n(Empty input to abort) > ")
-        if param_name.isspace() is False:
+        if len(param_name) > 0:
             print("Attempting to save parameters...")
             param_builder.save_params(param_name, vrp_params, alg_params)
     elif code == 8:
         param_name = input("Specify the name of the parameter settings to load.\n(Empty input to abort) > ")
-        if param_name.isspace() is False:
+        if len(param_name) > 0:
             print("Attempting to load parameters...")
             param_builder.load_params(param_name, vrp_params, alg_params)
     elif code == 9:
