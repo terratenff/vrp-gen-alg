@@ -400,7 +400,8 @@ class ParamsGENALG:
             "Random",
             "Allele Permutation",
             "Gene Permutation",
-            "Simulated Annealing"
+            "Simulated Annealing",
+            "Nearest Neighbor"
         ]
         self.str_parent_selection_function = [
             "Best Fitness",

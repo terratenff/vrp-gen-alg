@@ -302,13 +302,14 @@ def set_algorithm_parameters(alg_params):
                            "- 1 = Allele Permutation\n"
                            "- 2 = Gene Permutation\n"
                            "- 3 = Simulated Annealing\n"
+                           "- 4 = Nearest Neighbor\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.population_initializer))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            if int(user_input) < 0 or int(user_input) > 3:
-                while int(user_input) < 0 or int(user_input) > 3:
+            if int(user_input) < 0 or int(user_input) > 4:
+                while int(user_input) < 0 or int(user_input) > 4:
                     print("Input value is outside expected range.")
                     user_input = input("> ")
             alg_params.population_initializer = int(user_input)

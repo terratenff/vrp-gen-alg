@@ -79,7 +79,8 @@ def run_gen_alg(vrp_params, alg_params):
         0: population_initializers.random,
         1: population_initializers.allele_permutation,
         2: population_initializers.gene_permutation,
-        3: population_initializers.simulated_annealing
+        3: population_initializers.simulated_annealing,
+        4: population_initializers.nearest_neighbor_population
     }
     VRP.population_initializer = population_initialization_collection[alg_params.population_initializer]
 

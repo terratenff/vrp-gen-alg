@@ -9,6 +9,7 @@ Here are described a collection of modules that have been implemented specifical
   - [Allele Permutation](#allele-permutation)
   - [Gene Permutation](#gene-permutation)
   - [Simulated Annealing](#simulated-annealing)
+  - [Nearest Neighbor](#nearest-neighbor)
 - [Parent Selectors](#parent-selectors)
   - [Best Fitness](#best-fitness)
   - [Roulette Wheel Selection](#roulette-wheel-selection)
@@ -55,6 +56,10 @@ Population initializers create generation 0 population, since there are no indiv
 #### Simulated Annealing
 
 (Integer code 3) Heuristic algorithm that can also be used to solve VRP instances. This is based on the annealing technique in metallurgy where imperfections of metal are fixed, starting at high temperatures, and concluding at low temperatures. As a population initializer, individuals that are accepted by SA are added to the population. If resulting population is too large, the most recent individuals are selected for the population. If resulting population is too small, the rest of the individuals are created randomly.
+
+#### Nearest Neighbor
+
+(Integer code 4) Simple heuristic algorithm that is commonly used to solve TSP instances. It selects a random node at the beginning, and from that it always moves to the node nearest to its current location. 1 or more of these kinds of results are made from randomly selected subsets of nodes. These are then split to smaller routes by distributing depot nodes randomly. If resulting solution to VRP is valid, it is added to the population.
 
 ### Parent Selectors
 
