@@ -588,10 +588,10 @@ def nearest_neighbor_population(**kwargs):
                 if valid_individual is False:
                     break
 
-            # If the solution is invalid, mutate it again.
+            # If the solution is invalid, try again.
             candidate_individual.valid = valid_individual
 
-            # Should solution-finding via mutations take too long, it is halted here.
+            # Should solution-finding take too long, it is halted here.
             if check_goal(individual_timer):
                 return None, "(Nearest Neighbor) Individual initialization is taking too long."
 
