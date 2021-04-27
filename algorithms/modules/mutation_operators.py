@@ -129,8 +129,8 @@ def vehicle_diversification(vrp):
 
 def add_optional_node(vrp):
     """
-    Mutates an individual by adding 1-5 optional nodes to the solution.
-    If all of the optional nodes are being used, remove some from the solution instead.
+    Mutates an individual by adding an optional node to the solution.
+    If all of the optional nodes are being used, remove one from the solution instead.
     Applicable for VRPP instances only.
     :param vrp: Subject individual.
 
@@ -145,22 +145,19 @@ def add_optional_node(vrp):
         remove_optional_node(vrp)
         return
     
-    node_count = min(randint(1, 5), len(unused_nodes))
-
-    for _ in range(node_count):
-        node_selector = randint(0, len(unused_nodes) - 1)
-        subject_node = unused_nodes[node_selector]
-        del unused_nodes[node_selector]
-        destination = randint(1, len(solution))
-        solution.insert(destination, subject_node)
+    node_selector = randint(0, len(unused_nodes) - 1)
+    subject_node = unused_nodes[node_selector]
+    del unused_nodes[node_selector]
+    destination = randint(1, len(solution))
+    solution.insert(destination, subject_node)
 
     vrp.assign_solution(solution)
 
 
 def remove_optional_node(vrp):
     """
-    Mutates an individual by removing 1-5 optional nodes from the solution.
-    If none of the optional nodes are being used, add some to the solution instead.
+    Mutates an individual by removing an optional node from the solution.
+    If none of the optional nodes are being used, add one to the solution instead.
     Applicable for VRPP instances only.
     :param vrp: Subject individual.
 
@@ -175,13 +172,10 @@ def remove_optional_node(vrp):
         add_optional_node(vrp)
         return
     
-    node_count = min(randint(1, 5), len(used_nodes))
-
-    for _ in range(node_count):
-        node_selector = randint(0, len(used_nodes) - 1)
-        subject_node = used_nodes[node_selector]
-        del used_nodes[node_selector]
-        solution.remove(subject_node)
+    node_selector = randint(0, len(used_nodes) - 1)
+    subject_node = used_nodes[node_selector]
+    del used_nodes[node_selector]
+    solution.remove(subject_node)
 
     vrp.assign_solution(solution)
 
