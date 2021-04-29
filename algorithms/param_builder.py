@@ -460,13 +460,14 @@ def set_algorithm_parameters(alg_params):
                            "- 2 = Neighbor of Best Individual\n"
                            "- 3 = Indefinite Mutation\n"
                            "- 4 = Best Individual + Mutation\n"
+                           "- 5 = Retry Individual Creation\n"
                            "- Current: {}\n- Default: 0\n> "
                            .format(alg_params.invalidity_correction))
         if _quit(user_input):
             return
         elif not _next(user_input):
-            if int(user_input) < 0 or int(user_input) > 4:
-                while int(user_input) < 0 or int(user_input) > 4:
+            if int(user_input) < 0 or int(user_input) > 5:
+                while int(user_input) < 0 or int(user_input) > 5:
                     print("Input value is outside expected range.")
                     user_input = input("> ")
             alg_params.invalidity_correction = int(user_input)

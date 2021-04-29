@@ -419,7 +419,8 @@ class ParamsGENALG:
             "Best Individual",
             "Neighbor of Best Individual",
             "Indefinite Mutation",
-            "Best Individual + Mutation"
+            "Best Individual + Mutation",
+            "Retry Individual Creation"
         ]
 
     def print(self):

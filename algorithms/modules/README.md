@@ -35,6 +35,7 @@ Here are described a collection of modules that have been implemented specifical
   - [Neighbor of the Best Individual](#neighbor-of-the-best-individual)
   - [Indefinite Mutation](#indefinite-mutation)
   - [Best Individual and Mutation](#best-individual-and-mutation)
+  - [Retry Individual Creation](#retry-individual-creation)
 - [Evaluators](#evaluators)
 
 ### Population Initializers
@@ -166,6 +167,10 @@ Invalid individual is mutated and validated. Whenever the individual is invalid 
 #### Best Individual and Mutation
 
 Invalidity correction functions 1 and 3 combined. The best individual is taken and then continuously mutated until it is valid.
+
+#### Retry Individual Creation
+
+Instead of attempting to fix an invalid individual, it is instead discarded, and the algorithm proceeds as normal.
 
 ### Evaluators
 

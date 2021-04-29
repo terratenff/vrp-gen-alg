@@ -176,7 +176,8 @@ def run_gen_alg(vrp_params, alg_params):
         1: invalidity_correction.best_individual,
         2: invalidity_correction.neighbor_of_best_individual,
         3: invalidity_correction.indefinite_mutation,
-        4: invalidity_correction.best_individual_and_mutation
+        4: invalidity_correction.best_individual_and_mutation,
+        5: invalidity_correction.retry
     }
     VRP.invalidity_corrector = invalidity_correction_collection[alg_params.invalidity_correction]
 
@@ -653,38 +654,66 @@ def run_gen_alg(vrp_params, alg_params):
                 evaluation_collection[5](offspring1, path_table=path_table)
                 evaluation_collection[5](offspring2, path_table=path_table)
 
-            new_population.append(offspring1)
-            new_population.append(offspring2)
+            # Now that the offspring have been created, they must be validated
+            # and evaluated before they are added to the population.
+            add_offspring1 = True
+            for validator in VRP.validator:
+                offspring1.valid, validation_msg = validator(offspring1, **validation_args)
+                if offspring1.valid is False:
+                    add_offspring1 = False
+                    # New individual is deemed invalid. It is now subject to a correction operation.
+                    individual_timer.start()
+                    replacement, msg = VRP.invalidity_corrector(offspring1, **invalidity_correction_args)
+                    individual_timer.stop()
+                    if replacement is None:
+                        if msg == "RETRY":
+                            # Ignore invalidity correction process.
+                            break
+                        else:
+                            # Minimum CPU Time Termination Criterion has been violated.
+                            # GA will be concluded here, with partial results.
+                            print(msg)
+                            timeout = True
+                    else:
+                        # Replacement individual is valid. Evaluate and add to population.
+                        replacement.fitness = VRP.evaluator(replacement, **evaluation_args)
+                        new_population.append(replacement)
+            if add_offspring1:
+                offspring1.fitness = VRP.evaluator(offspring1, **evaluation_args)
+                new_population.append(offspring1)
+
+            add_offspring2 = True
+            for validator in VRP.validator:
+                offspring2.valid, validation_msg = validator(offspring2, **validation_args)
+                if offspring2.valid is False:
+                    add_offspring2 = False
+                    # New individual is deemed invalid. It is now subject to a correction operation.
+                    individual_timer.start()
+                    replacement, msg = VRP.invalidity_corrector(offspring2, **invalidity_correction_args)
+                    individual_timer.stop()
+                    if replacement is None:
+                        if msg == "RETRY":
+                            # Ignore invalidity correction process.
+                            break
+                        else:
+                            # Minimum CPU Time Termination Criterion has been violated.
+                            # GA will be concluded here, with partial results.
+                            print(msg)
+                            timeout = True
+                    else:
+                        # Replacement individual is valid. Evaluate and add to population.
+                        replacement.fitness = VRP.evaluator(replacement, **evaluation_args)
+                        new_population.append(replacement)
+            if add_offspring2:
+                offspring2.fitness = VRP.evaluator(offspring2, **evaluation_args)
+                new_population.append(offspring2)
+            
             timeout = global_timer.past_goal()
 
         # If population count is set to an uneven number, chances are one individual
         # has to be removed.
         if len(new_population) > population_count:
             del new_population[np.random.randint(0, len(new_population))]
-
-        # With the new population now created, its individuals now have to be
-        # both validated and evaluated.
-        for i in range(len(new_population)):
-            for validator in VRP.validator:
-                new_population[i].valid, validation_msg = validator(new_population[i], **validation_args)
-                if new_population[i].valid is False:
-                    # New individual is deemed invalid. It is now subject to a correction operation.
-                    individual_timer.start()
-                    replacement, msg = VRP.invalidity_corrector(new_population[i], **invalidity_correction_args)
-                    individual_timer.stop()
-                    if replacement is None:
-                        # Minimum CPU Time Termination Criterion has been violated.
-                        # GA will be concluded here, with partial results.
-                        print(msg)
-                        timeout = True
-                    else:
-                        new_population[i] = replacement
-
-            # A valid individual is then evaluated.
-            new_population[i].fitness = VRP.evaluator(new_population[i], **evaluation_args)
-
-            if timeout:
-                break
 
         # If GA termination is requested in the middle of creating
         # a new population, the population in question is ignored.

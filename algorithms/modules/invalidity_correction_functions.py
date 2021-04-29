@@ -168,3 +168,15 @@ def best_individual_and_mutation(violator, **kwargs):
             return None, "(Best Individual + Mutation) Invalidity correction is taking too long."
     
     return best_individual_instance, "(Best Individual + Mutation) Invalidity correction OK"
+
+
+
+def retry(violator, **kwargs):
+    """
+    Instead of fixing an invalid individual, it is ignored and a message
+    requesting a retry is sent.
+    
+    @return: None, "RETRY".
+    """
+    
+    return None, "RETRY"
