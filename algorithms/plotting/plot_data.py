@@ -16,6 +16,9 @@ from matplotlib.patches import PathPatch
 
 
 class PlotData:
+    """
+    Represents the data aspect of the plot figure.
+    """
 
     folder_tracker = "ResultSet1"
     base_destination = "variables/plot_data/"
@@ -38,13 +41,13 @@ class PlotData:
 
     def __init__(self, xy_datasets, data_labels, plot_details):
         """
-        Represents the data aspect of the plot figure.
+        Constructor of the plot data container.
 
         @param xy_datasets: 3D-Matrix of size (m x n x 2), where
         m represents the number of xy-datasets and n is the number of data points
         in each dataset. First column is x-data, while the other column is y-data.
-        @param data_labels: String labels for each set of xy-data. Throws an exception
-        if the size of this list does not match the number of xy-datasets.
+        @param data_labels: String labels for each set of xy-data. An exception
+        is thrown if the size of this list does not match the number of xy-datasets.
         @param plot_details: Dictionary that contains details for the plot figure.
         The following key-value-pairs are expected:
         - 'title': (string) Title for the plot figure.
@@ -113,8 +116,8 @@ class PlotData:
 
     def set_node_data(self, node_count, optional_nodes, depot_nodes):
         """
-        Setter for node data. Coordinates are provided via XY_datasets,
-        and here the nodes are split into three different categories:
+        Setter for node data. Coordinates are provided via XY_datasets
+        The nodes are split into three different categories:
         required nodes, optional nodes and depot nodes.
         @param node_count: Number of nodes that exist for the datasets.
         @param optional_nodes: List of nodes that are considered optional.
@@ -129,8 +132,8 @@ class PlotData:
         """
         Setter for route data. This is needed to draw the lines between
         the nodes.
-        @param route_list: List of routes that are to be drawn. These represent the solution
-        of an individual.
+        @param route_list: List of routes that are to be drawn
+        These represent the solution of an individual.
         @param open_routes: Flag that determines whether the routes are open.
         """
         self.route_list = route_list
@@ -194,8 +197,8 @@ def plot_graph(plot_data):
     draw_textbox = False
     textbox_details = ""
 
-    # A textbox is created and placed to the top left corner
-    # of the plot if a string list under "misc" is defined.
+    # A textbox is created and placed to the top edge of the plot
+    # if a string list under "misc" is defined.
     if plot_data.misc is not None:
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
@@ -204,7 +207,7 @@ def plot_graph(plot_data):
     figure_axes = figure.add_subplot(111)
 
     # Add data to the figure. Multiple datasets are added
-    # to the same subplot.
+    # to the same plot.
     lowest_x, highest_x = float("inf"), -float("inf")
     for i in range(len(plot_data.labels)):
         xy_data, data_label = plot_data.get_data(i)
@@ -252,8 +255,8 @@ def plot_bar(plot_data):
     draw_textbox = False
     textbox_details = ""
 
-    # A textbox is created and placed to the top left corner
-    # of the plot if a string list under "misc" is defined.
+    # A textbox is created and placed to the top edge of the plot
+    # if a string list under "misc" is defined.
     if plot_data.misc is not None:
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True
@@ -313,8 +316,8 @@ def plot_map(plot_data):
     draw_textbox = False
     textbox_details = ""
 
-    # A textbox is created and placed to the top left corner
-    # of the plot if a string list under "misc" is defined.
+    # A textbox is created and placed to the top edge of the plot
+    # if a string list under "misc" is defined.
     if plot_data.misc is not None:
         textbox_details = "\n".join(plot_data.misc)
         draw_textbox = True

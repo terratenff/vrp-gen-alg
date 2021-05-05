@@ -3,7 +3,7 @@
 """
 utility.py:
 
-Contains convenient function for getting an integer input.
+Any functions of convenience for repeated use are placed here.
 """
 
 

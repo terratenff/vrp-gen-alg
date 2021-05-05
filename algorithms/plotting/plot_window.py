@@ -34,7 +34,7 @@ class PlotWindow(tk.Tk):
         """
 
         tk.Tk.__init__(self, *args, **kwargs)
-        tk.Tk.wm_title(self, "vrp-gen-alg - MatPlotLib-Figure Viewer")
+        tk.Tk.wm_title(self, "vrp-gen-alg - Figure Viewer")
         self.container = tk.Frame(self)
         self.container.pack(side="top", fill="both", expand=True)
         self.container.grid_rowconfigure(0, weight=1)

@@ -52,11 +52,11 @@ Population initializers create generation 0 population, since there are no indiv
 
 #### Gene Permutation
 
-(Integer code 2) A random individual is first created. Then its chromosome (solution) is split into randomly-sized genes. These are then moved around to create permutations that are given to individuals for the population (validity of each individual is, of course, checked). If resulting population is insufficient, another random individual is created, and the aforementioned procedure is repeated.
+(Integer code 2) A random individual is first created. Then its chromosome (solution) is split into randomly-sized genes. These are then moved around to create permutations that are given to individuals for the population. If resulting population is insufficient, another random individual is created, and the aforementioned procedure is repeated.
 
 #### Simulated Annealing
 
-(Integer code 3) Heuristic algorithm that can also be used to solve VRP instances. This is based on the annealing technique in metallurgy where imperfections of metal are fixed, starting at high temperatures, and concluding at low temperatures. As a population initializer, individuals that are accepted by SA are added to the population. If resulting population is too large, the most recent individuals are selected for the population. If resulting population is too small, the rest of the individuals are created randomly.
+(Integer code 3) Heuristic algorithm that can also be used to solve VRP instances. It is based on the annealing technique in metallurgy where imperfections of metal are fixed, starting at high temperatures, and concluding at low temperatures. As a population initializer, individuals that are accepted by SA are added to the population. If resulting population is too large, the most recent individuals are selected for the population. If resulting population is too small, the rest of the individuals are created randomly.
 
 #### Nearest Neighbor
 
@@ -96,7 +96,7 @@ In the crossover operation, two parents create two offspring by sharing their ge
 
 #### Vehicle Crossover
 
-(Integer code 3) (VX) This is similar to OX. The difference is in the selection of the random, unique gene: this is limited to full vehicle routes.
+(Integer code 3) (VX) This is similar to OX. The difference is in the selection of the random, unique gene; it is limited to full vehicle routes.
 
 ### Mutation Operators
 
@@ -166,7 +166,7 @@ Invalid individual is mutated and validated. Whenever the individual is invalid 
 
 #### Best Individual and Mutation
 
-Invalidity correction functions 1 and 3 combined. The best individual is taken and then continuously mutated until it is valid.
+Combination of [best individual](#best-individual) and [indefinite mutation](#indefinite-mutation). The best individual is taken and then continuously mutated until it is valid.
 
 #### Retry Individual Creation
 

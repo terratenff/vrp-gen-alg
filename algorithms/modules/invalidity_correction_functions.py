@@ -3,7 +3,7 @@
 """
 invalidity_correction_functions.py:
 
-Collection of functions that are used to repair individuals that have been declared invalid.
+Collection of functions that are used to repair invalid individuals.
 """
 
 from algorithms.modules.population_initializers import random_valid_individual as rvi
@@ -19,13 +19,13 @@ def random_valid_individual(violator, **kwargs):
     Repairs an invalid individual by replacing it with a completely random
     individual that has been validated.
     
-    @param violator: Subject individual that was deemed invalid.
+    @param violator: An individual that was found invalid.
     @param **kwargs: Collection of keyword arguments that are needed for
     fixing the violator:
     - (dict) 'individual_args': Collection of parameters that are needed for
       creating a new, random and valid individual.
     
-    @return: Repaired individual.
+    @return: Repaired individual (or None) and a message describing the outcome.
     """
     
     individual_args = kwargs["individual_args"]
@@ -37,13 +37,13 @@ def best_individual(violator, **kwargs):
     Repairs an invalid individual by replacing it with the best individual that
     GA has come across so far.
     
-    @param violator: Subject individual that was deemed invalid.
+    @param violator: An individual that was found invalid.
     @param **kwargs: Collection of keyword arguments that are needed for
     fixing the violator:
     - (VRP) 'best_individual': The best individual that GA has discovered
       so far.
     
-    @return: Repaired individual.
+    @return: Repaired individual (or None) and a message describing the outcome.
     """
     
     violator_id = violator.individual_id
@@ -57,7 +57,7 @@ def neighbor_of_best_individual(violator, **kwargs):
     Repairs an invalid individual by replacing it with a neighbor of the best
     individual that GA has come across so far.
     
-    @param violator: Subject individual that was deemed invalid.
+    @param violator: An individual that was found invalid.
     @param **kwargs: Collection of keyword arguments that are needed for
     fixing the violator:
     - (VRP) 'best_individual': The best individual that GA has discovered
@@ -65,7 +65,7 @@ def neighbor_of_best_individual(violator, **kwargs):
     - (dict) 'individual_args': Collection of parameters that contain
       validation parameters for validating mutations.
     
-    @return: Repaired individual.
+    @return: Repaired individual (or None) and a message describing the outcome.
     """
     
     best_individual_base = deepcopy(kwargs["best_individual"])
@@ -80,12 +80,15 @@ def neighbor_of_best_individual(violator, **kwargs):
         best_individual_instance = deepcopy(best_individual_base)
         mutation_selector = np.random.randint(0, len(VRP.mutation_operator))
         VRP.mutation_operator[mutation_selector](best_individual_instance)
+        
         for validator in VRP.validator:
             best_individual_instance.valid, msg = \
                 validator(best_individual_instance, **validation_args)
+                
             if best_individual_instance.valid is False:
                 validated = False
                 break
+            
         if individual_timer.past_goal():
             return None, "(Neighbor of the Best Individual) Invalidity correction is taking too long."
     
@@ -98,7 +101,7 @@ def indefinite_mutation(violator, **kwargs):
     Repairs an invalid individual by mutating it indefinitely. Once a valid
     individual is found, the mutating stops.
     
-    @param violator: Subject individual that was deemed invalid.
+    @param violator: An individual that was found invalid.
     @param **kwargs: Collection of keyword arguments that are needed for
     fixing the violator:
     - (VRP) 'best_individual': The best individual that GA has discovered
@@ -106,7 +109,7 @@ def indefinite_mutation(violator, **kwargs):
     - (dict) 'individual_args': Collection of parameters that contain
       validation parameters for validating mutations.
     
-    @return: Repaired individual.
+    @return: Repaired individual (or None) and a message describing the outcome.
     """
     
     individual_timer = kwargs["individual_args"]["individual_timer"]
@@ -119,12 +122,15 @@ def indefinite_mutation(violator, **kwargs):
         validated = True
         mutation_selector = np.random.randint(0, len(VRP.mutation_operator))
         VRP.mutation_operator[mutation_selector](violator_copy)
+        
         for validator in VRP.validator:
             violator_copy.valid, msg = \
                 validator(violator_copy, **validation_args)
+                
             if violator_copy.valid is False:
                 validated = False
                 break
+            
         if individual_timer.past_goal():
             return None, "(Indefinite Mutation) Invalidity correction is taking too long."
     
@@ -137,7 +143,7 @@ def best_individual_and_mutation(violator, **kwargs):
     GA has come across so far and then indefinitely mutating it. Once a valid
     individual is discovered, the mutating stops.
     
-    @param violator: Subject individual that was deemed invalid.
+    @param violator: An individual that was found invalid.
     @param **kwargs: Collection of keyword arguments that are needed for
     fixing the violator:
     - (VRP) 'best_individual': The best individual that GA has discovered
@@ -145,7 +151,7 @@ def best_individual_and_mutation(violator, **kwargs):
     - (dict) 'individual_args': Collection of parameters that contain
       validation parameters for validating mutations.
     
-    @return: Repaired individual.
+    @return: Repaired individual (or None) and a message describing the outcome.
     """
     
     best_individual_instance = deepcopy(kwargs["best_individual"])
@@ -158,12 +164,15 @@ def best_individual_and_mutation(violator, **kwargs):
         validated = True
         mutation_selector = np.random.randint(0, len(VRP.mutation_operator))
         VRP.mutation_operator[mutation_selector](best_individual_instance)
+        
         for validator in VRP.validator:
             best_individual_instance.valid, msg = \
                 validator(best_individual_instance, **validation_args)
+                
             if best_individual_instance.valid is False:
                 validated = False
                 break
+            
         if individual_timer.past_goal():
             return None, "(Best Individual + Mutation) Invalidity correction is taking too long."
     
@@ -174,7 +183,7 @@ def best_individual_and_mutation(violator, **kwargs):
 def retry(violator, **kwargs):
     """
     Instead of fixing an invalid individual, it is ignored and a message
-    requesting a retry is sent.
+    requesting a retry (selection, crossover and mutation) is sent.
     
     @return: None, "RETRY".
     """

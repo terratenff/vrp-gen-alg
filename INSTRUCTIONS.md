@@ -168,17 +168,17 @@ X-axis:     Population Individuals (best to worst)
 Y-axis:     Fitness
 ```
 
-The results are n x 2 matrices where n varies: it could be population size or various amounts of generations. The first column of the matrix is the collection of values on the x-axis, while the second column is that of y-axis. They are limited to 8 decimals. If multiple lines were drawn, their data are separated in different results text files as "results_1.txt", "results_2.txt" etc.
+The results are n x 2 matrices where n varies: it could be population size or various amounts of generations. The first column of the matrix is the collection of values on the x-axis, while the second column is that of y-axis. They are limited to 8 decimals. If multiple lines were drawn, their data are separated in different results text files as "results_1.txt", "results_2.txt" etc. **Note that routes of the optimal solution are not saved.**
 
 ### Building and Loading Matrices
 
-With the matrix builder it is possible to create randomly generated matrices quite easily; nonetheless, it is only limited to randomly generated matrices. If there are specific elements that you want in the matrices you have to add them yourself. If coordinates are generated, you have the option to generate a cost matrix to go with it.
+With the matrix builder it is possible to create randomly generated matrices quite easily; nonetheless, it is only limited to randomly generated matrices. If there are specific elements or structures (like clusters of customers) that you want in the matrices you have to add them yourself. If coordinates are generated, you have the option to generate a cost matrix to go with it.
 
 Generating matrices (menu option 1) won't select them for use automatically. You have to select (load) them for use separately (menu option 2). Matrices can also be deselected (menu option 3) if necessary.
 
 ### Building and Loading Parameters
 
-Parameter building is quite simple. Select either VRP-related parameters (menu option 5) or GA-related options (menu option 6), and then follow the instructions. Most matrices can also be selected for use here: the exceptions to this are the cost matrix and coordinates.
+Parameter building is quite simple. Select either VRP-related parameters (menu option 5) or GA-related options (menu option 6), and then follow the instructions. Most matrices can also be selected for use here; exceptions to this are the cost matrix and coordinates.
 
 Once parameters have been selected, they can be saved for later use (menu option 7). To use them later, load parameters by providing the name you used to save them with (menu option 8).
 
@@ -186,13 +186,13 @@ Before starting GA again, you can view specific matrices (menu option 4) and do 
 
 ### Creating Maps
 
-In order to create maps, coordinates must be specified. You can define them yourself (as long as it forms an n x 2 matrix) or create a randomly generated set as instructed in [Building and Loading Matrices](#building-and-loading-matrices). Then you have the option to use overriding matrices. It acts as the cost matrix for given set of coordinates. In order to use a cost matrix like that, its size must match the number of coordinate pairs. If an overriding matrix is not used, an undefined matrix is used: this is a cost matrix that contains distances amongst the coordinates and satisfies the triangle inequality.
+In order to create maps, coordinates must be specified. You can define them yourself (as long as it forms an n x 2 matrix) or create a randomly generated set as instructed in [Building and Loading Matrices](#building-and-loading-matrices). Then you have the option to use overriding matrices. It acts as the cost matrix for given set of coordinates. In order to use a cost matrix like that, its size must match the number of coordinate pairs. If an overriding matrix is not used, an undefined matrix is used: this is a cost matrix that contains distances amongst the coordinates and satisfies the triangle inequality in an euclidean space.
 
 The following extra figures are maps that are to be expected if a problem instance includes coordinates.
 
 ![Figure 6 / 10](variables/plot_data/sample/sample_figures/sample_map1.png)
 
-Map of the best individual of generation 0 is expected to look messy - unless Simulated Annealing is used with lots of iterations (300 000 or more, for example).
+Map of the best individual of generation 0 is expected to look messy - unless Simulated Annealing is used with lots of iterations (1 000 000 or more, for example).
 
 Different colors of the lines separate different vehicle routes from one another.
 
@@ -210,10 +210,9 @@ Multiple maps (10 or less) are generated purely for illustration purposes. They 
 
 If GA has trouble creating individuals for the population, there are some measures that could be considered. For example:
 - Are the constraints too strict? If so, see if you could loosen them.
-- If constraints cannot be loosened, try using different combinations of parameters. High vehicle count might help.
+- If constraints cannot be loosened, try using different combinations of parameters.
 - Are there any issues with parameters/matrices that are being used?
 - Setting the number of available vehicles low could result in GA being unable to find valid solutions. Check if it is possible to find a solution with more of them.
-- How are the conversion factors set? Should both time and distance translate to cost?
 - It is known (as of 17.2.2021) that the application does not solve large cases efficiently - especially if they have strict constraints.
 - Parameters that indicate the maximum time and distance for vehicles are effectively hard time windows: if they are broken, the solution in question is replaced. This can hinder the application's ability to find a solution that respects these constraints. A way to combat this is to replace them with soft time windows, aimed at depot nodes, and then give depots extremely high penalty coefficients to simulate hard time windows.
 

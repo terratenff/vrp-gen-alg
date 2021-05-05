@@ -630,8 +630,8 @@ def save_params(filename, vrp_params, alg_params):
 
 def load_params(filename, vrp_params, alg_params):
     """
-    Assigns parameters found in specified file to parameter instances.
-    :param filename: Name of the subject file.
+    Assigns parameters found in specified file pair to parameter instances.
+    :param filename: Name of the subject file pair.
     :param vrp_params: VRP parameters.
     :param alg_params: Algorithmic parameters.
     """

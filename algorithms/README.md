@@ -19,16 +19,17 @@ Here are described the primary algorithms that the application uses.
       1. Select two parents using the parent selection function.
       2. Perform crossover using selected crossover function..
       3. Perform mutation for the offspring.
-      4. Add offspring to the new population.
-   2. Validate individuals in the new population using selected evaluators.
-   3. Replace invalid individuals with valid individuals using invalidity correction functions.
-   4. Evaluate individuals using selected evaluator function.
-   5. Sort new population in ascending/descending fitness order.
-   6. Conduct the filtration strategy (or removal of duplicates) if it is time for it.
-   7. Determine best overall individual.
+      4. Validate offspring using selected evaluators.
+      5. Replace invalid offspring with valid individuals using selected invalidity correction function.
+      6. Evaluate offspring using selected evaluator function.
+      7. Add offspring to the new population.
+   2. Sort new population in ascending/descending order in terms of fitness.
+   3. Conduct the filtration strategy (or removal of duplicates) if it is time for it.
+   4. Mark new population as current population.
+   5. Determine best overall individual.
 4. Display best overall individual that has been discovered.
 5. Plot figures from collected data.
-6. Save collected data.
+6. Save collected data. **Routes are not saved!**
 7. View plotted figures.
 8. Terminate GA completely.
 

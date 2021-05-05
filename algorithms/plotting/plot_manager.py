@@ -38,123 +38,10 @@ def summon_window(plot_function_list, plot_data_list):
     app.mainloop()
 
 
-def test_plot_creation():
-    x = np.linspace(0, 2, 100)
-    y1 = x
-    y2 = x**2
-    y3 = x**3
-    y = np.array([y1, y2, y3])
-    plot_dict1 = {
-        "legend": False,
-        "title": "Genetic Algorithm - Best Individual",
-        "xlabel": "Generation Count",
-        "ylabel": "Fitness",
-        "expected_plot_count": 3,
-        "current_plot_count": 1,
-        "misc": [
-            "Simulated Annealing",
-            "$n_{max} = 300$",
-            "$T^{(1)} = 300$",
-            "$p = 1.15$"
-        ]
-    }
-    plot_dict2 = deepcopy(plot_dict1)
-    plot_dict3 = deepcopy(plot_dict1)
-    plot_dict2["current_plot_count"] = 2
-    plot_dict3["current_plot_count"] = 3
-    plot_dict2["legend"] = True
-    plot_dict3["legend"] = True
-    data_labels = ["Linear", "Quadratic", "Cubic"]
-    data_set = np.array([x, y[0]])
-
-    plot_data1 = plot_data.PlotData(data_set, ["Linear"], plot_dict1)
-    plot_data2 = plot_data.PlotData(data_set, ["Linear"], plot_dict2)
-    plot_data3 = plot_data.PlotData(data_set, ["Linear"], plot_dict3)
-
-    appended_data1 = np.array([x, y[1]])
-    appended_data2 = np.array([x, y[2]])
-
-    plot_data2.add_data(appended_data1, data_labels[1])
-    plot_data3.add_data(appended_data1, data_labels[1])
-    plot_data3.add_data(appended_data2, data_labels[2])
-
-    plot_functions = [
-        plot_data.plot_graph,
-        plot_data.plot_graph,
-        plot_data.plot_graph
-    ]
-    plot_list = [plot_data1, plot_data2, plot_data3]
-
-    print("Close plot window to continue.")
-
-    summon_window(plot_functions, plot_list)
-
-
-def test_map_creation():
-    x = np.array([4,  7,  3,  5,  3,  5, -3, -8,  8, -9])
-    y = np.array([4,  5,  3, -9,  6,  5,  4,  5,  8,  9])
-    data_set = np.array([x, y]).T
-    route_list1 = [[0, 1, 2, 3], [0, 4, 5, 6], [0, 7, 8, 9]]
-    route_list2 = [[9, 8, 0], [9, 3, 5], [9, 6, 1], [9, 4, 2], [9, 7]]
-    route_list3 = [[1, 6, 9, 4], [2, 8, 0, 7, 3, 5]]
-    open_routes1 = False
-    open_routes2 = True
-    open_routes3 = False
-    node_count = 10
-    optional_nodes1 = []
-    optional_nodes2 = [6, 7, 8]
-    optional_nodes3 = [3, 6, 9]
-    depot_nodes1 = [0]
-    depot_nodes2 = [9]
-    depot_nodes3 = [1, 2]
-    plot_dict1 = {
-        "legend": True,
-        "title": "Genetic Algorithm - Individual Route Set",
-        "xlabel": "X-Coordinate",
-        "ylabel": "Y-Coordinate",
-        "expected_plot_count": 3,
-        "current_plot_count": 1,
-        "misc": [
-            "Simulated Annealing",
-            "$n_{max} = 300$",
-            "$T^{(1)} = 300$",
-            "$p = 1.15$"
-        ]
-    }
-    plot_dict2 = deepcopy(plot_dict1)
-    plot_dict3 = deepcopy(plot_dict1)
-    plot_dict2["current_plot_count"] = 2
-    plot_dict3["current_plot_count"] = 3
-    data_labels = ["Node Locations"]
-
-    plot_data1 = plot_data.PlotData(data_set, data_labels, plot_dict1)
-    plot_data1.set_node_data(node_count, optional_nodes1, depot_nodes1)
-    plot_data1.set_route_data(route_list1, open_routes1)
-
-    plot_data2 = plot_data.PlotData(data_set, data_labels, plot_dict2)
-    plot_data2.set_node_data(node_count, optional_nodes2, depot_nodes2)
-    plot_data2.set_route_data(route_list2, open_routes2)
-
-    plot_data3 = plot_data.PlotData(data_set, data_labels, plot_dict3)
-    plot_data3.set_node_data(node_count, optional_nodes3, depot_nodes3)
-    plot_data3.set_route_data(route_list3, open_routes3)
-
-    plot_functions = [
-        plot_data.plot_map,
-        plot_data.plot_map,
-        plot_data.plot_map
-    ]
-    plot_list = [plot_data1, plot_data2, plot_data3]
-
-    print("Close plot window to continue.")
-
-    summon_window(plot_functions, plot_list)
-
-
 def plot_population_initializer(population, details):
     """
     Compiles data from the population in such a manner that
-    a bar graph could be plotted. The bar graph demonstrates
+    a line graph could be plotted. The line graph demonstrates
     population diversity in terms of fitness value.
     @param population: Population subject to plotting. Note
     that the population is assumed to be already sorted.
@@ -232,7 +119,7 @@ def plot_population_development(population_collection, details):
     selected_populations = []
     generation_str = []
 
-    # - Selects initialized population, next early populations and the final population.
+    # - Selects initial population, next early populations and the final population.
     selected_populations.append(population_collection[0])
     
     generation_str.append("Initialization")
@@ -349,8 +236,7 @@ def plot_best_individual_fitness_time(best_time_individual_history, time_collect
     into a single line graph with respect to time.
     @param best_time_individual_history: List of individuals
     that were found to be the best find at the time of the search.
-    @param time_collection: List of instances of time when the
-    individuals were the best.
+    @param time_collection: List of instances of time.
     @param details: Dictionary that contains relevant
     information about the development of the best individual, such as
     parameters used in the genetic algorithm.
@@ -397,7 +283,7 @@ def plot_best_individual_fitness_time(best_time_individual_history, time_collect
 
 def plot_best_individual_initial_solution(best_initial_individual, details):
     """
-    Compiles data for plotting the best individual's solution that
+    Compiles data for plotting a map of the best individual's solution that
     was generated during population initialization.
     @param best_initial_individual: The individual that was considered
     the best during initialization.
@@ -520,10 +406,9 @@ def plot_best_individual_collection(best_unique_individual_history, generation_h
 
 def plot_best_individual_solution(best_unique_individual_history, generation_history, details):
     """
-    Compiles data from the population in such a manner that
-    the solution of the best individuals can be plotted
-    over the course of generations. Whenever a new best individual
-    emerges, a plot representing its solution will be drawn.
+    Compiles data from the population in such a manner that up to a fixed
+    number of maps of the best individuals can be plotted over the course of
+    the algorithm execution.
     @param best_unique_individual_history: List of unique individuals
     that were found to be the best find during the search.
     @param generation_history: List of generation numbers during which

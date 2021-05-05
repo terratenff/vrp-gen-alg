@@ -16,7 +16,7 @@ def optimize_depot_nodes(vrp, **kwargs):
     This function is to be used only if the parameter 'Optimize Depot Nodes'
     is set to True. In addition to that, it should be used prior to validation.
 
-    :param vrp: Population individual subject to depot node optimization.
+    :param vrp: A population individual subject to depot node optimization.
     :param kwargs: Keyword arguments, from which the following are expected:
     - (numpy.ndarray) 'path_table': Square matrix that represents
       distances between nodes.
@@ -52,15 +52,14 @@ def optimize_depot_nodes(vrp, **kwargs):
         # Attach revised route into the solution list.
         optimized_solution = optimized_solution + route
 
-    # Assign optimized solution for the individual.
     vrp.assign_solution(optimized_solution)
 
 
 def evaluate_travel_distance(vrp, **kwargs):
     """
-    Evaluates total travel distance of an individual's solution
+    (UNUSED) Evaluates total travel distance of an individual's solution
     using a path table.
-    :param vrp: An individual from the population.
+    :param vrp: A population individual subject to evaluation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
@@ -69,7 +68,7 @@ def evaluate_travel_distance(vrp, **kwargs):
 
     :return: Total travel distance that comes from the solution
     presented by given individual. Also returns distances
-    travelled by each vehicle.
+    travelled by each vehicle. (int/float, list<int/float>)
     """
 
     path_table = kwargs["path_table"]
@@ -79,8 +78,11 @@ def evaluate_travel_distance(vrp, **kwargs):
     route_distances = []
     for active_route in route_list:
         route_distance = 0
+        
         if len(active_route) <= 1:
+            # Vehicle does not move anywhere.
             continue
+        
         recent_node = active_route[0]
         recent_depot = active_route[0]
 
@@ -103,9 +105,9 @@ def evaluate_travel_distance(vrp, **kwargs):
 
 def evaluate_travel_time(vrp, **kwargs):
     """
-    Evaluates total travel time of an individual's solution
+    (UNUSED) Evaluates total travel time of an individual's solution
     using time windows, service times and a path table.
-    :param vrp: An individual from the population.
+    :param vrp: A population individual subject to evaluation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
@@ -117,6 +119,8 @@ def evaluate_travel_time(vrp, **kwargs):
       time windows of each node.
     - (list<int>) 'service_time': List of integers that represent
       node service times.
+    - (bool) 'ovrp': Flag that determines whether problem instance
+      is an OVRP.
 
     :return: Total travel distance that comes from the solution
     presented by given individual. Also returns total times
@@ -127,6 +131,7 @@ def evaluate_travel_time(vrp, **kwargs):
     distance_time = kwargs["distance_time_converter"]
     time_windows = kwargs["time_window"]
     service_time = kwargs["service_time"]
+    is_open = kwargs["ovrp"]
 
     route_list = vrp.get_route_list()
 
@@ -165,12 +170,13 @@ def evaluate_travel_time(vrp, **kwargs):
             recent_node = point_b
 
         # Traveling back to the depot node.
-        distance_segment = path_table[recent_node][recent_depot]
-        route_time += distance_time(distance_segment)
-        start_window = time_windows[recent_depot][0]
-        if route_time < start_window:
-            route_time += start_window - route_time
-        route_time += service_time[recent_depot]
+        if not is_open:
+            distance_segment = path_table[recent_node][recent_depot]
+            route_time += distance_time(distance_segment)
+            start_window = time_windows[recent_depot][0]
+            if route_time < start_window:
+                route_time += start_window - route_time
+            route_time += service_time[recent_depot]
 
         # Take route start time into account.
         route_time -= route_start_time
@@ -185,7 +191,7 @@ def evaluate_travel_cost(vrp, **kwargs):
     """
     Evaluates total travel costs of an individual's solution
     using time windows, service times, penalties and a path table.
-    :param vrp: An individual from the population.
+    :param vrp: A population individual subject to evaluation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
@@ -284,6 +290,7 @@ def evaluate_travel_cost(vrp, **kwargs):
             waiting_time = start_window - time
             waiting_dict[recent_depot] = waiting_time
             route_time += waiting_time
+        route_time += service_time[recent_depot]
 
         # Take route start time into account.
         route_time -= route_start_time
@@ -305,12 +312,12 @@ def evaluate_travel_cost(vrp, **kwargs):
 
 def evaluate_profits(vrp, **kwargs):
     """
-    Evaluates total profits acquired from visiting various nodes.
-    :param vrp: An individual of the population.
+    Evaluates total profits acquired from visiting optional nodes.
+    :param vrp: A population individual subject to evaluation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
     - (list<int>) 'node_profit': List of profits that one could get
-      from visiting respective nodes.
+      from visiting optional nodes.
 
     :return: Total profits that come from visiting nodes specified
     by given individual.
@@ -331,7 +338,7 @@ def evaluate_profits(vrp, **kwargs):
 def evaluate_profit_cost_difference(vrp, **kwargs):
     """
     Evaluates difference between total profits and total costs.
-    :param vrp: An individual of the population.
+    :param vrp: A population individual subject to evaluation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
     - (numpy.ndarray) 'path_table': Square matrix that represents

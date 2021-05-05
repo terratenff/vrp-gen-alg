@@ -67,7 +67,6 @@ def data_selector(vrp_params, code, sub_code):
             vrp_params.vrptw_node_penalty = None
             vrp_params.node_penalties_name = None
             print("Penalties have been deselected.")
-            print("Note that time windows have no meaning without penalties.")
         elif sub_code == 5:  # Profits
             vrp_params.vrpp_node_profit = None
             vrp_params.node_profits_name = None
@@ -77,12 +76,9 @@ def data_selector(vrp_params, code, sub_code):
             vrp_params.node_service_times_name = None
             print("Service Times have been deselected.")
         elif sub_code == 7:  # Time Windows
-            vrp_params.vrptw_node_penalty = None
             vrp_params.vrptw_node_time_window = None
-            vrp_params.node_penalties_name = None
             vrp_params.node_time_windows_name = None
             print("Time Windows have been deselected.")
-            print("Penalties have no meaning without time windows: they have been deselected too.")
     elif code == 4:  # View
         if sub_code == 1:    # Cost Matrix
             print(str(vrp_params.vrp_path_table).replace("\n  ", " "))

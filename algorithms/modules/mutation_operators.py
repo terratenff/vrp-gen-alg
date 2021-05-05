@@ -3,7 +3,7 @@
 """
 mutation_operators.py:
 
-Collection of functions that are used to mutate individuals in the population.
+Collection of functions that are used to mutate individuals.
 """
 
 from random import sample, shuffle, randint
@@ -130,7 +130,7 @@ def vehicle_diversification(vrp):
 def add_optional_node(vrp):
     """
     Mutates an individual by adding an optional node to the solution.
-    If all of the optional nodes are being used, remove one from the solution instead.
+    If all of the optional nodes are being used, one from the solution is removed.
     Applicable for VRPP instances only.
     :param vrp: Subject individual.
 
@@ -141,7 +141,7 @@ def add_optional_node(vrp):
     solution = vrp.solution
     unused_nodes = vrp.unvisited_optional_nodes
     if len(unused_nodes) == 0:
-        # All of the optional nodes are being used. Proceed to remove some instead.
+        # All of the optional nodes are being used. Remove one instead.
         remove_optional_node(vrp)
         return
     
@@ -157,7 +157,7 @@ def add_optional_node(vrp):
 def remove_optional_node(vrp):
     """
     Mutates an individual by removing an optional node from the solution.
-    If none of the optional nodes are being used, add one to the solution instead.
+    If none of the optional nodes are being used, one is added to the solution.
     Applicable for VRPP instances only.
     :param vrp: Subject individual.
 
@@ -168,7 +168,7 @@ def remove_optional_node(vrp):
     solution = vrp.solution
     used_nodes = vrp.visited_optional_nodes
     if len(used_nodes) == 0:
-        # None of the optional nodes are being used. Proceed to add some instead.
+        # None of the optional nodes are being used. Add one instead.
         add_optional_node(vrp)
         return
     

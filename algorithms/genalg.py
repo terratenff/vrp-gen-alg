@@ -3,7 +3,7 @@
 """
 genalg.py:
 
-Runner of the genetic algorithm.
+Core of the genetic algorithm.
 """
 
 from copy import deepcopy
@@ -26,11 +26,11 @@ import algorithms.modules.invalidity_correction_functions as invalidity_correcti
 
 def run_gen_alg(vrp_params, alg_params):
     """
-    Conducts the Genetic Algorithm on selected VRP type.
+    Runs the Genetic Algorithm on selected VRP types.
 
-    :param vrp_params: Parameters for the VRP.
+    :param vrp_params: Parameters for the specified VRP.
     :param alg_params: Parameters for the genetic algorithm.
-    :return: Computed solution for the VRP.
+    :return: Computed solution for the specified VRP.
     """
     # GA Initialization, Step 0: Reset ID Counter.
     VRP.id_counter = 0
@@ -55,7 +55,7 @@ def run_gen_alg(vrp_params, alg_params):
     # Maximization: Determined via VRPP.
     maximize = using_vrpp
 
-    # Exclude Travel Costs: Toggled (True/False -flag)
+    # Exclude Travel Costs: Toggled (True/False -flag) (Switch between TOP and PTP)
     exclude_travel_costs = vrp_params.vrpp_exclude_travel_costs
 
     # Optimize Depot Nodes: Toggled (True/False -flag)
@@ -101,11 +101,12 @@ def run_gen_alg(vrp_params, alg_params):
     if using_vrptw and using_hard_time_windows:
         validation_functions.append(validation_collection[3])
 
+    # Add a dummy validation function if none were selected.
     if len(validation_functions) == 0:
         validation_functions.append(lambda target_individual, **kwargs: (True, "No validation functions were used."))
     VRP.validator = validation_functions
 
-    # GA Initialization, Step 4: Selecting suitable individual evaluation function.
+    # GA Initialization, Step 4: Selecting an individual evaluation function.
     evaluation_collection = {
         0: evaluators.evaluate_travel_distance,
         1: evaluators.evaluate_travel_time,
@@ -129,7 +130,7 @@ def run_gen_alg(vrp_params, alg_params):
     else:
         def compare(vrp1, vrp2): return vrp1.fitness < vrp2.fitness
 
-    # GA Initialization, Step 5: Selecting suitable parent selector function.
+    # GA Initialization, Step 5: Selecting a parent selector function.
     selector_collection = {
         0: parent_selectors.best_fitness,
         1: parent_selectors.roulette_selection,
@@ -137,7 +138,7 @@ def run_gen_alg(vrp_params, alg_params):
     }
     VRP.parent_selector = selector_collection[alg_params.parent_selection_function]
 
-    # GA Initialization, Step 6: Selecting suitable crossover operator.
+    # GA Initialization, Step 6: Selecting a crossover operator.
     crossover_collection = {
         0: crossover_operators.one_point,
         1: crossover_operators.two_point,
@@ -162,15 +163,21 @@ def run_gen_alg(vrp_params, alg_params):
         mutation_collection[2],
         mutation_collection[3]
     ]
+    
+    # Optional node-wise mutation operators.
     if using_vrpp:
         mutation_functions.append(mutation_collection[4])
         mutation_functions.append(mutation_collection[5])
+    
     if using_mdvrp and not optimize_depot_nodes:
+        # Depot node mutation operator is used only if depot node optimization
+        # is disabled.
         mutation_functions.append(mutation_collection[6])
+    
     VRP.mutation_operator = mutation_functions
     mutation_function_count = len(mutation_functions)
     
-    # GA Initialization, Step 8: Selecting suitable invalidity correction function.
+    # GA Initialization, Step 8: Selecting an invalidity correction function.
     invalidity_correction_collection = {
         0: invalidity_correction.random_valid_individual,
         1: invalidity_correction.best_individual,
@@ -198,6 +205,26 @@ def run_gen_alg(vrp_params, alg_params):
         filtration_counter = alg_params.filtration_frequency
 
     def filtration(population_old, population_new, **kwargs):
+        """
+        Combines two most recent populations into one, takes the best half of
+        individuals and replaces fitness-wise duplicates with completely random
+        individuals.
+
+        :param population_old: Population of generation n
+        :param population_new: Population of generation n + 1
+        :param kwargs: Dictionary of expected parameters:
+        - (int) 'node_count': Number of nodes used in the problem. Includes depot nodes and optional nodes.
+        - (list<int>) 'depot_nodes': List of depot nodes used in the problem.
+        - (list<int>) 'optional_nodes': List of optional nodes used in the problem.
+        - (int) 'vehicle_count': Number of vehicles used in the problem.
+        - (bool) 'maximize': Flag that determines whether the objective to maximize or minimize.
+        - (int) 'minimum_cpu_time': CPU time that is allotted for the initialization of an individual solution.
+          The purpose of this is to stop the algorithm if that is unable to create a valid individual
+          (or it takes too long).
+        :return: Population containing the best of 2 recent populations and
+        random individuals if there were duplicates.
+        """
+        
         fl_node_count = kwargs["node_count"]
         fl_depot_nodes = kwargs["depot_nodes"]
         fl_optional_nodes = kwargs["optional_nodes"]
@@ -247,7 +274,7 @@ def run_gen_alg(vrp_params, alg_params):
             )
             if fl_candidate_individual is None:
                 # Filtration strategy has failed due to taking too long in making a valid individual.
-                # In such a case, the population is set to remain untouched.
+                # In such a case, the algorithm will fall back to original new population.
                 return population_new, error_msg
             cut_population[replacement_indices[fl_i]] = fl_candidate_individual
             fl_individual_timer.reset()
@@ -267,6 +294,24 @@ def run_gen_alg(vrp_params, alg_params):
         replacement_counter = alg_params.replace_similar_individuals
 
     def similar_individual_replacement(target_population, **kwargs):
+        """
+        Looks for fitness-wise duplicates in specified population and replaces
+        them with random individuals.
+
+        :param target_population: Population subject to duplicate replacements.
+        :param kwargs: Dictionary of expected parameters:
+        - (int) 'node_count': Number of nodes used in the problem. Includes depot nodes and optional nodes.
+        - (list<int>) 'depot_nodes': List of depot nodes used in the problem.
+        - (list<int>) 'optional_nodes': List of optional nodes used in the problem.
+        - (int) 'vehicle_count': Number of vehicles used in the problem.
+        - (bool) 'maximize': Flag that determines whether the objective to maximize or minimize.
+        - (int) 'minimum_cpu_time': CPU time that is allotted for the initialization of an individual solution.
+          The purpose of this is to stop the algorithm if that is unable to create a valid individual
+          (or it takes too long).
+        :return: Population where duplicate individuals have been replaced
+        with random individuals.
+        """
+        
         rp_node_count = kwargs["node_count"]
         rp_depot_nodes = kwargs["depot_nodes"]
         rp_optional_nodes = kwargs["optional_nodes"]
@@ -281,6 +326,11 @@ def run_gen_alg(vrp_params, alg_params):
 
         replaced_population = deepcopy(target_population)
 
+        # Multiple weak solutions can share the same fitness value.
+        # However, with potentially optimal solutions, it is very
+        # likely that solutions with the same fitness value
+        # are the same. For that reason, it is assumed that solutions
+        # that have the same fitness value are the same.
         replacement_indices = []
         previous_fitness = replaced_population[0].fitness
         for rp_i in range(1, len(replaced_population)):
@@ -308,7 +358,7 @@ def run_gen_alg(vrp_params, alg_params):
                 **rp_individual_args
             )
             if rp_candidate_individual is None:
-                # Replacement operation has failed. Fall back to the original population.
+                # Replacement operation has failed. Fall back to original population.
                 return target_population, error_msg
             replaced_population[replacement_indices[rp_i]] = rp_candidate_individual
             rp_individual_timer.reset()
@@ -323,7 +373,6 @@ def run_gen_alg(vrp_params, alg_params):
         return replaced_population, rp_msg
 
     # GA Initialization, Step 10: Create (and modify) variables that GA actively uses.
-    # - Deep-copied variables are potentially subject to modifications.
     path_table = deepcopy(vrp_params.vrp_path_table)
     path_table_mapping = deepcopy(vrp_params.vrp_path_table_mapping)
     coordinates = deepcopy(vrp_params.vrp_coordinates)
@@ -343,11 +392,11 @@ def run_gen_alg(vrp_params, alg_params):
     if using_ovrp:
         path_table[:, depot_node_list] = 0
 
-    # If path table mapping is provided, the path table will be expanded and the node count
-    # will be modified to account for the mapping.
+    # If path table mapping is provided, the path table will be limited to mapped nodes only
+    # and the node count will be modified to account for the mapping.
     if path_table_mapping is not None:
 
-        # Path table mapping values cannot exceed the size of the path table.
+        # Path table mapping values cannot exceed the size of the original path table.
         if max(path_table_mapping) >= len(path_table):
             print("Path table mapping cannot contain integers greater than path table size ({} vs. {})."
                   .format(len(path_table), max(path_table_mapping)))
@@ -358,6 +407,7 @@ def run_gen_alg(vrp_params, alg_params):
             print("Path table mapping cannot contain negative integers.")
             return
 
+        # Adjust path table according to provided mapping.
         node_count = len(path_table_mapping)
         new_path_table = []
         for i in path_table_mapping:
@@ -389,22 +439,29 @@ def run_gen_alg(vrp_params, alg_params):
             print("Optional node list cannot contain negative integers.")
             return
 
+    # Set maximum time/distance constraints.
     maximum_time = vrp_params.vrp_maximum_route_time \
-        if vrp_params.vrp_maximum_route_time is not None else -1
+        if vrp_params.vrp_maximum_route_time is not None else float("inf")
     maximum_distance = vrp_params.vrp_maximum_route_distance \
-        if vrp_params.vrp_maximum_route_distance is not None else -1
+        if vrp_params.vrp_maximum_route_distance is not None else float("inf")
 
+    # Set node service times to 0 if they're not provided.
     node_service_time = deepcopy(vrp_params.vrp_node_service_time)
     if node_service_time is None:
         node_service_time = [0] * node_count
+    else:
+        # Depot nodes do not need servicing.
+        for depot_node in depot_node_list:
+            node_service_time[depot_node] = 0
 
+    # Set node demands to 0 if they're not provided.
     node_demand_list = deepcopy(vrp_params.cvrp_node_demand)
     if node_demand_list is None:
         node_demand_list = np.array([[0] * node_count]).T
     if len(node_demand_list.shape) == 1:
         node_demand_list = np.array([node_demand_list]).T
 
-    # If vehicle capacity was not specified, default capacities are given.
+    # If vehicle capacity was not specified, default capacities (0) are given.
     if vehicle_capacity is None:
         vehicle_capacity = [0] * node_demand_list.shape[1]
 
@@ -412,6 +469,7 @@ def run_gen_alg(vrp_params, alg_params):
     for depot_node in depot_node_list:
         node_demand_list[depot_node] = 0
 
+    # Set time windows infinitely large if they're not provided.
     time_windows = deepcopy(vrp_params.vrptw_node_time_window)
     if time_windows is None:
         time_windows = [(0, float("inf"))] * node_count
@@ -420,12 +478,12 @@ def run_gen_alg(vrp_params, alg_params):
     # unless it is specified. (Although it is pointless to set a time window
     # that is greater than maximum time: maximum time takes precedence over time windows)
 
+    # Set penalty coefficients to 0 if they're not provided.
     node_penalty_list = deepcopy(vrp_params.vrptw_node_penalty)
     if node_penalty_list is None:
         node_penalty_list = [0] * node_count
 
-    # Depot nodes can have penalty coefficients.
-
+    # Set profits to 0 if they're not provided.
     node_profit_list = deepcopy(vrp_params.vrpp_node_profit)
     if node_profit_list is None:
         node_profit_list = [0] * node_count
@@ -469,7 +527,8 @@ def run_gen_alg(vrp_params, alg_params):
         "time_window": time_windows,
         "service_time": node_service_time,
         "penalty": node_penalty_list,
-        "node_profit": node_profit_list
+        "node_profit": node_profit_list,
+        "ovrp": using_ovrp
     }
     validation_args = {
         "path_table": path_table,
@@ -609,16 +668,13 @@ def run_gen_alg(vrp_params, alg_params):
         "individual_args": individual_args
     }
 
-    # for individual in population:
-    #     print("{:> 4} | {:> 5} | {}".format(individual.individual_id, individual.fitness, individual.solution))
-
     timeout = False
     global_timer.start()
 
     # ------------------------------------------------------------------------------------------------------------------
     # - The Beginning of the Main Loop of the Genetic Algorithm. -------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
-
+    
     while not timeout \
             and lower_bound + threshold <= best_individual.fitness <= upper_bound - threshold \
             and current_generation < generation_count_max \
@@ -627,10 +683,11 @@ def run_gen_alg(vrp_params, alg_params):
         new_population = []
         while len(new_population) < population_count and not timeout:
             # Two new individuals are created for the new population in each loop.
-            # 1. Select two parents from current generation.
+            
+            # Select two parents from current generation.
             parent1, parent2 = VRP.parent_selector(population, **parent_selection_args)
 
-            # 2. Perform crossover operation.
+            # Perform crossover operation.
             crossover_check = np.random.random()
             if crossover_probability >= crossover_check:
                 offspring1, offspring2 = VRP.crossover_operator(parent1, parent2)
@@ -640,7 +697,7 @@ def run_gen_alg(vrp_params, alg_params):
             offspring1.assign_id()
             offspring2.assign_id()
 
-            # 3. Perform mutation operation.
+            # Perform mutation operation.
             mutation_check1, mutation_check2 = np.random.random(), np.random.random()
             if mutation_probability >= mutation_check1:
                 mutation_selector = np.random.randint(0, mutation_function_count)
@@ -661,7 +718,7 @@ def run_gen_alg(vrp_params, alg_params):
                 offspring1.valid, validation_msg = validator(offspring1, **validation_args)
                 if offspring1.valid is False:
                     add_offspring1 = False
-                    # New individual is deemed invalid. It is now subject to a correction operation.
+                    # New individual is invalid. It is now subject to a correction operation.
                     individual_timer.start()
                     replacement, msg = VRP.invalidity_corrector(offspring1, **invalidity_correction_args)
                     individual_timer.stop()
@@ -671,14 +728,16 @@ def run_gen_alg(vrp_params, alg_params):
                             break
                         else:
                             # Minimum CPU Time Termination Criterion has been violated.
-                            # GA will be concluded here, with partial results.
+                            # GA will be concluded here, without results.
                             print(msg)
                             timeout = True
                     else:
                         # Replacement individual is valid. Evaluate and add to population.
                         replacement.fitness = VRP.evaluator(replacement, **evaluation_args)
                         new_population.append(replacement)
-            if add_offspring1:
+            
+            # If offspring was found valid, it is added to the population here.
+            if add_offspring1 and offspring1.valid:
                 offspring1.fitness = VRP.evaluator(offspring1, **evaluation_args)
                 new_population.append(offspring1)
 
@@ -697,26 +756,29 @@ def run_gen_alg(vrp_params, alg_params):
                             break
                         else:
                             # Minimum CPU Time Termination Criterion has been violated.
-                            # GA will be concluded here, with partial results.
+                            # GA will be concluded here, without results.
                             print(msg)
                             timeout = True
                     else:
                         # Replacement individual is valid. Evaluate and add to population.
                         replacement.fitness = VRP.evaluator(replacement, **evaluation_args)
                         new_population.append(replacement)
-            if add_offspring2:
+            
+            # If offspring was found valid, it is added to the population here.
+            if add_offspring2 and offspring2.valid:
                 offspring2.fitness = VRP.evaluator(offspring2, **evaluation_args)
                 new_population.append(offspring2)
             
             timeout = global_timer.past_goal()
+            
+            # - End of population loop -
 
-        # If population count is set to an uneven number, chances are one individual
-        # has to be removed.
+        # If population count is set to an uneven number, chances are that
+        # only one individual has to be removed.
         if len(new_population) > population_count:
             del new_population[np.random.randint(0, len(new_population))]
 
-        # If GA termination is requested in the middle of creating
-        # a new population, the population in question is ignored.
+        # Check if GA termination has been requested.
         if timeout:
             break
 
@@ -772,7 +834,7 @@ def run_gen_alg(vrp_params, alg_params):
                 current_generation_min,
                 generation_count_min,
                 candidate_individual.fitness,
-                best_individual.fitness))  # Test print.
+                best_individual.fitness))
 
     # ------------------------------------------------------------------------------------------------------------------
     # - The End of the Main Loop of the Genetic Algorithm. -------------------------------------------------------------
@@ -797,7 +859,7 @@ def run_gen_alg(vrp_params, alg_params):
     plot_data_list = []
 
     # Graph 1 / 7
-    # Bar Graph that illustrates diversity of population created using a population initializer.
+    # Line Graph that illustrates diversity of population created using a population initializer.
     details1 = {
         "population_initializer": alg_params.str_population_initializer[alg_params.population_initializer],
         "sa_iteration_count": sa_iteration_count,
@@ -811,7 +873,7 @@ def run_gen_alg(vrp_params, alg_params):
     plot_function_list, plot_data_list = plot_function_list + plot_function1, plot_data_list + plot_data1
 
     # Graph 2 / 7
-    # Scatter Graph that illustrates the solution of the best individual created by the population initializer.
+    # Scatter Graph (Map) that illustrates the solution of the best individual created by the population initializer.
     # This is drawn only if node coordinates are available, and if path table mapping is not used.
     if coordinates is not None and path_table_mapping is None:
         details2 = {
@@ -898,7 +960,7 @@ def run_gen_alg(vrp_params, alg_params):
     plot_function_list, plot_data_list = plot_function_list + plot_function6, plot_data_list + plot_data6
 
     # Graph 7 / 7
-    # Collection Scatter Graph that illustrate the development of the solution of the best individual.
+    # Collection of Scatter Graphs that illustrate the development of the solution of the best individual.
     # This is drawn only if node coordinates are available, and if path table mapping is not used.
     if coordinates is not None and path_table_mapping is None:
         details7 = {

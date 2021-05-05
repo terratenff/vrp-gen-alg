@@ -3,7 +3,7 @@
 """
 crossover_operators.py:
 
-Collection of functions that are used to breed individuals via crossover in the population.
+Collection of functions that perform crossover to selected population individuals.
 """
 
 from copy import deepcopy
@@ -33,10 +33,10 @@ def one_point(vrp1, vrp2):
     Generated offspring have to be validated and evaluated separately.
     """
     
-    # Solutions lengths must be greater than 5 in order to have this
+    # Solution length must be greater than 5 in order to have this
     # crossover operator work properly.
     if len(vrp1.solution) <= 5 or len(vrp2.solution) <= 5:
-        return vrp1, vrp2
+        return deepcopy(vrp1), deepcopy(vrp2)
 
     depot_list = vrp1.depot_node_list
     optional_list = vrp1.optional_node_list
@@ -56,6 +56,9 @@ def one_point(vrp1, vrp2):
         offspring2 = deepcopy(vrp1)
 
     depot_indices = [i for i, x in enumerate(parent1) if x in depot_list]
+    
+    # This list is used to keep track of depot nodes as they are used
+    # in the crossover.
     depot_indices_active = deepcopy(depot_indices)
 
     offspring1.assign_id()
@@ -223,10 +226,10 @@ def two_point(vrp1, vrp2):
     Generated offspring have to be validated and evaluated separately.
     """
     
-    # Solutions lengths must be greater than 5 in order to have this
+    # Solution length must be greater than 5 in order to have this
     # crossover operator work properly.
     if len(vrp1.solution) <= 5 or len(vrp2.solution) <= 5:
-        return vrp1, vrp2
+        return deepcopy(vrp1), deepcopy(vrp2)
 
     depot_list = vrp1.depot_node_list
     optional_list = vrp1.optional_node_list
@@ -246,6 +249,9 @@ def two_point(vrp1, vrp2):
         offspring2 = deepcopy(vrp1)
 
     depot_indices = [i for i, x in enumerate(parent1) if x in depot_list]
+    
+    # This list is used to keep track of depot nodes as they are used
+    # in the crossover.
     depot_indices_active = deepcopy(depot_indices)
 
     offspring1.assign_id()
@@ -404,7 +410,7 @@ def two_point(vrp1, vrp2):
 def order_crossover(vrp1, vrp2):
     """
     For both parent individuals, a random gene of random size is selected
-    from their chromosomes. Upon crossover, these genes remain intact on
+    from their chromosomes. After crossover, these genes remain intact on
     their offspring: gene from parent 1 remains on offspring 1, and gene
     from parent 2 remains on offspring 2.
 
@@ -422,10 +428,10 @@ def order_crossover(vrp1, vrp2):
     Generated offspring have to be validated and evaluated separately.
     """
     
-    # Solutions lengths must be greater than 5 in order to have this
+    # Solution length must be greater than 5 in order to have this
     # crossover operator work properly.
     if len(vrp1.solution) <= 5 or len(vrp2.solution) <= 5:
-        return vrp1, vrp2
+        return deepcopy(vrp1), deepcopy(vrp2)
 
     depot_list = vrp1.depot_node_list
     parent1 = vrp1.solution
@@ -521,15 +527,15 @@ def order_crossover(vrp1, vrp2):
 
 def vehicle_crossover(vrp1, vrp2):
     """
-    For both parent individuals, a random vehicle route is selected
+    For both parent individuals, a random number of vehicle routes are selected
     from their chromosomes. Upon crossover, these routes remain intact on
     their offspring: routes from parent 1 remain on offspring 1, and routes
     from parent 2 remain on offspring 2.
 
     Vehicle Crossover is similar to Order Crossover. The difference between
     them is that in Order Crossover, a random gene is selected for
-    preservation, while in Vehicle Crossover, a random collection of
-    vehicle routes are selected instead.
+    preservation, while in Vehicle Crossover, random genes are restricted
+    to full vehicle routes.
 
     :param vrp1: Individual 1 selected from the population to be a parent
     for the crossover.

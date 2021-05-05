@@ -3,14 +3,14 @@
 """
 validators.py:
 
-Collection of functions that are used to validate individuals in the population.
+Collection of functions that are used to validate individuals.
 """
 
 
 def validate_capacity(vrp, **kwargs):
     """
-    Validates the vehicle capacity aspect of given individual's solution.
-    :param vrp: An individual from the population.
+    Validates vehicle capacities of given individual's solution.
+    :param vrp: An individual subject to validation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
@@ -64,8 +64,8 @@ def validate_capacity(vrp, **kwargs):
 
 def validate_maximum_time(vrp, **kwargs):
     """
-    Validates the maximum travel time aspect of given individual's solution.
-    :param vrp: An individual from the population.
+    Validates the maximum travel time of given individual's solution.
+    :param vrp: An individual subject to validation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
@@ -78,6 +78,8 @@ def validate_maximum_time(vrp, **kwargs):
       time windows of each node.
     - (list<int>) 'service_time': List of integers that represent
       node service times.
+    - (bool) 'ovrp': Flag that determines whether problem instance
+      is an OVRP.
 
     :return: True, if solution is time-wise valid. False if not.
     Second return value is a string that provides details about it.
@@ -149,8 +151,8 @@ def validate_maximum_time(vrp, **kwargs):
 
 def validate_maximum_distance(vrp, **kwargs):
     """
-    Validates the maximum travel distance aspect of given individual's solution.
-    :param vrp: An individual from the population.
+    Validates the maximum travel distance of given individual's solution.
+    :param vrp: An individual subject to validation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
@@ -200,9 +202,9 @@ def validate_maximum_distance(vrp, **kwargs):
 
 def validate_time_windows(vrp, **kwargs):
     """
-    Validates the time window aspect of given individual's solution.
+    Validates the time windows of given individual's solution.
     This validator is to be used only if hard time windows are enabled.
-    :param vrp: An individual from the population.
+    :param vrp: An individual subject to validation.
     :param kwargs: Keyword arguments. The following are expected
     from it:
 
@@ -214,6 +216,8 @@ def validate_time_windows(vrp, **kwargs):
       time windows of each node.
     - (list<int>) 'service_time': List of integers that represent
       node service times.
+    - (bool) 'ovrp': Flag that determines whether problem instance
+      is an OVRP.
 
     :return: True, if solution is valid in terms of time windows. False if not.
     Second return value is a string that provides details about it.
@@ -243,7 +247,6 @@ def validate_time_windows(vrp, **kwargs):
             end_window = time_windows[point_b][1]
 
             # If a vehicle arrives too late, the solution is invalid.
-            # (If only some time windows are hard, soft time windows with high penalties should be used.)
             if route_time > end_window:
                 return False, "Hard time window constraint violation (Route Node {} / {}, situated at {}): {} / {}" \
                     .format(i, len(active_route) + 1, point_b, route_time, end_window)

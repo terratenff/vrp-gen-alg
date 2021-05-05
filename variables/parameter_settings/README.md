@@ -84,11 +84,11 @@ If this is set to None, one-to-one mapping is used: in the aforementioned exampl
 
 #### vrp_vehicle_count
 
-Vehicle count represents the number of vehicles that are reserved for the problem instance. Setting this parameter low ensures that limited number of vehicles are being used, but doing so impacts the algorithm's ability to find a valid solution quickly, resulting in the algorithm either taking too long or being unable to find a solution to begin with. Setting the number of vehicles high ensures quick discovery of a valid solution (albeit worse than usual), thus improving algorithm efficiency; however, while the algorithm has the quirk of using less vehicles than what was reserved, the algorithm is not specialized in minimizing the number of vehicles used.
+Vehicle count represents the number of vehicles that are reserved for the problem instance. Setting this parameter low ensures that limited number of vehicles are being used, but doing so impacts the algorithm's ability to find a valid solution quickly, resulting in the algorithm either taking too long or being unable to find a solution to begin with. Setting the number of vehicles high ensures faster discovery of a valid solution (albeit worse than usual), thus improving algorithm efficiency; however, while the algorithm has the quirk of using less vehicles than what was reserved, the algorithm is not specialized in minimizing the number of vehicles used.
 
 #### vrp_node_service_time
 
-Node service time is the time that is needed to service a customer. Once a vehicle arrives at a customer, servicing begins. Once servicing has been completed, the vehicle proceeds towards another customer. Each node has a service time of their own Depots are expected to have their service times at zero. Expected parameter value is the name of a text file situated in the variable subfolder "node_service_times". If set to None, nodes will have their service times set to zero.
+Node service time is the time that is needed to perform a service upon arrival. Once a vehicle arrives at a node, servicing begins. Once servicing has been completed, the vehicle proceeds towards another node. Each node has a service time of their own Depots are expected to have their service times at zero. Expected parameter value is the name of a text file situated in the variable subfolder "node_service_times". If set to None, nodes will have their service times set to zero. Service times on depot nodes are ignored.
 
 #### vrp_maximum_route_time
 
@@ -98,7 +98,7 @@ This parameter effectively creates hard time windows for depot nodes: if they ar
 
 #### vrp_maximum_route_distance
 
-Maximum route distance functions in a similar manner when compared to maximum route time. The distance that a vehicle travels is collected from the cost matrix (making that a distance matrix). If a vehicle's route is too long in terms of distance, then the solution that it's part of becomes invalid. Setting this parameter to None removes the constraint by making maximum distance infinity.
+Maximum route distance functions in a similar manner when compared to maximum route time. The distance that a vehicle travels is collected from the cost matrix. If a vehicle's route is too long in terms of distance, then the solution that it's part of becomes invalid. Setting this parameter to None removes the constraint by making maximum distance infinity.
 
 #### vrp_distance_time_ratio
 
@@ -106,27 +106,27 @@ Distance-to-time ratio is a coefficient that is used to convert distance units t
 
 #### vrp_time_cost_ratio
 
-Time-to-cost ratio is a coefficient that is used to convert time units to cost units. Cost units make the eventual fitness value. This parameter works similarly to that of distance-to-time ratio. Likewise, this cannot be set to a negative value.
+Time-to-cost ratio is a coefficient that is used to convert time units to cost units. Cost units make the eventual fitness value. This parameter works similarly to that of distance-to-time ratio.
 
 #### vrp_distance_cost_ratio
 
-Distance-to-cost ratio is a coefficient that is used to convert distance units to cost units. Cost units make the eventual fitness value. This parameter works similarly to that of time-to-cost ratio. Likewise, this cannot be set to a negative value.
+Distance-to-cost ratio is a coefficient that is used to convert distance units to cost units. Cost units make the eventual fitness value. This parameter works similarly to that of time-to-cost ratio.
 
 #### cvrp_vehicle_capacity
 
-Vehicle capacity is a constraint that involves the amount of goods that the vehicles can carry. Every vehicle is assumed to be the same, so they share the same capacity. If a vehicle goes over capacity during its route, the solution it's part of becomes invalid. Multiple capacity types can be defined by placing whitespace between different values. Different capacities are assumed to be unique: Items of type A use storage A, and items of type B use storage B, but items of type A cannot use storage B, and items of type B cannot use storage A. If multiple capacity types are used, node demands data must be modified accordingly.
+Vehicle capacity is a constraint that determines the amount of things that vehicles can carry. Every vehicle is assumed to be the same, so they have the same capacity. If a vehicle goes over capacity during its route, the solution it's part of becomes invalid. Multiple capacity types can be defined by placing whitespace between different values. Different capacities are assumed to be unique: Items of type A use storage A, and items of type B use storage B, but items of type A cannot use storage B, and items of type B cannot use storage A. If multiple capacity types are used, node demands must be modified accordingly.
 
 #### cvrp_node_demand
 
-Node demands represent the amount of goods that the customer have requested. Depots are expected to not have any demand. Demands are assumed to be positive, although setting them negative is possible, but discouraged, since the act of both picking up and delivering goods in a route is not supported. Expected parameter value is the name of a text file situated in the variable subfolder "node_demands". If set to None, nodes will have their demands set to zero.
+Node demands represent capacities that nodes request. Depots do not have any demands. Demands are assumed to be positive, although setting them negative is possible, but discouraged, since the act of both picking up and delivering goods in a route is not supported. Expected parameter value is the name of a text file situated in the variable subfolder "node_demands". If set to None, nodes will have their demands set to zero.
 
 #### ovrp_enabled
 
-This is a flag parameter that determines whether the problem instance is an open variant. Setting the parameter to True will transform the current VRP instance into its open variant at the beginning of the algorithm by modifying the cost matrix such that any trip from a customer to a depot is free. Technically the vehicles still do return to the depots where from which they started. If set to False, this procedure is skipped.
+This is a flag parameter that determines whether the problem instance is an open variant. Setting the parameter to True will transform the current VRP instance into its open variant at the beginning of the algorithm by modifying the cost matrix such that any trip to a depot is free. Technically the vehicles still do return to the depots where from which they started. If set to False, this procedure is skipped.
 
 #### vrpp_node_profit
 
-Node profits represent the profits that can be made by visiting various nodes. Depots are expected to have no profits. Each customer can have different profits: the higher it is, the more of interest the customer is. Profits have merit to them only if the customers that have them are considered optional. Profits are assumed to be positive, although it is possible to have them be negative. Expected parameter value is the name of a text file situated in the variable subfolder "node_profits". If set to None, nodes will have their profits set to zero.
+Node profits represent the profits that can be made by visiting nodes. Depots do not have profits. Each node can have different profits: the higher it is, the more of interest it is. Profits have merit to them only if the nodes that have them are considered optional. Profits are assumed to be positive, although it is possible to have them be negative. Expected parameter value is the name of a text file situated in the variable subfolder "node_profits". If set to None, nodes will have their profits set to zero.
 
 #### vrpp_exclude_travel_costs
 
@@ -134,11 +134,11 @@ This is a flag that determines whether travel-related costs should be deducted f
 
 #### vrpp_optional_node
 
-Optional nodes mark the nodes that do not have to be visited. If any nodes are defined here, problem instance becomes a VRPP, the nature of which can be controlled with the previous parameter ([vrpp_exclude_travel_costs](#vrpp_exclude_travel_costs)). Only customer nodes can be selected as optional nodes. Multiple optional nodes can be defined by separating them with whitespace. Setting this parameter to None makes every customer node mandatory for visits.
+Optional nodes mark the nodes that do not have to be visited. If any nodes are defined here, problem instance becomes a VRPP, the nature of which can be controlled with the previous parameter ([vrpp_exclude_travel_costs](#vrpp_exclude_travel_costs)). Depot nodes cannot be selected as optional. Multiple optional nodes can be defined by separating them with whitespace. Setting this parameter to None makes every node mandatory for visits.
 
 #### mdvrp_depot_node
 
-Depot nodes mark the locations where vehicles start and conclude their routes. Multiple depot nodes can be defined by separating them with whitespace. The application assumes that if a vehicle starts its route from depot A, it also concludes its route on depot A, not on depot B.
+Depot nodes mark the locations where vehicles start and conclude their routes. Multiple depot nodes can be defined by separating them with whitespace, but at least one depot node must be defined. The application assumes that if a vehicle starts its route from depot A, it also concludes its route on depot A, not on depot B.
 
 #### mdvrp_optimize_depot_nodes
 
@@ -150,7 +150,7 @@ Node time windows determine when a node can be serviced. If a vehicle arrives to
 
 #### vrptw_node_penalty
 
-Penalties are incurred if vehicles arrive at their destinations too late. The application applies a linear penalty function using coefficients. The later a vehicle is, the higher the penalty. The same applies to the extent of the penalty coefficient. Expected parameter value is the name of a text file situated in the variable subfolder "node_penalties". If set to None, nodes have their penalty coefficients set to zero.
+Penalties are incurred if vehicles arrive at their destinations too late. The application applies a linear penalty function using coefficients. The later a vehicle is, the higher the penalty. The higher the penalty coefficient, the more important the node is. Expected parameter value is the name of a text file situated in the variable subfolder "node_penalties". If set to None, nodes have their penalty coefficients set to zero.
 
 #### vrptw_hard_windows
 
@@ -162,15 +162,15 @@ GA-related settings are located in the subfolder "genalg". Here are the details 
 
 #### population_count
 
-As a population-based algorithm, GA maintains a population of individuals that represent solutions to the problem instance. This parameter defines the size of said population. The higher it is, the more opportunities GA has to find optimal solutions; however, computation times become longer. The lower it is, the faster GA operates, at the expense of its precision. Population count is usually set somewhere between 50 and 100.
+As a population-based algorithm, GA maintains a population of individuals that represent solutions to the problem instance. This parameter defines the size of said population. The higher it is, the more opportunities GA has to find optimal solutions; however, computation times become longer. The lower it is, the faster GA operates, at the expense of its precision. Population count is usually set somewhere between 25 and 100.
 
 #### population_initializer
 
-Population initializer is a function that determines how a generation 0 population is created. An integer code that represents a function is provided here. The following population initializers are available:
+Population initializer is a function that determines how generation 0 population is created. An integer code that represents a function is provided here. The following population initializers are available:
 - 0: Random
   - Every individual is created randomly.
 - 1: Allele Permutation
-  - A random individual is created. Then it is mutated and copied to the population every time.
+  - A random individual is created. Then it is mutated (using allele swap) and copied to the population every time.
 - 2: Gene Permutation
   - A random individual is created. Then its chromosome is split into random genes. Using them, permutations of them are created and added to the population. If permutations run out, another random individual is created and the process is repeated until the population is completed.
 - 3: Simulated Annealing (SA)
@@ -191,7 +191,7 @@ Maximum generation count is one of few termination criteria that the application
 
 #### cpu_individual_limit
 
-Individual CPU time limit is one of few termination criteria that the application uses. It is given in milliseconds. If the creation of an individual takes longer than this, the algorithm is terminated.
+Individual CPU time limit is one of few termination criteria that the application uses. It is given in milliseconds. If the creation of an individual takes longer than this, the algorithm is terminated **without yielding results**.
 
 #### cpu_total_limit
 
@@ -211,11 +211,11 @@ Fitness threshold is the acceptable difference between the fitness value of a di
 
 #### parent_candidate_count
 
-Parent candidate count determines how many individuals are selected at random to compete to become a parent for the next generation. This is expected to be at least 2 and at most the population count.
+Parent candidate count determines how many individuals are selected at random to compete to become a parent for the crossover operation. This is expected to be at least 2 and at most the population count.
 
 #### parent_selection_function
 
-Parent selection function determines how a parent selected from a collection of candidate individuals. An integer code that represents a function is provided here. The following parent selection functions are available:
+Parent selection function determines how a parent is selected from a collection of candidate individuals. An integer code that represents a function is provided here. The following parent selection functions are available:
 - 0: Best Fitness
  - From the collection of candidates the one with the lowest (or highest if maximizing) fitness is chosen.
 - 1: Roulette Wheel Selection
@@ -225,25 +225,25 @@ Parent selection function determines how a parent selected from a collection of 
 
 #### tournament_probability
 
-This is the probability that a candidate individual is chosen from a group of candidates in tournament selection, assuming that the indivual has the best fitness among the others. Marking the probability as p, candidate individuals have the following probabilities of being selected:
+This is the probability that a candidate individual is chosen from a group of candidates in tournament selection if it has placed first in the tournament. Marking the probability as p, candidate individuals have the following probabilities of being selected:
 - 1st: p
 - 2nd: p*(1 - p)
 - 3rd: p*(1 - p)^2
 - 4th: p*(1 - p)^3
 - nth: p*(1 - p)^n
-- last place: 1 - (probabilities of every other position)
+- last place: 1 - (sum of probabilities of every other position)
 
 #### crossover_operator
 
-Crossover operator is a function that conducts the crossover procedure of the GA. Two parents are specified to create two offspring. An integer code that represents a function is provided here. The following crossover operators are available:
+Crossover operator is a function that conducts the crossover procedure of the GA. Two parents are used to create two offspring. An integer code that represents a function is provided here. The following crossover operators are available:
 - 0: 1-Point
-  - A cutoff point is selected for both chromosomes. Contents of one side of the point are flipped, and the rest are rearranged and fixed so that there are no duplicates.
+  - A cutoff point is selected for both chromosomes. Contents of one side of the point are flipped, and the rest are rearranged so that there are no duplicates.
 - 1: 2-Point
   - This is similar to 1-Point, except that two cutoff points are selected, and the contents between them are flipped.
 - 2: Order Crossover (OX)
   - For each chromosome a random, unique gene is selected for preservation. Offspring A has the preserved gene of parent A, and the rest of the chromosome comes from parent B. Vice versa for offspring B.
 - 3: Vehicle Crossover (VX)
-  - This is the same as OX, except genes subject to preservation are full routes.
+  - This is the same as OX, except that genes subject to preservation are full routes.
 
 #### crossover_probability
 
@@ -251,11 +251,11 @@ The probability of the crossover operation taking place. If crossover does not t
 
 #### mutation_probability
 
-The probability of the mutation operation taking place.
+The probability of the mutation operation taking place after crossover.
 
 #### invalidity_correction
 
-Invalidity correction function takes an individual that has been deemed invalid and makes it valid again. An integer code represents a function that is used to repair invalid individuals. The following invalidity correction functions are available:
+Invalidity correction function takes an individual that has been found invalid and makes it valid again. An integer code represents a function that is used to repair invalid individuals. The following invalidity correction functions are available:
 - 0: Random Valid Individual
   - A completely random individual is created from scratch. It is then validated. This process is repeated until a valid individual is created.
 - 1: Best Individual
@@ -266,6 +266,8 @@ Invalidity correction function takes an individual that has been deemed invalid 
   - Invalid individual is mutated and validated. Whenever the individual is invalid it is mutated again. Once the individual is valid, the mutation stops.
 - 4: Best Individual + Mutation
   - Invalidity correction functions 1 and 3 combined. The best individual is taken and then continuously mutated until it is valid.
+- 5: Retry Individual Creation
+  - Instead of attempting to fix an invalid individual, it is instead discarded, and the algorithm proceeds as normal.
 
 #### filtration_frequency
 
@@ -275,11 +277,11 @@ In the filtration strategy, populations of the two most recent generations are c
 
 #### replace_valid_individuals
 
-This operation is the same as the filtration strategy, except that the combination of the two most recent populations is skipped. Setting this to 0 means that this strategy is not used at all. Setting this to x means that it is used once every x generations.
+This operation is the same as the filtration strategy, except that it is aimed at the most recent population. Setting this to 0 means that this strategy is not used at all. Setting this to x means that it is used once every x generations.
 
 #### sa_iteration_count
 
-This parameter is used in the population intializer SA. The parameter determines how many iterations SA is allowed to have. The more iterations, the more optimal solution SA will likely find, but with increasing computation times. The lower the iteration count, the faster SA will finish, at the expense of precision.
+This parameter is used in the population initializer SA. The parameter determines how many iterations SA is allowed to have. The more iterations, the more optimal solution SA will likely find, but with increasing computation times. The lower the iteration count, the faster SA will finish, at the expense of individual fitness.
 
 #### sa_initial_temperature
 

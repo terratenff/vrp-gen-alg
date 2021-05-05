@@ -11,7 +11,7 @@ from scipy.spatial import distance
 
 class ParamsVRP:
     """
-    General parameters for the subject problem.
+    General parameters for the VRP.
     """
 
     def __init__(self,
@@ -39,12 +39,12 @@ class ParamsVRP:
                  ):
         """
         Constructor for general VRP parameters.
-        :param vrp_contents: Contents of the VRP. Either a path table or a list of node positions.
+        :param vrp_contents: Contents of the VRP. Either a path table or a list of node coordinates.
         Provide a path table as a NumPy square matrix.
         List of node positions can be given with a NumPy n x 2 matrix where n is the number of nodes.
         Support for drawing a map is available for the latter content format.
 
-        :param vrp_path_table_override: Contents that are to be used in the VRP - ONLY IF
+        :param vrp_path_table_override: Path table that is to be used in the VRP - ONLY IF
         node coordinates are provided as well.
 
         :param vrp_path_table_mapping: List of integers that indicate locations on the path table.
@@ -54,9 +54,9 @@ class ParamsVRP:
 
         :param vrp_vehicle_count: Number of vehicles that are to be used for the problem.
 
-        :param vrp_node_service_time: Time taken to supply the nodes upon vehicle arrival.
+        :param vrp_node_service_time: Time taken to supply the nodes upon arrival.
         List index is a node, and the value within is that node's service time.
-        If set to None, service does not take time.
+        If set to None, service does not take time. This is ignored with depot nodes.
 
         :param vrp_maximum_route_time: Determines the time that each vehicle is allowed to spend
         on their routes. If this limit is exceeded, the solution the vehicles represent is invalid.
@@ -66,33 +66,31 @@ class ParamsVRP:
         to move on their routes. If this limit is exceeded, the solution the vehicles represent is invalid.
         If set to None, no limit is set.
 
-        :param vrp_distance_time_ratio: Conversion rate from distance to time.
-        Multiplying distance with this results in the time equivalent.
+        :param vrp_distance_time_ratio: Conversion rate from distance to time via multiplication.
 
-        :param vrp_time_cost_ratio: Conversion rate from time to cost.
-        Multiplying time with this results in the cost equivalent.
+        :param vrp_time_cost_ratio: Conversion rate from time to cost via multiplication.
 
-        :param vrp_distance_cost_ratio: Conversion rate from distance to cost.
-        Multiplying distance with this results in the cost equivalent.
+        :param vrp_distance_cost_ratio: Conversion rate from distance to cost via multiplication.
 
         :param cvrp_vehicle_capacity: Maximum supply capacity of each vehicle.
-        A single value is expected: it is assumed that every vehicle has the same capacity.
+        Multiple capacity values can be defined, but the same number of demand types
+        must be defined for each node as well.
 
-        :param cvrp_node_demand: Supply demand of each node. This is ignored with the depot node.
+        :param cvrp_node_demand: Supply demand of each node. This is ignored with depot nodes.
         List index is a node, and the value within is that node's supply demand.
         If set to None, nodes do not have any demands.
 
-        :param ovrp_enabled: Flag that determines whether the vehicles have to return to the depot
+        :param ovrp_enabled: Flag that determines whether the vehicles have to return to a depot
         once they complete their rounds.
         If True, the problem becomes "open", letting vehicles stop at their final destinations.
-        If False, the problem is "closed", forcing vehicles to go back to the depot.
+        If False, the problem is "closed", forcing vehicles to go back to a depot.
 
-        :param vrpp_node_profit: Profit gained from visiting nodes.
+        :param vrpp_node_profit: Profit gained from visiting nodes. This is ignored with depot nodes.
         List index is a node, and the value within is that node's profit value.
         If set to None, VRPP nature of the problem is disabled.
 
         :param vrpp_optional_node: List of nodes that are considered optional, meaning that these nodes
-        do not have to be visited.
+        do not have to be visited. Depot nodes cannot be optional nodes.
 
         :param vrpp_exclude_travel_costs: Determines whether travel costs should be taken into account while
         assessing the fitness value. If set to True, they are ignored, making the problem a TOP. If set to False,
@@ -102,26 +100,23 @@ class ParamsVRP:
 
         :param mdvrp_optimize_depot_nodes: Determines whether population individuals should be optimized after
         crossover and mutation in terms of its depot nodes. If set to True, then an individual will be assigned
-        the best possible depot nodes after crossover and mutation. This procedure is ignored if set to False or
-        if there is only one depot node.
+        the best possible depot nodes after crossover and mutation. This procedure is ignored if set to False.
 
-        :param vrptw_node_time_window: Time frames at which a vehicle is expected to visit the node:
+        :param vrptw_node_time_window: Time frames at which a vehicle is expected to visit a node:
         if a vehicle arrives too early, it will have to wait for the time window to take place.
-        If time windows are to be used, provide a list of tuples, totaling to the number of nodes,
-        including the depot node (recommended time window for depot node is between 0 and maximum time
-        that a vehicle is allowed to be out for).
-        Expected to be an n x 2 matrix where n is the number of nodes.
-        If set to None, this is ignored.
+        List index is a node, and the value within contains two values for start and end times
+        for the time window. A node can only have one time window. If set to None, this is ignored.
 
-        :param vrptw_node_penalty: Coefficient that determines the scale of the penalty value.
-        List index is a node, and the value within is that node's penalty coefficient.
-        Penalty value is based on how late a vehicle arrives at a node.
-        This is used ONLY IF time windows are being used.
+        :param vrptw_node_penalty: List of coefficients that determine the scales
+        of the penalty values. List index is a node, and the value within is that
+        node's penalty coefficient. Penalty value is based on how late a vehicle
+        arrives at a node. This is used ONLY IF soft time windows are being used.
 
-        :param vrptw_hard_windows: Determines whether every single time window is a hard time window. If set to True,
-        every time window is hard, and in so doing, those that violate the time window are cast aside. If set to False,
-        the nature of the time windows is based on penalty coefficients. This variable is meant to boost algorithm
-        efficiency for hard time window problems.
+        :param vrptw_hard_windows: Determines whether every single time window is a hard time window.
+        If set to True, every time window is hard, and in so doing, those that violate the time window
+        are set aside. If set to False, the nature of the time windows is based on penalty coefficients, 
+        making the time windows soft. These time windows can be used to simulate hard time windows by
+        using extremely high penalty coefficients.
         """
 
         self.coordinates_name = None
@@ -308,13 +303,14 @@ class ParamsGENALG:
                  sa_p_coeff=1.15):
         """
         Constructor for GA parameters.
-        :param population_count: Number of instances that contain the solution for the problem.
+        :param population_count: Number of individuals that make the population that GA maintains.
 
-        :param population_initializer: Function that initializes population for the first generation.
+        :param population_initializer: Function that initializes generation 0 population.
 
-        :param generation_count_min: Number of generations that must be created before termination.
+        :param generation_count_min: Number of generations that GA will use if the best discovered
+        individual does not improve.
 
-        :param generation_count_max: Number of generations that cannot be exceeded.
+        :param generation_count_max: Number of generations that GA is allowed to use.
 
         :param cpu_individual_limit: Time (in milliseconds) allotted for the creation of a valid individual, or
         modification into a valid individual.
@@ -331,33 +327,34 @@ class ParamsGENALG:
         close to it, determined by the fitness threshold) is found.
 
         :param fitness_threshold: Threshold value that determines whether a solution fitness value is sufficiently
-        close to a bound fitness value. The higher this value is, the more easily solutions are accepted, thus
-        termination of the algorithm is more likely to occur faster.
+        close to a bound fitness value. The higher this value is, the more easily and faster the GA will be
+        terminated.
 
         :param parent_candidate_count: Determines how many individuals are selected from the population
-        as candidates to becoming parents of the next generation.
+        as candidates at random to becoming parents of the next generation.
 
         :param parent_selection_function: Function that decides how individuals are chosen to be
         parents of the next generation.
 
-        :param tournament_probability: Coefficient p_t, assuming that tournament selection is used as
+        :param tournament_probability: Determines the probability of an individual being selected
+        if they're placed first in a tournament, assuming that tournament selection is used as
         the parent selection function.
 
         :param crossover_operator: Function that controls the crossover operation.
 
-        :param crossover_probability: Probability of performing a crossover operation on the offspring
-        of the selected parents. If crossover does not occur, offspring are exact replicas of the parents.
+        :param crossover_probability: Probability of performing a crossover operation in the first place.
+        If crossover does not occur, offspring are exact replicas of the parents.
 
         :param mutation_probability: Probability of mutating an individual offspring upon its creation.
-        The probability is for one node. If mutation does not occur, the node is skipped.
-        Otherwise a followup check is performed.
+        The probability is for the entirety of the offspring.
         
         :param invalidity_correction: Function that determines how an invalid individual is replaced with
         a valid individual.
 
         :param filtration_frequency: Determines how often, in terms of generations, the filtration procedure is
         performed. Filtration is the act of combining two most recent generations together, sorting them in
-        descending order ana taking the first half of the result as the next generation. If set to 0 or less, the
+        order and taking the first half of the result as the next generation. Any duplicates that come about
+        this operation are replaced with random valid individuals. If set to 0 or less, the
         filtration procedure is ignored.
 
         :param replace_similar_individuals: Determines how often, in terms of generation, similar individuals
@@ -367,11 +364,11 @@ class ParamsGENALG:
         is ignored.
 
         :param sa_iteration_count: Number of iterations to be done during population initialization, if
-        simulated annealing was selected as the population initializer.
+        simulated annealing is selected as the population initializer.
 
         :param sa_initial_temperature: Temperature variable for simulated annealing.
 
-        :param sa_p_coeff: Coefficient p for simulated annealing.
+        :param sa_p_coeff: Annealing coefficient.
         """
 
         self.population_count = population_count

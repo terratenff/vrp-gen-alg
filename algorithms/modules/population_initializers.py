@@ -3,7 +3,7 @@
 """
 population_initializers.py:
 
-Collection of functions that are used to initialize a population for the Genetic Algorithm.
+Collection of functions that are used to initialize generation 0 population.
 """
 
 from random import randint, sample, shuffle, random as random_float
@@ -29,7 +29,7 @@ def random_solution(**kwargs):
     - (int) 'vehicle_count': Number of vehicles used in the problem.
 
     :return: List representation of a random solution to the problem,
-    waiting to be assigned to a population individual.
+    waiting to be assigned to a population individual and validated.
     """
 
     # Generating a random solution, step 0: Required Variables
@@ -94,9 +94,11 @@ def nearest_neighbor_solution(segment, path_table):
     solution = []
     if len(segment) < 2:
         return segment
+    
     unused_nodes = segment[1:]
     start_node = segment[0]
     solution.append(start_node)
+    
     for _ in range(len(segment) - 1):
         travel_costs = path_table[start_node][unused_nodes]
         travel_costs_indices = unused_nodes
@@ -111,7 +113,7 @@ def nearest_neighbor_solution(segment, path_table):
 
 def random_valid_individual(**kwargs):
     """
-    Creates a random individual the solution of which that has been both validated
+    Creates a random individual, the solution of which has been both validated
     and evaluated.
 
     :param kwargs: Dictionary of expected parameters:
@@ -128,7 +130,7 @@ def random_valid_individual(**kwargs):
     - (dict) 'evaluation_args': Dictionary of arguments that are used in individual evaluations. See
       evaluation functions for what is expected of them.
 
-    :return: List of randomly generated individuals, representing the population. (list<VRP>)
+    :return: Randomly generated individual that has been validated and evaluated.
     """
     node_count = kwargs["node_count"]
     depot_nodes = kwargs["depot_nodes"]
@@ -165,13 +167,14 @@ def random_valid_individual(**kwargs):
             if valid_individual is False:
                 break
 
-        # If the solution is invalid, restart the process.
+        # If the solution is invalid, the process is restarted.
         candidate_individual.valid = valid_individual
+        
         # Should solution-finding take too long, it is halted here.
         if check_goal(individual_timer):
             return None, failure_msg
 
-    # Once the solution is valid, evaluate it.
+    # Once the solution is valid, it is evaluated.
     candidate_individual.fitness = VRP.evaluator(candidate_individual, **evaluation_args)
 
     # The individual is now ready for use.
@@ -210,8 +213,6 @@ def random(**kwargs):
     validation_args = kwargs["validation_args"]
     evaluation_args = kwargs["evaluation_args"]
 
-    # Set up two timers: one for measuring population initialization,
-    # and another for measuring individual initializations.
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
@@ -287,8 +288,6 @@ def allele_permutation(**kwargs):
         print("(Allele Permutation) Note that this population initializer may not "\
               "work well with VRPP instances.")
 
-    # Set up two timers: one for measuring population initialization,
-    # and another for measuring individual initializations.
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
@@ -382,8 +381,6 @@ def gene_permutation(**kwargs):
         print("(Gene Permutation) Note that this population initializer may not "\
               "work well with VRPP instances.")
 
-    # Set up two timers: one for measuring population initialization,
-    # and another for measuring individual initializations.
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
@@ -527,8 +524,6 @@ def nearest_neighbor_population(**kwargs):
     validation_args = kwargs["validation_args"]
     evaluation_args = kwargs["evaluation_args"]
 
-    # Set up two timers: one for measuring population initialization,
-    # and another for measuring individual initializations.
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
@@ -663,8 +658,6 @@ def simulated_annealing(**kwargs):
         reverse_sort = False
         max_factor = -1
 
-    # Set up two timers: one for measuring population initialization,
-    # and another for measuring individual initializations.
     population_timer = Timer()
     individual_timer = Timer(goal=minimum_cpu_time)
 
@@ -743,7 +736,7 @@ def simulated_annealing(**kwargs):
             candidate_individual = deepcopy(guide_individual)
             outcome_str = "Selected"
         else:
-            # Mutation has been rejected. Revert back to guide individual.
+            # Mutation has been rejected. Revert to guide individual.
             candidate_individual = deepcopy(guide_individual)
             outcome_str = "Discarded"
         

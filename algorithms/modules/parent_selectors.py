@@ -3,7 +3,7 @@
 """
 parent_selectors.py:
 
-Collection of functions that are used to select candidates for crossover in the population.
+Collection of functions that are used to select candidates for breeding.
 """
 
 import numpy as np
@@ -80,8 +80,8 @@ def roulette_selection(population, **kwargs):
         probability_set1 = [1 - (x.fitness / total_fitness1) for x in sample1]
         probability_set2 = [1 - (x.fitness / total_fitness2) for x in sample2]
 
-    # One random float is generated for each sample. Converting probabilities
-    # into cumulative probabilities allows easier comparisons.
+    # One random float is generated for each population sample.
+    # Comparisons are conducted with cumulative probabilities.
     probability_set1_cumulative = np.cumsum(probability_set1)
     probability_set2_cumulative = np.cumsum(probability_set2)
 
@@ -137,8 +137,8 @@ def tournament_selection(population, **kwargs):
     last_place = 1.00 - sum(probability_set_individual)
     probability_set_individual.append(last_place)
 
-    # One random float is generated for the sample. Converting probabilities
-    # into cumulative probabilities allows easier comparisons.
+    # One random float is generated for each population sample.
+    # Comparisons are conducted with cumulative probabilities.
     probability_set_cumulative = np.cumsum(probability_set_individual)
 
     factor1, factor2 = random(), random()
