@@ -64,6 +64,9 @@ class VRP:
 
         # Fitness value of the individual, evaluated by some other module.
         self.fitness = np.inf
+        
+        # Total profits collected by servicing (usually) optional nodes.
+        self.profits = 0
 
         # With some constraints present, some solutions may not be valid.
         # Validity is check by some other module, and it leaves its mark here.
@@ -184,4 +187,6 @@ class VRP:
                 if print_penalties:
                     print(penalty_str)
         print("- Fitness: {:0.2f}".format(self.fitness))
+        if self.profits > 0:
+            print("- Collected Profits: {:0.2f}".format(self.profits))
         print("- Valid: {}".format(self.valid))

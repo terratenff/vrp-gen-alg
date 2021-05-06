@@ -332,6 +332,7 @@ def evaluate_profits(vrp, **kwargs):
         if node not in unvisited_optional_nodes:
             profit += node_profit_list[node]
 
+    vrp.profits = profit
     return profit
 
 
