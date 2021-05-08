@@ -174,7 +174,7 @@ Population initializer is a function that determines how generation 0 population
 - 2: Gene Permutation
   - A random individual is created. Then its chromosome is split into random genes. Using them, permutations of them are created and added to the population. If permutations run out, another random individual is created and the process is repeated until the population is completed.
 - 3: Simulated Annealing (SA)
-  - A heuristic algorithm that can also be used to solve VRP instances. Individuals that are accepted by SA are added to the population. If resulting population is greater than population count, it is sorted in ascending (or descending if maximizing) order and the first subset of individuals are taken. If resulting population is less than population count, the rest of the individuals are created randomly.
+  - A metaheuristic algorithm that can also be used to solve VRP instances. Individuals that are accepted by SA are added to the population. If resulting population is greater than population count, it is sorted in ascending (or descending if maximizing) order and the first subset of individuals are taken. If resulting population is less than population count, the rest of the individuals are created randomly.
 - 4: Nearest Neighbor
   - Simple heuristic algorithm that is commonly used to solve TSP instances. It selects a random node at the beginning, and from that it always moves to the node nearest to its current location. 1 or more of these kinds of results are made from randomly selected subsets of nodes. These are then split to smaller routes by distributing depot nodes randomly. If resulting solution to VRP is valid, it is added to the population.
 
